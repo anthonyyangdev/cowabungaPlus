@@ -12,12 +12,19 @@ import graph.GraphNode;
 import graph.NonexistentEdgeException;
 import graph.NonexistentNodeException;
 
-public class CFGGraph implements Graph<CFGNode> {
+/**
+ * Graph structure for control-flow graphs. Edges optionally have a value for
+ * if nodes to indicate which branch is the true branch and which is the false
+ * branch.
+ * @author ayang
+ *
+ */
+public class CFGGraph implements Graph<CFGNode, Boolean> {
 
     private final Map<GraphNode<CFGNode>, Set<GraphNode<CFGNode>>> outgoingNodes;
     private final Map<GraphNode<CFGNode>, Set<GraphNode<CFGNode>>> incomingNodes;
 
-    private final Map<GraphNode<CFGNode>, Set<Edge<CFGNode>>> neighborEdges;
+    private final Map<GraphNode<CFGNode>, Set<Edge<CFGNode, Boolean>>> neighborEdges;
 
     public CFGGraph() {
         this.outgoingNodes = new HashMap<>();
@@ -31,8 +38,8 @@ public class CFGGraph implements Graph<CFGNode> {
     }
 
     @Override
-    public Set<Edge<CFGNode>> edges() {
-        Set<Edge<CFGNode>> edges = new HashSet<>();
+    public Set<Edge<CFGNode, Boolean>> edges() {
+        Set<Edge<CFGNode, Boolean>> edges = new HashSet<>();
         this.neighborEdges.keySet().forEach(n ->
                                 edges.addAll(this.neighborEdges.get(n)));
         return edges;
@@ -101,17 +108,38 @@ public class CFGGraph implements Graph<CFGNode> {
         this.outgoingNodes.get(start).add(end);
         this.incomingNodes.get(end).add(start);
 
-        final var edge = new Edge<>(start, end);
+        final var edge = new Edge<CFGNode, Boolean>(start, end);
         this.neighborEdges.get(start).add(edge);
         this.neighborEdges.get(end).add(edge);
 
         return true;
     }
 
+
     @Override
-    public Edge<CFGNode> unlink(GraphNode<CFGNode> start,
+    public boolean join(Edge<CFGNode, Boolean> edge)
+            throws NonexistentNodeException {
+        final var start = edge.start;
+        final var end = edge.end;
+        if (!this.outgoingNodes.containsKey(start)) {
+            throw new NonexistentNodeException(start);
+        } else if (!this.incomingNodes.containsKey(end)) {
+            throw new NonexistentNodeException(end);
+        }
+        this.outgoingNodes.get(start).add(end);
+        this.incomingNodes.get(end).add(start);
+
+        this.neighborEdges.get(start).add(edge);
+        this.neighborEdges.get(end).add(edge);
+
+        return true;
+    }
+
+
+    @Override
+    public Edge<CFGNode, Boolean> unlink(GraphNode<CFGNode> start,
             GraphNode<CFGNode> end) throws NonexistentEdgeException {
-        final var removedEdge = new Edge<CFGNode>(start, end);
+        final var removedEdge = new Edge<CFGNode, Boolean>(start, end);
         if (!this.outgoingNodes.containsKey(start)) {
             throw new NonexistentEdgeException(removedEdge);
         } else if (!this.incomingNodes.containsKey(end)) {
@@ -127,8 +155,11 @@ public class CFGGraph implements Graph<CFGNode> {
     }
 
     @Override
-    public Edge<CFGNode> unlink(Edge<CFGNode> edge)
+    public Edge<CFGNode, Boolean> unlink(Edge<CFGNode, Boolean> edge)
             throws NonexistentEdgeException {
+        if (!this.containsEdge(edge)) {
+            throw new NonexistentEdgeException(edge);
+        }
         return this.unlink(edge.start, edge.end);
     }
 
@@ -144,8 +175,9 @@ public class CFGGraph implements Graph<CFGNode> {
     }
 
     @Override
-    public boolean containsEdge(Edge<CFGNode> edge) {
-        return this.outgoingNodes.get(edge.start).contains(edge.end);
+    public boolean containsEdge(Edge<CFGNode, Boolean> edge) {
+        return this.neighborEdges.get(edge.start).contains(edge);
     }
+
 
 }
