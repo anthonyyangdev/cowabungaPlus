@@ -118,10 +118,11 @@ public class CFGVarAssignNode extends CFGNode {
             this.useSet = value.accept(IRExprVarsVisitor.INSTANCE);
         }
 
-        if (this.variable.startsWith(Configuration.ABSTRACT_RET_PREFIX))
-            this.defSet = Collections.emptySet();
-        else
+        if (!this.variable.startsWith(Configuration.ABSTRACT_RET_PREFIX)) {
             this.defSet = Collections.singleton(variable);
+        } else {
+            this.defSet = Collections.emptySet();
+        }
 
         this.killSet = Collections.singleton(variable);
         this.genSet = new HashMap<>();
