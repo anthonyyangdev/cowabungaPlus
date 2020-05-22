@@ -11,16 +11,15 @@ import cyr7.ir.nodes.IRCompUnit;
 
 public class CFGConstructor {
 
+    private CFGConstructor() {}
+
     /**
      * Generates a CFG Tree for each function defined in the IRTree.
      */
     public static Map<String, CFGGraph> constructCFG(IRCompUnit c) {
-
         Map<String, CFGGraph> cfgCollection = new HashMap<>();
-
         c.functions().forEach((name, fn) -> {
             CFGGraph cfg = NormalCFGConstructor.construct(fn.body());
-            cfg.clean();
             cfgCollection.put(name, cfg);
          });
         return cfgCollection;

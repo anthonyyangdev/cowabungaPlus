@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cyr7.cfg.ir.dfa.BackwardTransferFunction;
-import cyr7.cfg.ir.dfa.ForwardTransferFunction;
-import cyr7.cfg.ir.visitor.IrCFGVisitor;
+import cfg.ir.dfa.BackwardTransferFunction;
+import cfg.ir.dfa.ForwardTransferFunction;
+import cfg.ir.visitor.IrCFGVisitor;
 import cyr7.ir.interpret.Configuration;
 import cyr7.ir.nodes.IRExpr;
 import cyr7.ir.nodes.IRTemp;

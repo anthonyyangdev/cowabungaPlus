@@ -1,13 +1,14 @@
 package cfg.ir;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGStartNode;
@@ -27,17 +28,14 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
  */
 public class CFGGraph implements Graph<CFGNode, Boolean> {
 
-    private final Map<GraphNode<CFGNode>, List<GraphNode<CFGNode>>> outgoingNodes;
-    private final Map<GraphNode<CFGNode>, List<GraphNode<CFGNode>>> incomingNodes;
-
-    private final Map<GraphNode<CFGNode>, Set<Edge<CFGNode, Boolean>>> neighborEdges;
+    private final Map<GraphNode<CFGNode>, LinkedList<Edge<CFGNode, Boolean>>> incomingEdges;
+    private final Map<GraphNode<CFGNode>, LinkedList<Edge<CFGNode, Boolean>>> outgoingEdges;
 
     private final GraphNode<CFGNode> startNode;
 
     public CFGGraph(Location n) {
-        this.outgoingNodes = new HashMap<>();
-        this.incomingNodes = new HashMap<>();
-        this.neighborEdges = new HashMap<>();
+        this.incomingEdges = new HashMap<>();
+        this.outgoingEdges = new HashMap<>();
         this.startNode = new GraphNode<>(new CFGStartNode(n));
     }
 
@@ -47,17 +45,16 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
 
     @Override
     public Set<GraphNode<CFGNode>> nodes() {
-        return new HashSet<>(this.outgoingNodes.keySet());
+        return new HashSet<>(this.incomingEdges.keySet());
     }
 
     @Override
     public Set<Edge<CFGNode, Boolean>> edges() {
         Set<Edge<CFGNode, Boolean>> edges = new HashSet<>();
-        this.neighborEdges.keySet().forEach(n ->
-                                edges.addAll(this.neighborEdges.get(n)));
+        this.incomingEdges.values().forEach(n -> edges.addAll(n));
+        this.outgoingEdges.values().forEach(n -> edges.addAll(n));
         return edges;
     }
-
 
     /**
      * Removes all nodes from the graph that are unreachable from the start
@@ -70,7 +67,8 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
         while (!worklist.isEmpty()) {
             final var node = worklist.remove();
             reachable.add(node);
-            for (GraphNode<CFGNode> out: this.outgoingNodes.get(node)) {
+            for (Edge<CFGNode, Boolean> e: this.outgoingEdges.get(node)) {
+                final var out = e.end;
                 if (!reachable.contains(out)) {
                     worklist.add(out);
                 }
@@ -85,90 +83,96 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
 
     @Override
     public boolean insert(GraphNode<CFGNode> node) {
-        if (this.outgoingNodes.containsKey(node)) {
+        if (this.outgoingEdges.containsKey(node)) {
             return false;
         }
-        this.incomingNodes.put(node, new ArrayList<>());
-        this.outgoingNodes.put(node, new ArrayList<>());
-        this.neighborEdges.put(node, new HashSet<>());
+        this.incomingEdges.put(node, new LinkedList<>());
+        this.outgoingEdges.put(node, new LinkedList<>());
         return true;
     }
 
     @Override
     public GraphNode<CFGNode> remove(GraphNode<CFGNode> node)
             throws NonexistentNodeException {
-        if (!this.outgoingNodes.containsKey(node)) {
+        if (!this.outgoingEdges.containsKey(node)) {
             throw new NonexistentNodeException(node);
         }
-        if (this.outgoingNodes.get(node).contains(node)) {
-            this.incomingNodes.get(node).remove(node);
-            this.outgoingNodes.get(node).remove(node);
+        if (this.containsEdge(node, node)) {
+            this.unlink(node, node);
         }
-        final var incoming = this.incomingNodes.get(node);
-        incoming.forEach(in -> this.outgoingNodes.get(in).remove(node));
+        final var incoming = this.incomingEdges.get(node);
+        incoming.forEach(in -> this.unlink(in));
 
-        final var outgoing = this.outgoingNodes.get(node);
-        outgoing.forEach(out -> this.incomingNodes.get(out).remove(node));
+        final var outgoing = this.outgoingEdges.get(node);
+        outgoing.forEach(out -> this.unlink(out));
 
-        this.incomingNodes.remove(node);
-        this.outgoingNodes.remove(node);
-        this.neighborEdges.remove(node);
+        this.incomingEdges.remove(node);
+        this.outgoingEdges.remove(node);
 
         return node;
     }
 
+    /**
+     * Lists returned for If nodes, are returned such that the if branch is
+     * the first element and the false branch is the second element.
+     */
     @Override
-    public Set<GraphNode<CFGNode>> outgoingNodes(GraphNode<CFGNode> node)
+    public List<GraphNode<CFGNode>> outgoingNodes(GraphNode<CFGNode> node)
             throws NonexistentNodeException {
-        if (!this.outgoingNodes.containsKey(node)) {
+        if (!this.outgoingEdges.containsKey(node)) {
             throw new NonexistentNodeException(node);
         }
-        return new HashSet<>(this.outgoingNodes.get(node));
+        return this.outgoingEdges.get(node).stream()
+                                           .map(e -> e.end)
+                                           .collect(Collectors.toList());
     }
 
     @Override
-    public Set<GraphNode<CFGNode>> incomingNodes(GraphNode<CFGNode> node)
+    public List<GraphNode<CFGNode>> incomingNodes(GraphNode<CFGNode> node)
             throws NonexistentNodeException {
-        if (!this.incomingNodes.containsKey(node)) {
+        if (!this.incomingEdges.containsKey(node)) {
             throw new NonexistentNodeException(node);
         }
-        return new HashSet<>(this.incomingNodes.get(node));
+        return this.incomingEdges.get(node).stream().map(e -> e.start)
+                .collect(Collectors.toList());
     }
 
     @Override
     public boolean join(GraphNode<CFGNode> start, GraphNode<CFGNode> end)
             throws NonexistentNodeException {
-        if (!this.outgoingNodes.containsKey(start)) {
+        if (!this.outgoingEdges.containsKey(start)) {
             throw new NonexistentNodeException(start);
-        } else if (!this.incomingNodes.containsKey(end)) {
+        } else if (!this.incomingEdges.containsKey(end)) {
             throw new NonexistentNodeException(end);
         }
-        this.outgoingNodes.get(start).add(end);
-        this.incomingNodes.get(end).add(start);
-
         final var edge = new Edge<CFGNode, Boolean>(start, end);
-        this.neighborEdges.get(start).add(edge);
-        this.neighborEdges.get(end).add(edge);
+        this.outgoingEdges.get(start).add(edge);
+        this.incomingEdges.get(end).add(edge);
 
         return true;
     }
-
 
     @Override
     public boolean join(Edge<CFGNode, Boolean> edge)
             throws NonexistentNodeException {
         final var start = edge.start;
         final var end = edge.end;
-        if (!this.outgoingNodes.containsKey(start)) {
+        if (!this.outgoingEdges.containsKey(start)) {
             throw new NonexistentNodeException(start);
-        } else if (!this.incomingNodes.containsKey(end)) {
+        } else if (!this.incomingEdges.containsKey(end)) {
             throw new NonexistentNodeException(end);
         }
-        this.outgoingNodes.get(start).add(end);
-        this.incomingNodes.get(end).add(start);
 
-        this.neighborEdges.get(start).add(edge);
-        this.neighborEdges.get(end).add(edge);
+        if (edge.value.isPresent()) {
+            if (edge.value.get()) {
+                this.outgoingEdges.get(start).addFirst(edge);
+            } else {
+                this.outgoingEdges.get(start).addLast(edge);
+            }
+        } else {
+            this.outgoingEdges.get(start).add(edge);
+        }
+        this.incomingEdges.get(end).add(edge);
 
         return true;
     }
@@ -178,16 +182,14 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
     public Edge<CFGNode, Boolean> unlink(GraphNode<CFGNode> start,
             GraphNode<CFGNode> end) throws NonexistentEdgeException {
         final var removedEdge = new Edge<CFGNode, Boolean>(start, end);
-        if (!this.outgoingNodes.containsKey(start)) {
+        if (!this.outgoingEdges.containsKey(start)) {
             throw new NonexistentEdgeException(removedEdge);
-        } else if (!this.incomingNodes.containsKey(end)) {
+        } else if (!this.incomingEdges.containsKey(end)) {
             throw new NonexistentEdgeException(removedEdge);
         }
 
-        this.outgoingNodes.get(start).remove(end);
-        this.incomingNodes.get(end).remove(start);
-        this.neighborEdges.get(start).remove(removedEdge);
-        this.neighborEdges.get(end).remove(removedEdge);
+        this.outgoingEdges.get(start).remove(removedEdge);
+        this.incomingEdges.get(end).remove(removedEdge);
 
         return removedEdge;
     }
@@ -203,18 +205,18 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
 
     @Override
     public boolean containsNode(GraphNode<CFGNode> node) {
-        return this.outgoingNodes.containsKey(node);
+        return this.outgoingEdges.containsKey(node);
     }
 
     @Override
     public boolean containsEdge(GraphNode<CFGNode> start,
             GraphNode<CFGNode> end) {
-        return this.outgoingNodes.get(start).contains(end);
+        return this.outgoingEdges.get(start).contains(new Edge<>(start, end));
     }
 
     @Override
     public boolean containsEdge(Edge<CFGNode, Boolean> edge) {
-        return this.neighborEdges.get(edge.start).contains(edge);
+        return this.outgoingEdges.get(edge.start).contains(edge);
     }
 
 

@@ -11,7 +11,7 @@ import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGNodeFactory;
 import cfg.ir.nodes.CFGStartNode;
 import cfg.ir.nodes.CFGStubNode;
-import cyr7.cfg.ir.opt.CCPOptimization;
+import cfg.ir.opt.CCPOptimization;
 import cyr7.cfg.util.IrCfgTestUtil;
 import cyr7.ir.nodes.IRBinOp.OpType;
 import cyr7.ir.nodes.IRNodeFactory_c;

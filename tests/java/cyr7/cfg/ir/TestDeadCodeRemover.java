@@ -13,7 +13,7 @@ import cfg.ir.nodes.CFGReturnNode;
 import cfg.ir.nodes.CFGStartNode;
 import cfg.ir.nodes.CFGStubNode;
 import cfg.ir.nodes.CFGVarAssignNode;
-import cyr7.cfg.ir.opt.DeadCodeElimOptimization;
+import cfg.ir.opt.DeadCodeElimOptimization;
 import cyr7.cfg.util.IrCfgTestUtil;
 import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.nodes.IRBinOp.OpType;

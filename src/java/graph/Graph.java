@@ -1,5 +1,6 @@
 package graph;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -61,7 +62,7 @@ public interface Graph<V, E> {
     public GraphNode<V> remove(GraphNode<V> node) throws NonexistentNodeException;
 
     /**
-     * Returns the set of graph nodes {@code n} where {@code node} is a start
+     * Returns the list of graph nodes {@code n} where {@code node} is a start
      * node in some edge {@code e} in the graph and {@code n} is the end node
      * of that edge {@code e}.
      * <p>
@@ -74,10 +75,10 @@ public interface Graph<V, E> {
      * @throws NonexistentNodeException if {@code node} is not a node
      * in the graph, i.e. {@code containsNode(node) == false}.
      */
-    public Set<GraphNode<V>> outgoingNodes(GraphNode<V> node) throws NonexistentNodeException;
+    public List<GraphNode<V>> outgoingNodes(GraphNode<V> node) throws NonexistentNodeException;
 
     /**
-     * Returns the set of graph nodes {@code n} where {@code node} is an end
+     * Returns the list of graph nodes {@code n} where {@code node} is an end
      * node in some edge {@code e} in the graph and {@code n} is the start node
      * of that edge {@code e}.
      * <p>
@@ -90,7 +91,7 @@ public interface Graph<V, E> {
      * @throws NonexistentNodeException if {@code node} is not a node
      * in the graph, i.e. {@code containsNode(node) == false}.
      */
-    public Set<GraphNode<V>> incomingNodes(GraphNode<V> node) throws NonexistentNodeException;
+    public List<GraphNode<V>> incomingNodes(GraphNode<V> node) throws NonexistentNodeException;
 
     /**
      * Inserts an edge from {@code start} to {@code end} into the graph.

@@ -8,6 +8,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import cfg.ir.flatten.CFGFlattener;
 import cfg.ir.nodes.CFGBlockNode;
 import cfg.ir.nodes.CFGCallNode;
 import cfg.ir.nodes.CFGIfNode;
@@ -18,8 +19,7 @@ import cfg.ir.nodes.CFGSelfLoopNode;
 import cfg.ir.nodes.CFGStartNode;
 import cfg.ir.nodes.CFGStubNode;
 import cfg.ir.nodes.CFGVarAssignNode;
-import cyr7.cfg.ir.flatten.CFGFlattener;
-import cyr7.cfg.ir.visitor.IrCFGVisitor;
+import cfg.ir.visitor.IrCFGVisitor;
 import cyr7.ir.nodes.IRStmt;
 import polyglot.util.Pair;
 

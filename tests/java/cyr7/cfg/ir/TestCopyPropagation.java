@@ -7,14 +7,14 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import cfg.ir.flatten.CFGFlattener;
 import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGNodeFactory;
 import cfg.ir.nodes.CFGReturnNode;
 import cfg.ir.nodes.CFGStartNode;
 import cfg.ir.nodes.CFGStubNode;
 import cfg.ir.nodes.CFGVarAssignNode;
-import cyr7.cfg.ir.flatten.CFGFlattener;
-import cyr7.cfg.ir.opt.CopyPropagationOptimization;
+import cfg.ir.opt.CopyPropagationOptimization;
 import cyr7.cfg.util.IrCfgTestUtil;
 import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.nodes.IRBinOp.OpType;

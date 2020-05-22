@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cyr7.cfg.ir.dfa.BackwardTransferFunction;
-import cyr7.cfg.ir.dfa.ForwardTransferFunction;
-import cyr7.cfg.ir.visitor.IrCFGVisitor;
+import cfg.ir.dfa.BackwardTransferFunction;
+import cfg.ir.dfa.ForwardTransferFunction;
+import cfg.ir.visitor.IrCFGVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 public class CFGBlockNode extends CFGNode {

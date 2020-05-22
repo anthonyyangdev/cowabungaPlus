@@ -46,7 +46,9 @@ public class NormalCFGConstructor {
 
     public static CFGGraph construct(IRStmt body) {
         final var generator = new CFGConstructorVisitor(body.location());
-        return generator.execute(body);
+        final var cfg = generator.execute(body);
+        cfg.clean();
+        return cfg;
     }
 
     private static class CFGConstructorVisitor implements MyIRVisitor<GraphNode<CFGNode>> {
