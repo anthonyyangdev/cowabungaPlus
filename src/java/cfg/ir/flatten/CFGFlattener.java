@@ -13,7 +13,6 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 
 import cfg.ir.CFGGraph;
-import cfg.ir.nodes.CFGBlockNode;
 import cfg.ir.nodes.CFGCallNode;
 import cfg.ir.nodes.CFGIfNode;
 import cfg.ir.nodes.CFGMemAssignNode;
@@ -44,8 +43,9 @@ public class CFGFlattener {
     public static IRCompUnit flatten(Map<String, CFGGraph> cfgMap,
                 IRCompUnit compUnit) {
         Map<String, IRFuncDecl> functions = new HashMap<>();
+        DefaultIdGenerator gen = new DefaultIdGenerator();
         cfgMap.forEach((functionName, cfg) -> {
-            final var flattener = new FlattenCFGVisitor(cfg);
+            final var flattener = new FlattenCFGVisitor(cfg, gen);
             IRSeq flattened = flattener.flatten();
             IRFuncDecl function = new IRFuncDecl(compUnit.location(),
                         functionName, flattened, compUnit.getFunction(functionName).type());
@@ -159,13 +159,13 @@ public class CFGFlattener {
 
         private final CFGGraph cfg;
 
-        protected FlattenCFGVisitor(CFGGraph cfg) {
+        protected FlattenCFGVisitor(CFGGraph cfg, IdGenerator gen) {
             this.visitedNodes = new HashSet<>();
             this.cfgNodeToLabels = new IdentityHashMap<>();
             this.cfgNodeToIRStmt = new IdentityHashMap<>();
             this.trueBranches = new ArrayDeque<>();
             this.stmts = new ArrayList<>();
-            this.generator = new DefaultIdGenerator();
+            this.generator = gen;
             this.cfg = cfg;
         }
 
@@ -395,20 +395,6 @@ public class CFGFlattener {
             }
             return Optional.empty();
         }
-
-        @Override
-        public Optional<GraphNode<CFGNode>> visit(CFGBlockNode n) {
-            if (!this.performProcessIfVisited(n)) {
-                List<IRStmt> stmts = new FlattenCFGBlockVisitor().getStmts(n.block);
-                final var stmt = this.wrapStmt(stmts);
-                this.appendStmt(n, stmt);
-                this.epilogueProcess(n, stmt);
-                return Optional.of(this.nextNode(n));
-            }
-            return Optional.empty();
-        }
-
-
 
     }
 

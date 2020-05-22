@@ -29,13 +29,14 @@ public class CFGConstructor {
     public static Map<String, CFGStartNode>
             constructBlockCFG(Map<String, List<List<BasicBlock>>> traces) {
 
-        Map<String, CFGStartNode> cfgCollection = new HashMap<>();
-
-        traces.forEach((name, blocks) -> {
-            CFGStartNode fBody = BlockCfgConstructor.construct(blocks);
-            cfgCollection.put(name, fBody);
-        });
-        return cfgCollection;
+        throw new UnsupportedOperationException("Unsupported");
+//        Map<String, CFGStartNode> cfgCollection = new HashMap<>();
+//
+//        traces.forEach((name, blocks) -> {
+//            CFGStartNode fBody = BlockCfgConstructor.construct(blocks);
+//            cfgCollection.put(name, fBody);
+//        });
+//        return cfgCollection;
     }
 
 

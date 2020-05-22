@@ -43,7 +43,7 @@ public class CFGBlockNode extends CFGNode {
 
     @Override
     public <T> T accept(IrCFGVisitor<T> visitor) {
-        return visitor.visit(this);
+        throw new UnsupportedOperationException("Difficult");
     }
 
     @Override

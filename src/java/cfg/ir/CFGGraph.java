@@ -37,6 +37,7 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
         this.incomingEdges = new HashMap<>();
         this.outgoingEdges = new HashMap<>();
         this.startNode = new GraphNode<>(new CFGStartNode(n));
+        this.insert(startNode);
     }
 
     public GraphNode<CFGNode> startNode() {
@@ -100,10 +101,10 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
         if (this.containsEdge(node, node)) {
             this.unlink(node, node);
         }
-        final var incoming = this.incomingEdges.get(node);
+        final var incoming = Set.copyOf(this.incomingEdges.get(node));
         incoming.forEach(in -> this.unlink(in));
 
-        final var outgoing = this.outgoingEdges.get(node);
+        final var outgoing = Set.copyOf(this.outgoingEdges.get(node));
         outgoing.forEach(out -> this.unlink(out));
 
         this.incomingEdges.remove(node);
@@ -182,14 +183,18 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
     public Edge<CFGNode, Boolean> unlink(GraphNode<CFGNode> start,
             GraphNode<CFGNode> end) throws NonexistentEdgeException {
         final var removedEdge = new Edge<CFGNode, Boolean>(start, end);
+        final var removedEdgeTrue = new Edge<CFGNode, Boolean>(start, end);
+        final var removedEdgeFalse = new Edge<CFGNode, Boolean>(start, end);
         if (!this.outgoingEdges.containsKey(start)) {
             throw new NonexistentEdgeException(removedEdge);
         } else if (!this.incomingEdges.containsKey(end)) {
             throw new NonexistentEdgeException(removedEdge);
         }
 
-        this.outgoingEdges.get(start).remove(removedEdge);
-        this.incomingEdges.get(end).remove(removedEdge);
+        this.outgoingEdges.get(start)
+                          .removeAll(Set.of(removedEdge, removedEdgeTrue, removedEdgeFalse));
+        this.incomingEdges.get(end)
+                          .removeAll(Set.of(removedEdge, removedEdgeTrue, removedEdgeFalse));
 
         return removedEdge;
     }
@@ -200,7 +205,17 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
         if (!this.containsEdge(edge)) {
             throw new NonexistentEdgeException(edge);
         }
-        return this.unlink(edge.start, edge.end);
+        final var start = edge.start;
+        final var end = edge.end;
+        if (!this.outgoingEdges.containsKey(start)) {
+            throw new NonexistentEdgeException(edge);
+        } else if (!this.incomingEdges.containsKey(end)) {
+            throw new NonexistentEdgeException(edge);
+        }
+        this.outgoingEdges.get(start).remove(edge);
+        this.incomingEdges.get(end).remove(edge);
+
+        return edge;
     }
 
     @Override

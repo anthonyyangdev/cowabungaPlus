@@ -7,11 +7,6 @@ import java.io.Writer;
 
 import cfg.ir.constructor.CFGConstructor;
 import cfg.ir.flatten.CFGFlattener;
-import cfg.ir.opt.CopyPropagationOptimization;
-import cfg.ir.opt.DeadCodeElimOptimization;
-import cfg.ir.opt.LoopUnrollingOptimization;
-import cfg.ir.ssa.SSAReverter;
-import cfg.ir.ssa.SSATransformer;
 import cyr7.ast.Node;
 import cyr7.cli.CLI;
 import cyr7.cli.OptConfig;
@@ -48,84 +43,10 @@ public class IRUtil {
         }
 
         compUnit = compUnit.accept(new LoweringVisitor(generator)).assertThird();
-        final var functionToBlocks =
-                TraceOptimizer.getOptimizedBasicBlocks(compUnit, generator);
-        final var alt = CFGConstructor.constructBlockCFG(functionToBlocks);
+        compUnit = TraceOptimizer.optimize(compUnit, generator);
+        final var alt = CFGConstructor.constructCFG(compUnit);
 
-        alt.keySet().stream().forEach(functionName -> {
-            final var cfg = alt.get(functionName);
-            final var ssa = SSATransformer.convert(cfg);
-            final var reverted = SSAReverter.revert(ssa);
-            alt.put(functionName, reverted);
-        });
-
-        if (optConfig.copy()) {
-            alt.keySet().stream().forEach(functionName -> {
-                var optimizedCfg = alt.get(functionName);
-                optimizedCfg = CopyPropagationOptimization.optimize(optimizedCfg);
-                alt.put(functionName, optimizedCfg);
-            });
-        }
-        if (optConfig.dce()) {
-            // Perform dead code removal 3 times to be safe.
-            for (int i = 0; i < 3; i++) {
-                alt.keySet().stream().forEach(functionName -> {
-                    var optimizedCfg = alt.get(functionName);
-                    optimizedCfg = DeadCodeElimOptimization.optimize(optimizedCfg);
-                    alt.put(functionName, optimizedCfg);
-                });
-            }
-        }
-        if (optConfig.copy()) {
-            alt.keySet().stream().forEach(functionName -> {
-                var optimizedCfg = alt.get(functionName);
-                optimizedCfg = CopyPropagationOptimization.optimize(optimizedCfg);
-                alt.put(functionName, optimizedCfg);
-            });
-        }
-        if (optConfig.dce()) {
-            // Perform dead code removal 3 times to be safe.
-            for (int i = 0; i < 3; i++) {
-                alt.keySet().stream().forEach(functionName -> {
-                    var optimizedCfg = alt.get(functionName);
-                    optimizedCfg = DeadCodeElimOptimization.optimize(optimizedCfg);
-                    alt.put(functionName, optimizedCfg);
-                });
-            }
-        }
         compUnit = CFGFlattener.flatten(alt, compUnit);
-        final var secondPhase = CFGConstructor.constructCFG(compUnit);
-        if (optConfig.copy()) {
-            secondPhase.keySet().stream().forEach(functionName -> {
-                var optimizedCfg = secondPhase.get(functionName);
-                optimizedCfg = CopyPropagationOptimization.optimize(optimizedCfg);
-                secondPhase.put(functionName, optimizedCfg);
-            });
-        }
-        if (optConfig.dce()) {
-            // Perform dead code removal 3 times to be safe.
-            for (int i = 0; i < 3; i++) {
-                secondPhase.keySet().stream().forEach(functionName -> {
-                    var optimizedCfg = secondPhase.get(functionName);
-                    optimizedCfg = DeadCodeElimOptimization.optimize(optimizedCfg);
-                    secondPhase.put(functionName, optimizedCfg);
-                });
-            }
-        }
-
-        compUnit = CFGFlattener.flatten(secondPhase, compUnit);
-
-        if (optConfig.lu()) {
-            final var loopUnrollCFG = CFGConstructor.constructCFG(compUnit);
-            loopUnrollCFG.keySet().stream().forEach(functionName -> {
-                if (!functionName.equals("_I*premain*_p")) {
-                    var optimizedCfg = loopUnrollCFG.get(functionName);
-                    optimizedCfg = LoopUnrollingOptimization.optimize(optimizedCfg);
-                    loopUnrollCFG.put(functionName, optimizedCfg);
-                }
-            });
-            compUnit = CFGFlattener.flatten(loopUnrollCFG, compUnit);
-        }
 
         if (optConfig.cf()) {
             compUnit = (IRCompUnit)compUnit.accept(new IRConstFoldVisitor()).assertSecond();

@@ -1,12 +1,5 @@
 package cfg.ir;
 
-import cyr7.cli.OptConfig;
-import cyr7.ir.DefaultIdGenerator;
-import cyr7.ir.IRUtil;
-import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRSeq;
-import cyr7.typecheck.IxiFileOpener;
-import polyglot.util.Pair;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -18,22 +11,15 @@ import java.util.Map;
 import cfg.ir.constructor.CFGConstructor;
 import cfg.ir.dot.IrCFGDotUtil;
 import cfg.ir.dot.IrCFGDotUtil.DotData;
-import cfg.ir.flatten.CFGFlattener;
 import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGStartNode;
+import cyr7.cli.OptConfig;
+import cyr7.ir.DefaultIdGenerator;
+import cyr7.ir.IRUtil;
+import cyr7.ir.nodes.IRCompUnit;
+import cyr7.typecheck.IxiFileOpener;
+import polyglot.util.Pair;
 public final class CFGUtil {
-
-    /**
-     * Transforms a control-flow graph into an Lowered-IR function body.
-     * @param start Must be an instance of CFGStartNode. The CFG must either
-     * terminate or lead to an infinite loop in all possible paths from the
-     * {@code start} node.
-     *
-     * @return
-     */
-    public static IRSeq generateIR(CFGNode start) {
-        return CFGFlattener.flatten(start);
-    }
 
     public static void generateDot(
             Reader reader,
@@ -93,7 +79,7 @@ public final class CFGUtil {
         Writer writer = new PrintWriter(System.out);
         outputDotForFunctionIR(startNode, writer);
     }
-    
+
     public static void outputDotForFunctionIR(CFGNode node, Writer writer) {
         PrintWriter printer = new PrintWriter(writer);
         DotData data = IrCFGDotUtil.execute(node);

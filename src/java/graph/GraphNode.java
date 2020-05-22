@@ -40,4 +40,9 @@ public class GraphNode<V> {
         return Objects.equals(value, other.value);
     }
 
+    @Override
+    public String toString() {
+        return this.value.toString();
+    }
+
 }

@@ -111,22 +111,25 @@ public class NormalCFGConstructor {
 
                 if (this.labelToCFG.containsKey(target)) {
                     GraphNode<CFGNode> targetNode = this.labelToCFG.get(target);
-                    for (GraphNode<CFGNode> incoming: cfg.incomingNodes(stub)) {
+                    final var incomingNodes = cfg.incomingNodes(stub);
+                    for (GraphNode<CFGNode> incoming: incomingNodes) {
                         // Target node may be itself, which
                         // indicates an empty loop coming from the parent node.
                         if (targetNode == stub) {
                             // Infinite loop...
                             var selfLoop = node(new CFGSelfLoopNode());
+                            cfg.insert(selfLoop);
                             cfg.join(incoming, selfLoop);
+                            cfg.join(selfLoop, selfLoop);
                         } else {
                             cfg.join(incoming, targetNode);
                         }
                     }
-
                 } else {
                     throw new UnsupportedOperationException(
                             "Target label was never found in the program.");
                 }
+                cfg.remove(stub);
             }
             return successor;
         }
@@ -134,22 +137,23 @@ public class NormalCFGConstructor {
         @Override
         public GraphNode<CFGNode> visit(IRCJump n) {
             // IR should be lowered, meaning false branches are fall-throughs.
-            String trueBranch = n.trueLabel();
-            if (this.labelToCFG.containsKey(trueBranch)) {
-                final var ifNode = node(new CFGIfNode(n.location(), n.cond()));
-                cfg.insert(ifNode);
-                cfg.join(new Edge<>(ifNode, this.labelToCFG.get(trueBranch), true));
-                cfg.join(new Edge<>(ifNode, successor, false));
-                return ifNode;
+            final String trueBranchLabel = n.trueLabel();
+            final GraphNode<CFGNode> ifNode;
+            final GraphNode<CFGNode> trueBranchNode;
+            if (this.labelToCFG.containsKey(trueBranchLabel)) {
+                ifNode = node(new CFGIfNode(n.location(), n.cond()));
+                trueBranchNode = this.labelToCFG.get(trueBranchLabel);
             } else {
                 // Create stub node, and connect target to the stub node.
-                final var stub = node(this.createStubNode());
-                final var ifNode = node(new CFGIfNode(n.location(), n.cond()));
-                this.jumpTargetFromCFG.add(new Pair<>(stub, trueBranch));
-                cfg.join(new Edge<>(ifNode, stub, true));
-                cfg.join(new Edge<>(ifNode, successor, false));
-                return ifNode;
+                ifNode = node(new CFGIfNode(n.location(), n.cond()));
+                trueBranchNode = node(this.createStubNode());
+                this.jumpTargetFromCFG.add(new Pair<>(trueBranchNode, trueBranchLabel));
+                cfg.insert(trueBranchNode);
             }
+            cfg.insert(ifNode);
+            cfg.join(new Edge<>(ifNode, trueBranchNode, true));
+            cfg.join(new Edge<>(ifNode, successor, false));
+            return ifNode;
         }
 
 
@@ -164,6 +168,7 @@ public class NormalCFGConstructor {
                     // Create a stub node for later computation
                     final var stub = node(this.createStubNode());
                     this.jumpTargetFromCFG.add(new Pair<>(stub, target));
+                    cfg.insert(stub);
                     return stub;
                 }
             } else {
@@ -175,6 +180,7 @@ public class NormalCFGConstructor {
         @Override
         public GraphNode<CFGNode> visit(IRCallStmt n) {
             final var callNode = node(new CFGCallNode(n.location(), n));
+            cfg.insert(callNode);
             cfg.join(callNode, successor);
             return callNode;
         }
@@ -188,24 +194,26 @@ public class NormalCFGConstructor {
 
         @Override
         public GraphNode<CFGNode> visit(IRMove n) {
+            final GraphNode<CFGNode> assignNode;
             if (n.target() instanceof IRTemp) {
-                final IRTemp temp = (IRTemp) n.target();
-                final var assignNode = node(new CFGVarAssignNode(n.location(),
+                final var temp = (IRTemp) n.target();
+                assignNode = node(new CFGVarAssignNode(n.location(),
                                                 temp.name(), n.source()));
-                cfg.join(assignNode, successor);
-                return assignNode;
             } else {
-                final var assignNode = node(new CFGMemAssignNode(n.location(),
+                assignNode = node(new CFGMemAssignNode(n.location(),
                                                 n.target(), n.source()));
-                cfg.join(assignNode, successor);
-                return assignNode;
             }
+            cfg.insert(assignNode);
+            cfg.join(assignNode, successor);
+            return assignNode;
         }
 
 
         @Override
         public GraphNode<CFGNode> visit(IRReturn n) {
-            return node(new CFGReturnNode(n.location()));
+            final var returnNode = node(new CFGReturnNode(n.location()));
+            cfg.insert(returnNode);
+            return returnNode;
         }
 
 

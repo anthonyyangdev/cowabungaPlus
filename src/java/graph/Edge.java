@@ -55,5 +55,11 @@ public class Edge<V, E> {
                 && Objects.deepEquals(value, other.value);
     }
 
+    @Override
+    public String toString() {
+        return this.start + " -" +
+                this.value.map(v -> v.toString()).orElse("") + "-> " + this.end;
+    }
+
 
 }
