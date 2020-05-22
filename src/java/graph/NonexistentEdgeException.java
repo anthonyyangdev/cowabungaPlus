@@ -1,4 +1,4 @@
-package cyr7.graph;
+package graph;
 
 /**
  * Thrown if an expected edge does not exist.

@@ -1,4 +1,4 @@
-package cyr7.graph;
+package graph;
 
 import java.util.Set;
 
