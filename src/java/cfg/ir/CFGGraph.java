@@ -95,6 +95,9 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
     @Override
     public GraphNode<CFGNode> remove(GraphNode<CFGNode> node)
             throws NonexistentNodeException {
+        if (node.equals(this.startNode)) {
+            throw new UnsupportedOperationException("Attempted to remove start node.");
+        }
         if (!this.outgoingEdges.containsKey(node)) {
             throw new NonexistentNodeException(node);
         }
@@ -114,8 +117,12 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
     }
 
     /**
-     * Lists returned for If nodes, are returned such that the if branch is
-     * the first element and the false branch is the second element.
+     * For If node, a list is returned are returned such that the true branch
+     * edges prioritizes the false branch.
+     * <p>
+     * For example, suppose the if node has two out nodes, then the first
+     * element of the list if the true branch, and second element of the list
+     * is the false branch.
      */
     @Override
     public List<GraphNode<CFGNode>> outgoingNodes(GraphNode<CFGNode> node)
@@ -183,18 +190,20 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
     public Edge<CFGNode, Boolean> unlink(GraphNode<CFGNode> start,
             GraphNode<CFGNode> end) throws NonexistentEdgeException {
         final var removedEdge = new Edge<CFGNode, Boolean>(start, end);
-        final var removedEdgeTrue = new Edge<CFGNode, Boolean>(start, end);
-        final var removedEdgeFalse = new Edge<CFGNode, Boolean>(start, end);
+        final var removedEdgeTrue = new Edge<CFGNode, Boolean>(start, end, true);
+        final var removedEdgeFalse = new Edge<CFGNode, Boolean>(start, end, false);
         if (!this.outgoingEdges.containsKey(start)) {
             throw new NonexistentEdgeException(removedEdge);
         } else if (!this.incomingEdges.containsKey(end)) {
             throw new NonexistentEdgeException(removedEdge);
         }
 
-        this.outgoingEdges.get(start)
-                          .removeAll(Set.of(removedEdge, removedEdgeTrue, removedEdgeFalse));
-        this.incomingEdges.get(end)
-                          .removeAll(Set.of(removedEdge, removedEdgeTrue, removedEdgeFalse));
+        final var removedEdgeSet = new HashSet<Edge<CFGNode, Boolean>>();
+        removedEdgeSet.add(removedEdge);
+        removedEdgeSet.add(removedEdgeTrue);
+        removedEdgeSet.add(removedEdgeFalse);
+        this.outgoingEdges.get(start).removeAll(removedEdgeSet);
+        this.incomingEdges.get(end).removeAll(removedEdgeSet);
 
         return removedEdge;
     }
@@ -226,12 +235,18 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
     @Override
     public boolean containsEdge(GraphNode<CFGNode> start,
             GraphNode<CFGNode> end) {
-        return this.outgoingEdges.get(start).contains(new Edge<>(start, end));
+        if (this.outgoingEdges.containsKey(start)) {
+            return this.outgoingEdges.get(start).contains(new Edge<>(start, end));
+        }
+        return false;
     }
 
     @Override
     public boolean containsEdge(Edge<CFGNode, Boolean> edge) {
-        return this.outgoingEdges.get(edge.start).contains(edge);
+        if (this.outgoingEdges.containsKey(edge.start)) {
+            return this.outgoingEdges.get(edge.start).contains(edge);
+        }
+        return false;
     }
 
 
