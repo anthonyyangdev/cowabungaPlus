@@ -54,11 +54,11 @@ public interface Graph<V> {
      * Removes {@code node}, as well as any edges that includes {@code node} as
      * an end, from the graph.
      * @return {@code node} if {@code node} is a node in the graph, i.e.
-     * {@code nodes().contains(node) == true}.
+     * {@code containsNode(node) == true}.
      * @throws NonexistentNodeException if {@code node} is not a node
      * in the graph, i.e. {@code containsNode(node) == false}.
      */
-    public GraphNode<V> remove(GraphNode<V> node);
+    public GraphNode<V> remove(GraphNode<V> node) throws NonexistentNodeException;
 
     /**
      * Returns the set of graph nodes {@code n} where {@code node} is a start
@@ -74,7 +74,7 @@ public interface Graph<V> {
      * @throws NonexistentNodeException if {@code node} is not a node
      * in the graph, i.e. {@code containsNode(node) == false}.
      */
-    public Set<GraphNode<V>> outgoingNodes(GraphNode<V> node);
+    public Set<GraphNode<V>> outgoingNodes(GraphNode<V> node) throws NonexistentNodeException;
 
     /**
      * Returns the set of graph nodes {@code n} where {@code node} is an end
@@ -90,7 +90,7 @@ public interface Graph<V> {
      * @throws NonexistentNodeException if {@code node} is not a node
      * in the graph, i.e. {@code containsNode(node) == false}.
      */
-    public Set<GraphNode<V>> incomingNodes(GraphNode<V> node);
+    public Set<GraphNode<V>> incomingNodes(GraphNode<V> node) throws NonexistentNodeException;
 
     /**
      * Inserts an edge from {@code start} to {@code end} into the graph.
@@ -103,7 +103,7 @@ public interface Graph<V> {
      * @throws NonexistentNodeException one of the two nodes does not exist in
      * the graph.
      */
-    public boolean join(GraphNode<V> start, GraphNode<V> end);
+    public boolean join(GraphNode<V> start, GraphNode<V> end) throws NonexistentNodeException;
 
     /**
      * Removes the edge from {@code start} to {@code end} from the graph.
@@ -115,7 +115,7 @@ public interface Graph<V> {
      * {@code end} does not exist in the graph, i.e.
      * {@code containsEdge(new Edge(start, end)) == false}.
      */
-    public Edge<V> unlink(GraphNode<V> start, GraphNode<V> end);
+    public Edge<V> unlink(GraphNode<V> start, GraphNode<V> end) throws NonexistentEdgeException;
 
     /**
      * Removes the edge from {@code start} to {@code end} from the graph.
@@ -126,7 +126,7 @@ public interface Graph<V> {
      * {@code edge.end} does not exist in the graph, i.e.
      * {@code containsEdge(edge) == false}.
      */
-    public Edge<V> unlink(Edge<V> edge);
+    public Edge<V> unlink(Edge<V> edge) throws NonexistentEdgeException;
 
     /**
      * {@code true} if {@code node} is a node in the graph.

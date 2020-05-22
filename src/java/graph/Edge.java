@@ -9,17 +9,17 @@ import java.util.Objects;
  *
  * @param <V> The type of value stored in the graph nodes.
  */
-public abstract class Edge<V> {
+public class Edge<V> {
 
     /**
      * The starting node of the edge.
      */
-    protected final GraphNode<V> start;
+    public final GraphNode<V> start;
 
     /**
      * The end node of the edge.
      */
-    protected final GraphNode<V> end;
+    public final GraphNode<V> end;
 
     public Edge(GraphNode<V> start, GraphNode<V> end) {
         this.start = start;
