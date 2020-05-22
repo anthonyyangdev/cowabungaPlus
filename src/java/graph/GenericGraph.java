@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 public class GenericGraph<V, E> implements Graph<V, E> {
 
-    private final Map<GraphNode<V>, LinkedList<Edge<V, E>>> incomingEdges;
-    private final Map<GraphNode<V>, LinkedList<Edge<V, E>>> outgoingEdges;
+    protected final Map<GraphNode<V>, LinkedList<Edge<V, E>>> incomingEdges;
+    protected final Map<GraphNode<V>, LinkedList<Edge<V, E>>> outgoingEdges;
 
     public GenericGraph() {
         this.incomingEdges = new HashMap<>();
@@ -62,14 +62,6 @@ public class GenericGraph<V, E> implements Graph<V, E> {
         return node;
     }
 
-    /**
-     * For If node, a list is returned are returned such that the true branch
-     * edges prioritizes the false branch.
-     * <p>
-     * For example, suppose the if node has two out nodes, then the first
-     * element of the list if the true branch, and second element of the list
-     * is the false branch.
-     */
     @Override
     public List<GraphNode<V>> outgoingNodes(GraphNode<V> node)
             throws NonexistentNodeException {
@@ -118,12 +110,6 @@ public class GenericGraph<V, E> implements Graph<V, E> {
         }
 
         if (edge.value.isPresent()) {
-            if (edge.value.get()) {
-                this.outgoingEdges.get(start).addFirst(edge);
-            } else {
-                this.outgoingEdges.get(start).addLast(edge);
-            }
-        } else {
             this.outgoingEdges.get(start).add(edge);
         }
         this.incomingEdges.get(end).add(edge);
@@ -136,8 +122,6 @@ public class GenericGraph<V, E> implements Graph<V, E> {
     public Edge<V, E> unlink(GraphNode<V> start,
             GraphNode<V> end) throws NonexistentEdgeException {
         final var removedEdge = new Edge<V, E>(start, end);
-        final var removedEdgeTrue = new Edge<V, E>(start, end, true);
-        final var removedEdgeFalse = new Edge<V, E>(start, end, false);
         if (!this.outgoingEdges.containsKey(start)) {
             throw new NonexistentEdgeException(removedEdge);
         } else if (!this.incomingEdges.containsKey(end)) {
@@ -146,10 +130,17 @@ public class GenericGraph<V, E> implements Graph<V, E> {
 
         final var removedEdgeSet = new HashSet<Edge<V, E>>();
         removedEdgeSet.add(removedEdge);
-        removedEdgeSet.add(removedEdgeTrue);
-        removedEdgeSet.add(removedEdgeFalse);
-        this.outgoingEdges.get(start).removeAll(removedEdgeSet);
-        this.incomingEdges.get(end).removeAll(removedEdgeSet);
+
+        this.outgoingEdges.put(start,
+                new LinkedList<>(this.outgoingEdges.get(start)
+                        .stream().filter(e -> {
+                            return !e.start.equals(start) && !e.end.equals(end);
+                        }).collect(Collectors.toList())));
+        this.incomingEdges.put(end,
+                new LinkedList<>(this.outgoingEdges.get(end)
+                        .stream().filter(e -> {
+                            return !e.start.equals(start) && !e.end.equals(end);
+                        }).collect(Collectors.toList())));
 
         return removedEdge;
     }
