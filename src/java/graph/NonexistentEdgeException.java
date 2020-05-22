@@ -5,7 +5,7 @@ package graph;
  * @author ayang
  *
  */
-public class NonexistentEdgeException extends Exception {
+public class NonexistentEdgeException extends RuntimeException {
 
     /**
      *

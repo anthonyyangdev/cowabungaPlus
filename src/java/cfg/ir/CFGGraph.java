@@ -1,18 +1,22 @@
 package cfg.ir;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGStartNode;
 import graph.Edge;
 import graph.Graph;
 import graph.GraphNode;
 import graph.NonexistentEdgeException;
 import graph.NonexistentNodeException;
+import java_cup.runtime.ComplexSymbolFactory.Location;
 
 /**
  * Graph structure for control-flow graphs. Edges optionally have a value for
@@ -28,10 +32,17 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
 
     private final Map<GraphNode<CFGNode>, Set<Edge<CFGNode, Boolean>>> neighborEdges;
 
-    public CFGGraph() {
+    private final GraphNode<CFGNode> startNode;
+
+    public CFGGraph(Location n) {
         this.outgoingNodes = new HashMap<>();
         this.incomingNodes = new HashMap<>();
         this.neighborEdges = new HashMap<>();
+        this.startNode = new GraphNode<>(new CFGStartNode(n));
+    }
+
+    public GraphNode<CFGNode> startNode() {
+        return startNode;
     }
 
     @Override
@@ -45,6 +56,31 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
         this.neighborEdges.keySet().forEach(n ->
                                 edges.addAll(this.neighborEdges.get(n)));
         return edges;
+    }
+
+
+    /**
+     * Removes all nodes from the graph that are unreachable from the start
+     * node.
+     */
+    public void clean() {
+        Set<GraphNode<CFGNode>> reachable = new HashSet<>();
+        Queue<GraphNode<CFGNode>> worklist = new ArrayDeque<>();
+        worklist.add(startNode);
+        while (!worklist.isEmpty()) {
+            final var node = worklist.remove();
+            reachable.add(node);
+            for (GraphNode<CFGNode> out: this.outgoingNodes.get(node)) {
+                if (!reachable.contains(out)) {
+                    worklist.add(out);
+                }
+            }
+        }
+        final var unreachable = nodes();
+        unreachable.removeAll(reachable);
+        for (GraphNode<CFGNode> node: unreachable) {
+            this.remove(node);
+        }
     }
 
     @Override

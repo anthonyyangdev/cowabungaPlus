@@ -8,7 +8,7 @@ import java.util.Objects;
  *
  * @param <V> The type of value stored by this node.
  */
-public abstract class GraphNode<V> {
+public class GraphNode<V> {
 
     private final V value;
 

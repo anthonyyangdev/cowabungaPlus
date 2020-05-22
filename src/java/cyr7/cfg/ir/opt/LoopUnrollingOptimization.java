@@ -17,11 +17,11 @@ import java.util.Set;
 import java.util.Stack;
 
 import cfg.ir.CFGUtil;
+import cfg.ir.constructor.CFGConstructor;
 import cfg.ir.nodes.CFGIfNode;
 import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGStartNode;
 import cfg.ir.nodes.CFGStubNode;
-import cyr7.cfg.ir.constructor.CFGConstructor;
 import cyr7.cfg.ir.dfa.DfaResult;
 import cyr7.cfg.ir.dfa.WorklistAnalysis;
 import cyr7.cfg.ir.dfa.loops.BasicInductionVariableUtil;

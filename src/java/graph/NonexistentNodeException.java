@@ -5,7 +5,7 @@ package graph;
  * @author ayang
  *
  */
-public class NonexistentNodeException extends Exception {
+public class NonexistentNodeException extends RuntimeException {
 
     /**
      *

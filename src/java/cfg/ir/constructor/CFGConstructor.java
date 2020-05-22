@@ -1,9 +1,10 @@
-package cyr7.cfg.ir.constructor;
+package cfg.ir.constructor;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cfg.ir.CFGGraph;
 import cfg.ir.nodes.CFGStartNode;
 import cyr7.ir.block.BasicBlock;
 import cyr7.ir.nodes.IRCompUnit;
@@ -13,16 +14,14 @@ public class CFGConstructor {
     /**
      * Generates a CFG Tree for each function defined in the IRTree.
      */
-    public static Map<String, CFGStartNode> constructCFG(IRCompUnit c) {
+    public static Map<String, CFGGraph> constructCFG(IRCompUnit c) {
 
-        Map<String, CFGStartNode> cfgCollection = new HashMap<>();
+        Map<String, CFGGraph> cfgCollection = new HashMap<>();
 
         c.functions().forEach((name, fn) -> {
-            CFGStartNode fBody = (CFGStartNode)fn.body()
-                                    .accept(new CFGConstructorVisitor());
-            var cleaner = new CFGUnreachableNodeCleaner();
-            fBody = cleaner.removeUnreachableNodes(fBody);
-            cfgCollection.put(name, fBody);
+            CFGGraph cfg = NormalCFGConstructor.construct(fn.body());
+            cfg.clean();
+            cfgCollection.put(name, cfg);
          });
         return cfgCollection;
     }
@@ -35,8 +34,6 @@ public class CFGConstructor {
 
         traces.forEach((name, blocks) -> {
             CFGStartNode fBody = BlockCfgConstructor.construct(blocks);
-            var cleaner = new CFGUnreachableNodeCleaner();
-            fBody = cleaner.removeUnreachableNodes(fBody);
             cfgCollection.put(name, fBody);
         });
         return cfgCollection;

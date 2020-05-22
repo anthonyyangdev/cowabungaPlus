@@ -1,4 +1,4 @@
-package cyr7.cfg.ir.constructor;
+package cfg.ir.constructor;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

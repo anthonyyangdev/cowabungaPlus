@@ -1,6 +1,5 @@
 package cfg.ir;
 
-import cyr7.cfg.ir.constructor.CFGConstructor;
 import cyr7.cfg.ir.dot.IrCFGDotUtil;
 import cyr7.cfg.ir.dot.IrCFGDotUtil.DotData;
 import cyr7.cfg.ir.flatten.CFGFlattener;
@@ -19,6 +18,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Map;
 
+import cfg.ir.constructor.CFGConstructor;
 import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGStartNode;
 public final class CFGUtil {

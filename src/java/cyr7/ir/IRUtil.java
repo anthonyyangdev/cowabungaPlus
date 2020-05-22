@@ -5,8 +5,8 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import cfg.ir.constructor.CFGConstructor;
 import cyr7.ast.Node;
-import cyr7.cfg.ir.constructor.CFGConstructor;
 import cyr7.cfg.ir.flatten.CFGFlattener;
 import cyr7.cfg.ir.opt.CopyPropagationOptimization;
 import cyr7.cfg.ir.opt.DeadCodeElimOptimization;
