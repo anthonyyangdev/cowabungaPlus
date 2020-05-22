@@ -20,7 +20,7 @@ import cyr7.ir.nodes.IRConst;
 import cyr7.ir.nodes.IRExpr;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
-class TestCFGGraph {
+class TestGraphs {
 
     private final Location LOC = new Location(-1, -1);
     private final CFGNodeFactory make = new CFGNodeFactory(new Location(-1, -1));
@@ -39,27 +39,29 @@ class TestCFGGraph {
 
     @Test
     void testInsertAndRemove() {
-        final CFGGraph cfg = new CFGGraph(LOC);
+        final GenericGraph<CFGNode, Boolean> cfg = new GenericGraph<>();
 
         // Test Insertion
+        final var startNode = node(make.Start());
         final var retNode = node(make.Return());
         final var ifConstNode = node(make.If(constant()));
         final var selfLoopNode = node(make.SelfLoop());
         final var callNode = call();
 
+        cfg.insert(startNode);
         cfg.insert(retNode);
         cfg.insert(ifConstNode);
         cfg.insert(selfLoopNode);
         cfg.insert(callNode);
 
         // Contains insert nodes
-        assertTrue(cfg.containsNode(cfg.startNode()));
+        assertTrue(cfg.containsNode(startNode));
         assertTrue(cfg.containsNode(retNode));
         assertTrue(cfg.containsNode(ifConstNode));
         assertTrue(cfg.containsNode(selfLoopNode));
         assertTrue(cfg.containsNode(callNode));
 
-        assertTrue(cfg.nodes().equals(Set.of(cfg.startNode(), retNode,
+        assertTrue(cfg.nodes().equals(Set.of(startNode, retNode,
                                       ifConstNode, selfLoopNode, callNode)));
 
         // CFGNodes are equal by memory location, not content.
@@ -75,62 +77,62 @@ class TestCFGGraph {
 
 
         // Test Joining graph nodes
-        cfg.join(cfg.startNode(), retNode);
-        assertTrue(cfg.containsEdge(cfg.startNode(), retNode));
-        assertFalse(cfg.containsEdge(retNode, cfg.startNode()));
+        cfg.join(startNode, retNode);
+        assertTrue(cfg.containsEdge(startNode, retNode));
+        assertFalse(cfg.containsEdge(retNode, startNode));
 
         assertEquals(1, cfg.edges().size());
-        assertTrue(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode)));
-        assertTrue(cfg.containsEdge(cfg.startNode(), retNode));
-        assertFalse(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode, true)));
-        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode(), retNode, true)));
-        assertFalse(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode, false)));
-        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode(), retNode, false)));
+        assertTrue(cfg.edges().contains(new Edge<>(startNode, retNode)));
+        assertTrue(cfg.containsEdge(startNode, retNode));
+        assertFalse(cfg.edges().contains(new Edge<>(startNode, retNode, true)));
+        assertFalse(cfg.containsEdge(new Edge<>(startNode, retNode, true)));
+        assertFalse(cfg.edges().contains(new Edge<>(startNode, retNode, false)));
+        assertFalse(cfg.containsEdge(new Edge<>(startNode, retNode, false)));
 
-        cfg.join(new Edge<>(cfg.startNode(), retNode, true));
+        cfg.join(new Edge<>(startNode, retNode, true));
         assertEquals(2, cfg.edges().size());
-        assertTrue(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode)));
-        assertTrue(cfg.containsEdge(cfg.startNode(), retNode));
-        assertTrue(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode, true)));
-        assertTrue(cfg.containsEdge(new Edge<>(cfg.startNode(), retNode, true)));
-        assertFalse(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode, false)));
-        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode(), retNode, false)));
+        assertTrue(cfg.edges().contains(new Edge<>(startNode, retNode)));
+        assertTrue(cfg.containsEdge(startNode, retNode));
+        assertTrue(cfg.edges().contains(new Edge<>(startNode, retNode, true)));
+        assertTrue(cfg.containsEdge(new Edge<>(startNode, retNode, true)));
+        assertFalse(cfg.edges().contains(new Edge<>(startNode, retNode, false)));
+        assertFalse(cfg.containsEdge(new Edge<>(startNode, retNode, false)));
 
 
-        cfg.join(cfg.startNode(), retNode);
+        cfg.join(startNode, retNode);
         assertEquals(2, cfg.edges().size());
-        assertTrue(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode)));
-        assertTrue(cfg.containsEdge(cfg.startNode(), retNode));
-        assertTrue(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode, true)));
-        assertTrue(cfg.containsEdge(new Edge<>(cfg.startNode(), retNode, true)));
-        assertFalse(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode, false)));
-        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode(), retNode, false)));
+        assertTrue(cfg.edges().contains(new Edge<>(startNode, retNode)));
+        assertTrue(cfg.containsEdge(startNode, retNode));
+        assertTrue(cfg.edges().contains(new Edge<>(startNode, retNode, true)));
+        assertTrue(cfg.containsEdge(new Edge<>(startNode, retNode, true)));
+        assertFalse(cfg.edges().contains(new Edge<>(startNode, retNode, false)));
+        assertFalse(cfg.containsEdge(new Edge<>(startNode, retNode, false)));
 
 
         // Test unlink
         // Node is not in graph.
-        assertThrows(NonexistentEdgeException.class, () -> cfg.unlink(new Edge<>(cfg.startNode(), retNode, false)));
+        assertThrows(NonexistentEdgeException.class, () -> cfg.unlink(new Edge<>(startNode, retNode, false)));
         assertEquals(2, cfg.edges().size());
-        assertTrue(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode)));
-        assertTrue(cfg.containsEdge(cfg.startNode(), retNode));
-        assertTrue(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode, true)));
-        assertTrue(cfg.containsEdge(new Edge<>(cfg.startNode(), retNode, true)));
-        assertFalse(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode, false)));
-        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode(), retNode, false)));
+        assertTrue(cfg.edges().contains(new Edge<>(startNode, retNode)));
+        assertTrue(cfg.containsEdge(startNode, retNode));
+        assertTrue(cfg.edges().contains(new Edge<>(startNode, retNode, true)));
+        assertTrue(cfg.containsEdge(new Edge<>(startNode, retNode, true)));
+        assertFalse(cfg.edges().contains(new Edge<>(startNode, retNode, false)));
+        assertFalse(cfg.containsEdge(new Edge<>(startNode, retNode, false)));
 
-        cfg.unlink(cfg.startNode(), retNode);
-        assertFalse(cfg.containsEdge(cfg.startNode(), retNode));
+        cfg.unlink(startNode, retNode);
+        assertFalse(cfg.containsEdge(startNode, retNode));
         assertEquals(Collections.emptySet(), cfg.edges());
-        assertFalse(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode)));
-        assertFalse(cfg.containsEdge(cfg.startNode(), retNode));
-        assertFalse(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode, true)));
-        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode(), retNode, true)));
-        assertFalse(cfg.edges().contains(new Edge<>(cfg.startNode(), retNode, false)));
-        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode(), retNode, false)));
+        assertFalse(cfg.edges().contains(new Edge<>(startNode, retNode)));
+        assertFalse(cfg.containsEdge(startNode, retNode));
+        assertFalse(cfg.edges().contains(new Edge<>(startNode, retNode, true)));
+        assertFalse(cfg.containsEdge(new Edge<>(startNode, retNode, true)));
+        assertFalse(cfg.edges().contains(new Edge<>(startNode, retNode, false)));
+        assertFalse(cfg.containsEdge(new Edge<>(startNode, retNode, false)));
 
-        cfg.join(cfg.startNode(), retNode);
-        cfg.join(new Edge<>(cfg.startNode(), retNode, true));
-        cfg.join(retNode, cfg.startNode());
+        cfg.join(startNode, retNode);
+        cfg.join(new Edge<>(startNode, retNode, true));
+        cfg.join(retNode, startNode);
         cfg.join(retNode, ifConstNode);
         cfg.join(callNode, selfLoopNode);
 
@@ -140,13 +142,13 @@ class TestCFGGraph {
         cfg.remove(selfLoopNode);
         cfg.remove(callNode);
 
-        assertTrue(cfg.containsNode(cfg.startNode()));
+        assertTrue(cfg.containsNode(startNode));
         assertFalse(cfg.containsNode(retNode));
         assertFalse(cfg.containsNode(ifConstNode));
         assertFalse(cfg.containsNode(selfLoopNode));
         assertFalse(cfg.containsNode(callNode));
 
-        assertTrue(cfg.nodes().equals(Set.of(cfg.startNode())));
+        assertTrue(cfg.nodes().equals(Set.of(startNode)));
         assertEquals(Collections.emptySet(), cfg.edges());
         assertFalse(cfg.containsEdge(retNode, retNode));
         assertFalse(cfg.containsEdge(ifConstNode, retNode));
@@ -156,7 +158,7 @@ class TestCFGGraph {
 
 
     @Test
-    void testClean() {
+    void testCFGClean() {
         final CFGGraph cfg = new CFGGraph(LOC);
 
         // Test Insertion
@@ -205,37 +207,39 @@ class TestCFGGraph {
 
     @Test
     void testIncomingOutgoingNodes() {
-        final CFGGraph cfg = new CFGGraph(LOC);
+        final GenericGraph<CFGNode, Boolean> cfg = new GenericGraph<>();
 
         // Test Insertion
+        final var startNode = node(make.Start());
         final var retNode = node(make.Return());
         final var ifConstNode = node(make.If(constant()));
         final var selfLoopNode = node(make.SelfLoop());
         final var callNode = call();
 
+        cfg.insert(startNode);
         cfg.insert(retNode);
         cfg.insert(ifConstNode);
         cfg.insert(selfLoopNode);
         cfg.insert(callNode);
 
-        cfg.join(cfg.startNode(), retNode);
-        cfg.join(cfg.startNode(), ifConstNode);
-        cfg.join(cfg.startNode(), callNode);
+        cfg.join(startNode, retNode);
+        cfg.join(startNode, ifConstNode);
+        cfg.join(startNode, callNode);
 
 
-        assertEquals(Collections.emptyList(), cfg.incomingNodes(cfg.startNode()));
+        assertEquals(Collections.emptyList(), cfg.incomingNodes(startNode));
         assertEquals(Collections.emptyList(), cfg.incomingNodes(selfLoopNode));
-        assertEquals(List.of(cfg.startNode()), cfg.incomingNodes(retNode));
-        assertEquals(List.of(cfg.startNode()), cfg.incomingNodes(callNode));
-        assertEquals(List.of(cfg.startNode()), cfg.incomingNodes(ifConstNode));
+        assertEquals(List.of(startNode), cfg.incomingNodes(retNode));
+        assertEquals(List.of(startNode), cfg.incomingNodes(callNode));
+        assertEquals(List.of(startNode), cfg.incomingNodes(ifConstNode));
 
         assertEquals(Collections.emptyList(), cfg.outgoingNodes(retNode));
         assertEquals(Collections.emptyList(), cfg.outgoingNodes(selfLoopNode));
         assertEquals(Collections.emptyList(), cfg.outgoingNodes(callNode));
         assertEquals(Collections.emptyList(), cfg.outgoingNodes(ifConstNode));
-        assertEquals(3, cfg.outgoingNodes(cfg.startNode()).size());
+        assertEquals(3, cfg.outgoingNodes(startNode).size());
         assertEquals(Set.of(retNode, ifConstNode, callNode),
-                     new HashSet<>(cfg.outgoingNodes(cfg.startNode())));
+                     new HashSet<>(cfg.outgoingNodes(startNode)));
     }
 
     @Test
