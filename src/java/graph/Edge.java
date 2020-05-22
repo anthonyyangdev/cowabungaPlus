@@ -1,6 +1,7 @@
 package graph;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A structure indicating a uni-directional edge of a graph.
@@ -9,7 +10,7 @@ import java.util.Objects;
  *
  * @param <V> The type of value stored in the graph nodes.
  */
-public class Edge<V> {
+public class Edge<V, E> {
 
     /**
      * The starting node of the edge.
@@ -21,9 +22,18 @@ public class Edge<V> {
      */
     public final GraphNode<V> end;
 
+    public final Optional<E> value;
+
     public Edge(GraphNode<V> start, GraphNode<V> end) {
         this.start = start;
         this.end = end;
+        this.value = Optional.empty();
+    }
+
+    public Edge(GraphNode<V> start, GraphNode<V> end, E value) {
+        this.start = start;
+        this.end = end;
+        this.value = Optional.of(value);
     }
 
     @Override
@@ -39,9 +49,10 @@ public class Edge<V> {
         if (!(obj instanceof Edge)) {
             return false;
         }
-        Edge<?> other = (Edge<?>) obj;
+        Edge<?,?> other = (Edge<?,?>) obj;
         return Objects.equals(end, other.end)
-                && Objects.equals(start, other.start);
+                && Objects.equals(start, other.start)
+                && Objects.deepEquals(value, other.value);
     }
 
 
