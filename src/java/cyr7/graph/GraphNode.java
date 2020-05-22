@@ -2,6 +2,12 @@ package cyr7.graph;
 
 import java.util.Objects;
 
+/**
+ * A node in a graph structure.
+ * @author ayang
+ *
+ * @param <V> The type of value stored by this node.
+ */
 public abstract class GraphNode<V> {
 
     private final V value;
@@ -10,6 +16,9 @@ public abstract class GraphNode<V> {
         this.value = value;
     }
 
+    /**
+     * Returns the value stored in this node.
+     */
     public final V value() {
         return this.value;
     }
