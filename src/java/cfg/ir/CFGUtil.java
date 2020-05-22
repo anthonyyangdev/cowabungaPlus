@@ -1,4 +1,4 @@
-package cyr7.cfg.ir;
+package cfg.ir;
 
 import cyr7.cfg.ir.constructor.CFGConstructor;
 import cyr7.cfg.ir.dot.IrCFGDotUtil;
