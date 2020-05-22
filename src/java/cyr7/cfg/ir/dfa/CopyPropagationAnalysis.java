@@ -6,16 +6,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import cfg.ir.nodes.CFGBlockNode;
+import cfg.ir.nodes.CFGCallNode;
+import cfg.ir.nodes.CFGIfNode;
+import cfg.ir.nodes.CFGMemAssignNode;
+import cfg.ir.nodes.CFGPhiFunctionBlock;
+import cfg.ir.nodes.CFGSelfLoopNode;
+import cfg.ir.nodes.CFGStartNode;
+import cfg.ir.nodes.CFGStubNode;
+import cfg.ir.nodes.CFGVarAssignNode;
 import cyr7.cfg.ir.dfa.CopyPropagationAnalysis.CopyPropLattice;
-import cyr7.cfg.ir.nodes.CFGBlockNode;
-import cyr7.cfg.ir.nodes.CFGCallNode;
-import cyr7.cfg.ir.nodes.CFGIfNode;
-import cyr7.cfg.ir.nodes.CFGMemAssignNode;
-import cyr7.cfg.ir.nodes.CFGPhiFunctionBlock;
-import cyr7.cfg.ir.nodes.CFGSelfLoopNode;
-import cyr7.cfg.ir.nodes.CFGStartNode;
-import cyr7.cfg.ir.nodes.CFGStubNode;
-import cyr7.cfg.ir.nodes.CFGVarAssignNode;
 
 public enum CopyPropagationAnalysis implements
         ForwardDataflowAnalysis<CopyPropLattice> {

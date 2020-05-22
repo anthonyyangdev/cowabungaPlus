@@ -1,4 +1,4 @@
-package cyr7.cfg.ir.nodes;
+package cfg.ir.nodes;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,47 +17,21 @@ public class CFGCallNode extends CFGNode {
 
     // This includes both procedures and function calls
     public IRCallStmt call;
-    private CFGNode out;
 
     private Set<String> useSet;
     private Set<String> defSet;
     private Set<String> killSet;
 
-    public CFGCallNode(Location location, IRCallStmt call, CFGNode out) {
+    public CFGCallNode(Location location, IRCallStmt call) {
         super(location);
         this.call = call;
-        this.out = out;
 
         this.refreshDfaSets();
-
-        this.updateIns();
-        assert repOk();
-    }
-
-    public CFGNode outNode() {
-        return out;
-    }
-
-    @Override
-    public List<CFGNode> out() {
-        return List.of(out);
     }
 
     @Override
     public <T> T accept(IrCFGVisitor<T> visitor) {
         return visitor.visit(this);
-    }
-
-    @Override
-    public void replaceOutEdge(CFGNode previous, CFGNode n) {
-        if (out == previous) {
-            this.out = n;
-            this.updateIns();
-        } else {
-            throw new UnsupportedOperationException(
-                    "Cannot replace node arbitrarily.");
-        }
-        assert repOk();
     }
 
     @Override
@@ -75,12 +49,6 @@ public class CFGCallNode extends CFGNode {
     @Override
     public String toString() {
         return call.toString().replaceAll("\n", "");
-    }
-
-    @Override
-    public CFGNode copy(List<CFGNode> out) {
-        assert out.size() == 1;
-        return new CFGCallNode(this.location(), call, out.get(0));
     }
 
     @Override

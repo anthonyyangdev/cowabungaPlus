@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import cyr7.cfg.ir.nodes.CFGBlockNode;
-import cyr7.cfg.ir.nodes.CFGNode;
-import cyr7.cfg.ir.nodes.CFGPhiFunctionBlock;
-import cyr7.cfg.ir.nodes.CFGStartNode;
-import cyr7.cfg.ir.nodes.CFGStubNode;
-import cyr7.cfg.ir.nodes.CFGVarAssignNode;
+import cfg.ir.nodes.CFGBlockNode;
+import cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGPhiFunctionBlock;
+import cfg.ir.nodes.CFGStartNode;
+import cfg.ir.nodes.CFGStubNode;
+import cfg.ir.nodes.CFGVarAssignNode;
 import cyr7.ir.nodes.IRTemp;
 
 public class SSAReverter {

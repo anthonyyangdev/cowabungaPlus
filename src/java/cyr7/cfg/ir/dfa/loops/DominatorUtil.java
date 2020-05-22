@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGStartNode;
 import cyr7.cfg.ir.dfa.WorklistAnalysis;
 import cyr7.cfg.ir.dfa.loops.DominatorAnalysis.InfiniteSet;
-import cyr7.cfg.ir.nodes.CFGNode;
-import cyr7.cfg.ir.nodes.CFGStartNode;
 import cyr7.util.Sets;
 
 public final class DominatorUtil {

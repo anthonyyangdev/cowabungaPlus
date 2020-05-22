@@ -1,4 +1,4 @@
-package cyr7.cfg.ir.nodes;
+package cfg.ir.nodes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,12 +14,10 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 public class CFGPhiFunctionBlock extends CFGNode {
 
     public final Map<String, List<String>> mappings;
-    private CFGNode out;
 
-    public CFGPhiFunctionBlock(Location location, CFGNode out,
+    public CFGPhiFunctionBlock(Location location,
             int numOfIncoming, Set<String> variables) {
         super(location);
-        this.out = out;
 
         this.mappings = new HashMap<>();
         for (String v: variables) {
@@ -29,15 +27,6 @@ public class CFGPhiFunctionBlock extends CFGNode {
             }
             this.mappings.put(v, arguments);
         }
-    }
-
-    public CFGNode outNode() {
-        return out;
-    }
-
-    @Override
-    public List<CFGNode> out() {
-        return List.of(out);
     }
 
     @Override
@@ -55,16 +44,6 @@ public class CFGPhiFunctionBlock extends CFGNode {
     public <T> T acceptBackward(BackwardTransferFunction<T> transferFunction,
             T input) {
         throw new AssertionError("Do not use a transfer function on phi-function block.");
-    }
-
-    @Override
-    public void replaceOutEdge(CFGNode previous, CFGNode newTarget) {
-        if (this.out == previous) {
-            this.out = newTarget;
-            this.updateIns();
-        } else {
-            throw new AssertionError("No node can be replaced");
-        }
     }
 
     @Override
@@ -90,11 +69,6 @@ public class CFGPhiFunctionBlock extends CFGNode {
     @Override
     public void refreshDfaSets() {
         throw new UnsupportedOperationException("No data to refresh");
-    }
-
-    @Override
-    public CFGNode copy(List<CFGNode> out) {
-        throw new UnsupportedOperationException("Do not copy phi function");
     }
 
     @Override

@@ -4,15 +4,15 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
+import cfg.ir.nodes.CFGBlockNode;
+import cfg.ir.nodes.CFGCallNode;
+import cfg.ir.nodes.CFGIfNode;
+import cfg.ir.nodes.CFGMemAssignNode;
+import cfg.ir.nodes.CFGPhiFunctionBlock;
+import cfg.ir.nodes.CFGReturnNode;
+import cfg.ir.nodes.CFGSelfLoopNode;
+import cfg.ir.nodes.CFGVarAssignNode;
 import cyr7.cfg.ir.dfa.IrLiveVariableAnalysis.IrLiveVarLattice;
-import cyr7.cfg.ir.nodes.CFGBlockNode;
-import cyr7.cfg.ir.nodes.CFGCallNode;
-import cyr7.cfg.ir.nodes.CFGIfNode;
-import cyr7.cfg.ir.nodes.CFGMemAssignNode;
-import cyr7.cfg.ir.nodes.CFGPhiFunctionBlock;
-import cyr7.cfg.ir.nodes.CFGReturnNode;
-import cyr7.cfg.ir.nodes.CFGSelfLoopNode;
-import cyr7.cfg.ir.nodes.CFGVarAssignNode;
 import cyr7.util.Sets;
 
 public enum IrLiveVariableAnalysis implements BackwardDataflowAnalysis<IrLiveVarLattice> {

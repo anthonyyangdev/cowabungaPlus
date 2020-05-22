@@ -4,16 +4,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
+import cfg.ir.nodes.CFGBlockNode;
+import cfg.ir.nodes.CFGCallNode;
+import cfg.ir.nodes.CFGIfNode;
+import cfg.ir.nodes.CFGMemAssignNode;
+import cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGSelfLoopNode;
+import cfg.ir.nodes.CFGStartNode;
+import cfg.ir.nodes.CFGVarAssignNode;
 import cyr7.cfg.ir.dfa.ForwardDataflowAnalysis;
 import cyr7.cfg.ir.dfa.ForwardTransferFunction;
-import cyr7.cfg.ir.nodes.CFGBlockNode;
-import cyr7.cfg.ir.nodes.CFGCallNode;
-import cyr7.cfg.ir.nodes.CFGIfNode;
-import cyr7.cfg.ir.nodes.CFGMemAssignNode;
-import cyr7.cfg.ir.nodes.CFGNode;
-import cyr7.cfg.ir.nodes.CFGSelfLoopNode;
-import cyr7.cfg.ir.nodes.CFGStartNode;
-import cyr7.cfg.ir.nodes.CFGVarAssignNode;
 import cyr7.util.Sets;
 
 public enum DominatorAnalysis implements ForwardDataflowAnalysis<Set<CFGNode>> {

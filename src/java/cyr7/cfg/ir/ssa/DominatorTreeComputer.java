@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import cyr7.cfg.ir.nodes.CFGNode;
-import cyr7.cfg.ir.nodes.CFGStartNode;
+import cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGStartNode;
 import polyglot.util.Pair;
 
 /**

@@ -4,8 +4,6 @@ import cyr7.cfg.ir.constructor.CFGConstructor;
 import cyr7.cfg.ir.dot.IrCFGDotUtil;
 import cyr7.cfg.ir.dot.IrCFGDotUtil.DotData;
 import cyr7.cfg.ir.flatten.CFGFlattener;
-import cyr7.cfg.ir.nodes.CFGNode;
-import cyr7.cfg.ir.nodes.CFGStartNode;
 import cyr7.cli.OptConfig;
 import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.IRUtil;
@@ -20,6 +18,9 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Map;
+
+import cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGStartNode;
 public final class CFGUtil {
 
     /**

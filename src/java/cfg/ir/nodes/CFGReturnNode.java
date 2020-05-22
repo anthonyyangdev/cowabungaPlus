@@ -1,4 +1,4 @@
-package cyr7.cfg.ir.nodes;
+package cfg.ir.nodes;
 
 import java.util.Collections;
 import java.util.List;
@@ -10,17 +10,10 @@ import cyr7.cfg.ir.dfa.ForwardTransferFunction;
 import cyr7.cfg.ir.visitor.IrCFGVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
-public class CFGSelfLoopNode extends CFGNode {
+public class CFGReturnNode extends CFGNode {
 
-    public CFGSelfLoopNode() {
-        super(new Location(-1, -1));
-        this.in.add(this);
-        assert repOk();
-    }
-
-    @Override
-    public List<CFGNode> out() {
-        return List.of(this);
+    public CFGReturnNode(Location location) {
+        super(location);
     }
 
     @Override
@@ -29,27 +22,18 @@ public class CFGSelfLoopNode extends CFGNode {
     }
 
     @Override
-    public <T> List<T> acceptForward(
-            ForwardTransferFunction<T> transferFunction, T input) {
-        return List.of(transferFunction.transfer(this, input));
+    public <T> List<T> acceptForward(ForwardTransferFunction<T> transferFunction, T in) {
+        return List.of();
     }
 
     @Override
-    public <T> T acceptBackward(BackwardTransferFunction<T> transferFunction,
-            T input) {
-
+    public <T> T acceptBackward(BackwardTransferFunction<T> transferFunction, T input) {
         return transferFunction.transfer(this, input);
     }
 
     @Override
-    public void replaceOutEdge(CFGNode previous, CFGNode newTarget) {
-        throw new UnsupportedOperationException(
-                "The out nodes of a self loop cannot be replaced");
-    }
-
-    @Override
-    public CFGNode copy(List<CFGNode> out) {
-        return new CFGSelfLoopNode();
+    public String toString() {
+        return "(return)";
     }
 
     @Override
@@ -76,10 +60,4 @@ public class CFGSelfLoopNode extends CFGNode {
     public void refreshDfaSets() {
         return;
     }
-
-    @Override
-    public String toString() {
-        return "∞";
-    }
-
 }

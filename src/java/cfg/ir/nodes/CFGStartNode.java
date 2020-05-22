@@ -1,4 +1,4 @@
-package cyr7.cfg.ir.nodes;
+package cfg.ir.nodes;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,39 +12,13 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 
 public class CFGStartNode extends CFGNode {
 
-    private CFGNode out;
-
-    public CFGStartNode(Location location, CFGNode out) {
+    public CFGStartNode(Location location) {
         super(location);
-        this.out = out;
-        this.updateIns();
-        assert repOk();
-    }
-
-    @Override
-    public List<CFGNode> out() {
-        return List.of(this.out);
-    }
-
-    public CFGNode outNode() {
-        return out;
     }
 
     @Override
     public <T> T accept(IrCFGVisitor<T> visitor) {
         return visitor.visit(this);
-    }
-
-    @Override
-    public void replaceOutEdge(CFGNode previous, CFGNode n) {
-        if (out == previous) {
-            this.out = n;
-            this.updateIns();
-        } else {
-            throw new UnsupportedOperationException(
-                    "Cannot replace node arbitrarily.");
-        }
-        assert repOk();
     }
 
     @Override
@@ -60,12 +34,6 @@ public class CFGStartNode extends CFGNode {
     @Override
     public String toString() {
         return "start";
-    }
-    
-    @Override
-    public CFGNode copy(List<CFGNode> out) {
-        assert out.size() == 1;
-        return new CFGStartNode(this.location(), out.get(0));
     }
 
     @Override

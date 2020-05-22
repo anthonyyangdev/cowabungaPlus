@@ -3,7 +3,7 @@ package cyr7.cfg.ir.dfa;
 import java.util.Collections;
 import java.util.Map;
 
-import cyr7.cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGNode;
 
 public class DfaResult<L> {
 

@@ -3,8 +3,8 @@ package cyr7.cfg.ir.flatten;
 import java.util.HashMap;
 import java.util.Map;
 
-import cyr7.cfg.ir.nodes.CFGNode;
-import cyr7.cfg.ir.nodes.CFGStartNode;
+import cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGStartNode;
 import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.IdGenerator;
 import cyr7.ir.nodes.IRCompUnit;

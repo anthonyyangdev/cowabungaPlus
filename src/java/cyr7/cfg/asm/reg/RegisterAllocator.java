@@ -7,7 +7,6 @@ import cyr7.cfg.asm.dfa.WorklistAnalysis;
 import cyr7.cfg.asm.nodes.AsmCFGNode;
 import cyr7.cfg.asm.nodes.AsmCFGSourceNode;
 import cyr7.cfg.asm.nodes.AsmCFGStartNode;
-import cyr7.cfg.ir.CFGUtil;
 import cyr7.cli.CLI;
 import cyr7.ir.IdGenerator;
 import cyr7.util.Sets;
@@ -32,6 +31,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import cfg.ir.CFGUtil;
 
 final class RegisterAllocator {
 

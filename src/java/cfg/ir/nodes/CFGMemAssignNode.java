@@ -1,4 +1,4 @@
-package cyr7.cfg.ir.nodes;
+package cfg.ir.nodes;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,51 +17,24 @@ public class CFGMemAssignNode extends CFGNode {
 
     public IRExpr target;
     public IRExpr value;
-    private CFGNode out;
 
     private Set<String> useSet;
 
     public CFGMemAssignNode(
         Location location,
         IRExpr target,
-        IRExpr value,
-        CFGNode out) {
+        IRExpr value) {
 
         super(location);
         this.target = target;
         this.value = value;
-        this.out = out;
 
         this.refreshDfaSets();
-
-        this.updateIns();
-        assert repOk();
-    }
-
-    public CFGNode outNode() {
-        return out;
-    }
-
-    @Override
-    public List<CFGNode> out() {
-        return List.of(this.out);
     }
 
     @Override
     public <T> T accept(IrCFGVisitor<T> visitor) {
         return visitor.visit(this);
-    }
-
-    @Override
-    public void replaceOutEdge(CFGNode previous, CFGNode n) {
-        if (out == previous) {
-            this.out = n;
-            this.updateIns();
-        } else {
-            throw new UnsupportedOperationException(
-                    "Cannot replace node arbitrarily.");
-        }
-        assert repOk();
     }
 
     @Override
@@ -82,11 +55,6 @@ public class CFGMemAssignNode extends CFGNode {
     }
 
     @Override
-    public CFGNode copy(List<CFGNode> out) {
-        assert out.size() == 1;
-        return new CFGMemAssignNode(this.location(), target, value, out.get(0));
-    }
-    
     public Set<String> defs() {
         return Collections.emptySet();
     }

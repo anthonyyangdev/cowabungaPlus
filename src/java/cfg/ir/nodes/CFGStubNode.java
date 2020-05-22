@@ -1,4 +1,4 @@
-package cyr7.cfg.ir.nodes;
+package cfg.ir.nodes;
 
 import java.util.List;
 import java.util.Map;
@@ -16,18 +16,8 @@ public class CFGStubNode extends CFGNode {
     }
 
     @Override
-    public List<CFGNode> out() {
-        return List.of();
-    }
-
-    @Override
     public <T> T accept(IrCFGVisitor<T> visitor) {
         throw new UnsupportedOperationException("Cannot visit stub node");
-    }
-
-    @Override
-    public void replaceOutEdge(CFGNode stub, CFGNode n) {
-        throw new UnsupportedOperationException("Cannot convert in stub node");
     }
 
     @Override
@@ -48,10 +38,6 @@ public class CFGStubNode extends CFGNode {
     }
 
     @Override
-    public CFGNode copy(List<CFGNode> out) {
-        throw new UnsupportedOperationException(
-                "A self loop cannot be copied");
-    }
     public Set<String> defs() {
         throw new AssertionError("Stub node has no definition set");
     }

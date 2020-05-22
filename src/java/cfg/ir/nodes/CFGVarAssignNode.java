@@ -1,4 +1,4 @@
-package cyr7.cfg.ir.nodes;
+package cfg.ir.nodes;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,49 +19,22 @@ public class CFGVarAssignNode extends CFGNode {
 
     public String variable;
     public IRExpr value;
-    private CFGNode outNode;
     private Set<String> useSet;
     private Set<String> defSet;
     private Set<String> killSet;
     private Map<String, String> genSet;
 
-    public CFGVarAssignNode(Location location, String variable, IRExpr value,
-            CFGNode outNode) {
+    public CFGVarAssignNode(Location location, String variable, IRExpr value) {
         super(location);
         this.variable = variable;
         this.value = value;
-        this.outNode = outNode;
 
         this.refreshDfaSets();
-
-        this.updateIns();
-        assert repOk();
-    }
-
-    @Override
-    public List<CFGNode> out() {
-        return List.of(outNode);
-    }
-
-    public CFGNode outNode() {
-        return outNode;
     }
 
     @Override
     public <T> T accept(IrCFGVisitor<T> visitor) {
         return visitor.visit(this);
-    }
-
-    @Override
-    public void replaceOutEdge(CFGNode previous, CFGNode n) {
-        if (outNode == previous) {
-            this.outNode = n;
-            this.updateIns();
-        } else {
-            throw new UnsupportedOperationException(
-                    "Cannot replace node arbitrarily.");
-        }
-        assert repOk();
     }
 
     @Override
@@ -81,12 +54,6 @@ public class CFGVarAssignNode extends CFGNode {
         String valueString = value.toString()
                                   .replaceAll("\n", "");
         return String.format("%s=%s", variable, valueString);
-    }
-
-    @Override
-    public CFGNode copy(List<CFGNode> out) {
-        assert out.size() == 1;
-        return new CFGVarAssignNode(this.location(), variable, value, out.get(0));
     }
 
     @Override

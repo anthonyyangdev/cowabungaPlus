@@ -1,4 +1,4 @@
-package cyr7.cfg.ir.nodes;
+package cfg.ir.nodes;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,62 +14,21 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 
 public class CFGIfNode extends CFGNode {
 
-    private CFGNode trueBranch;
-    private CFGNode falseBranch;
     public IRExpr cond;
 
     private Set<String> useSet;
 
-    public CFGIfNode(Location location, CFGNode trueBranch,
-            CFGNode falseBranch, IRExpr cond) {
+    public CFGIfNode(Location location, IRExpr cond) {
         super(location);
-        this.trueBranch = trueBranch;
-        this.falseBranch = falseBranch;
         this.cond = cond;
 
         this.refreshDfaSets();
-
-        this.updateIns();
-        assert repOk();
     }
 
     @Override
     public <T> T accept(IrCFGVisitor<T> visitor) {
         return visitor.visit(this);
     }
-
-    public CFGNode falseBranch() {
-        return falseBranch;
-    }
-
-    public CFGNode trueBranch() {
-        return trueBranch;
-    }
-
-    @Override
-    public List<CFGNode> out() {
-        return List.of(trueBranch, falseBranch);
-    }
-
-    @Override
-    public void replaceOutEdge(CFGNode previous, CFGNode n) {
-        if (falseBranch != previous && trueBranch != previous) {
-            throw new UnsupportedOperationException(
-                    "Cannot replace node arbitrarily.");
-        }
-
-        if (trueBranch == previous) {
-            this.trueBranch = n;
-        }
-
-        if (falseBranch == previous) {
-            this.falseBranch = n;
-        }
-
-        this.updateIns();
-        assert repOk();
-    }
-
 
     @Override
     public <T> List<T> acceptForward(ForwardTransferFunction<T> transferFunction, T in) {
@@ -90,11 +49,6 @@ public class CFGIfNode extends CFGNode {
     }
 
     @Override
-    public CFGNode copy(List<CFGNode> out) {
-        assert out.size() == 2;
-        return new CFGIfNode(this.location(), out.get(0), out.get(1), cond);
-    }
-    
     public Set<String> defs() {
         return Collections.emptySet();
     }

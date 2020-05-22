@@ -7,11 +7,11 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 
-import cyr7.cfg.ir.CFGUtil;
 import cyr7.cli.OptConfig;
 import cyr7.cli.Optimization;
 import org.junit.jupiter.api.Test;
 
+import cfg.ir.CFGUtil;
 import cyr7.ir.IRUtil;
 import cyr7.typecheck.IxiFileOpener;
 

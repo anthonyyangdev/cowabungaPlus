@@ -1,11 +1,13 @@
 package cfg.ir;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cyr7.cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGNode;
 import graph.Edge;
 import graph.Graph;
 import graph.GraphNode;
@@ -21,8 +23,8 @@ import graph.NonexistentNodeException;
  */
 public class CFGGraph implements Graph<CFGNode, Boolean> {
 
-    private final Map<GraphNode<CFGNode>, Set<GraphNode<CFGNode>>> outgoingNodes;
-    private final Map<GraphNode<CFGNode>, Set<GraphNode<CFGNode>>> incomingNodes;
+    private final Map<GraphNode<CFGNode>, List<GraphNode<CFGNode>>> outgoingNodes;
+    private final Map<GraphNode<CFGNode>, List<GraphNode<CFGNode>>> incomingNodes;
 
     private final Map<GraphNode<CFGNode>, Set<Edge<CFGNode, Boolean>>> neighborEdges;
 
@@ -50,8 +52,8 @@ public class CFGGraph implements Graph<CFGNode, Boolean> {
         if (this.outgoingNodes.containsKey(node)) {
             return false;
         }
-        this.incomingNodes.put(node, new HashSet<>());
-        this.outgoingNodes.put(node, new HashSet<>());
+        this.incomingNodes.put(node, new ArrayList<>());
+        this.outgoingNodes.put(node, new ArrayList<>());
         this.neighborEdges.put(node, new HashSet<>());
         return true;
     }

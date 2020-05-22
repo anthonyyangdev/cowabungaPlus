@@ -1,4 +1,4 @@
-package cyr7.cfg.ir.nodes;
+package cfg.ir.nodes;
 
 import java.util.Collections;
 import java.util.List;
@@ -10,17 +10,10 @@ import cyr7.cfg.ir.dfa.ForwardTransferFunction;
 import cyr7.cfg.ir.visitor.IrCFGVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
-public class CFGReturnNode extends CFGNode {
+public class CFGSelfLoopNode extends CFGNode {
 
-    public CFGReturnNode(Location location) {
-        super(location);
-        this.updateIns();
-        assert repOk();
-    }
-
-    @Override
-    public List<CFGNode> out() {
-        return List.of();
+    public CFGSelfLoopNode() {
+        super(new Location(-1, -1));
     }
 
     @Override
@@ -29,32 +22,19 @@ public class CFGReturnNode extends CFGNode {
     }
 
     @Override
-    public void replaceOutEdge(CFGNode stub, CFGNode n) {
-        assert repOk();
-        return;
+    public <T> List<T> acceptForward(
+            ForwardTransferFunction<T> transferFunction, T input) {
+        return List.of(transferFunction.transfer(this, input));
     }
 
     @Override
-    public <T> List<T> acceptForward(ForwardTransferFunction<T> transferFunction, T in) {
-        return List.of();
-    }
+    public <T> T acceptBackward(BackwardTransferFunction<T> transferFunction,
+            T input) {
 
-    @Override
-    public <T> T acceptBackward(BackwardTransferFunction<T> transferFunction, T input) {
         return transferFunction.transfer(this, input);
     }
 
     @Override
-    public String toString() {
-        return "(return)";
-    }
-
-    @Override
-    public CFGNode copy(List<CFGNode> out) {
-        assert out.size() == 0;
-        return new CFGReturnNode(this.location());
-    }
-    
     public Set<String> defs() {
         return Collections.emptySet();
     }
@@ -78,4 +58,10 @@ public class CFGReturnNode extends CFGNode {
     public void refreshDfaSets() {
         return;
     }
+
+    @Override
+    public String toString() {
+        return "∞";
+    }
+
 }

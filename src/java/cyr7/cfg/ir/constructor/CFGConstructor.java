@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cyr7.cfg.ir.nodes.CFGStartNode;
+import cfg.ir.nodes.CFGStartNode;
 import cyr7.ir.block.BasicBlock;
 import cyr7.ir.nodes.IRCompUnit;
 
