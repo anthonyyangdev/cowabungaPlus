@@ -55,7 +55,7 @@ public interface Graph<V> {
      * an end, from the graph.
      * @return {@code node} if {@code node} is a node in the graph, i.e.
      * {@code nodes().contains(node) == true}.
-     * @throws NonexistantNodeException if {@code node} is not a node
+     * @throws NonexistentNodeException if {@code node} is not a node
      * in the graph, i.e. {@code containsNode(node) == false}.
      */
     public GraphNode<V> remove(GraphNode<V> node);
@@ -71,7 +71,7 @@ public interface Graph<V> {
      * Likewise, inserting/removing nodes into/from the graph after this
      * method is called does not affect the returned set of nodes.
      * @param node
-     * @throws NonexistantNodeException if {@code node} is not a node
+     * @throws NonexistentNodeException if {@code node} is not a node
      * in the graph, i.e. {@code containsNode(node) == false}.
      */
     public Set<GraphNode<V>> outgoingNodes(GraphNode<V> node);
@@ -87,7 +87,7 @@ public interface Graph<V> {
      * Likewise, inserting/removing nodes into/from the graph after this
      * method is called does not affect the returned set of nodes.
      * @param node
-     * @throws NonexistantNodeException if {@code node} is not a node
+     * @throws NonexistentNodeException if {@code node} is not a node
      * in the graph, i.e. {@code containsNode(node) == false}.
      */
     public Set<GraphNode<V>> incomingNodes(GraphNode<V> node);
@@ -100,6 +100,8 @@ public interface Graph<V> {
      * i.e. {@code containsEdge(new Edge(start, end)) == false}. Returns
      * {@code false} if the edge does exist in the graph, i.e.
      * {@code containsEdge(new Edge(start, end)) == true}.
+     * @throws NonexistentNodeException one of the two nodes does not exist in
+     * the graph.
      */
     public boolean join(GraphNode<V> start, GraphNode<V> end);
 

@@ -5,14 +5,14 @@ package graph;
  * @author ayang
  *
  */
-public class NonexistantNodeException extends Exception {
+public class NonexistentNodeException extends Exception {
 
     /**
      *
      */
     private static final long serialVersionUID = -7685364721770342822L;
 
-    public NonexistantNodeException(GraphNode<?> node) {
+    public NonexistentNodeException(GraphNode<?> node) {
         super("The node (" + node.toString() + ") could not be found.");
     }
 
