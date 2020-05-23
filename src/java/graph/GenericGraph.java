@@ -169,7 +169,9 @@ public class GenericGraph<V, E> implements Graph<V, E> {
     public boolean containsEdge(GraphNode<V> start,
             GraphNode<V> end) {
         if (this.outgoingEdges.containsKey(start)) {
-            return this.outgoingEdges.get(start).contains(new Edge<>(start, end));
+            return this.outgoingEdges.get(start).stream().anyMatch(e -> {
+                return e.end.equals(end);
+            });
         }
         return false;
     }
