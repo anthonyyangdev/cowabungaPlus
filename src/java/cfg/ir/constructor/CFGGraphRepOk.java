@@ -1,6 +1,7 @@
 package cfg.ir.constructor;
 
 import java.util.ArrayDeque;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import cfg.ir.CFGGraph;
@@ -36,10 +37,14 @@ public class CFGGraphRepOk {
     private static class CFGGraphRepOkVisitor implements IrCFGVisitor<Void> {
 
         private final CFGGraph cfg;
+        private final Set<GraphNode<CFGNode>> nodes;
+        private final Set<Edge<CFGNode, Boolean>> edges;
         private boolean foundStartNode;
 
         public CFGGraphRepOkVisitor(CFGGraph cfg) {
             this.cfg = cfg;
+            this.nodes = cfg.nodes();
+            this.edges = cfg.edges();
             this.foundStartNode = false;
         }
 
@@ -48,26 +53,26 @@ public class CFGGraphRepOk {
         }
 
         private void generalRepOk(GraphNode<CFGNode> node) {
-            assert cfg.nodes().contains(node);
+            assert nodes.contains(node);
 
             final var incoming = cfg.incomingNodes(node);
             final var outgoing = cfg.outgoingNodes(node);
 
             for (GraphNode<CFGNode> in: incoming) {
-                assert cfg.nodes().contains(in);
+                assert nodes.contains(in);
                 assert cfg.outgoingNodes(in).contains(node);
                 assert cfg.containsEdge(in, node);
             }
 
             for (GraphNode<CFGNode> out: outgoing) {
-                assert cfg.nodes().contains(out);
+                assert nodes.contains(out);
                 assert cfg.incomingNodes(out).contains(node);
                 assert cfg.containsEdge(node, out);
 
                 if (node.value() instanceof CFGIfNode) {
-                    assert !cfg.edges().contains(new Edge<>(node, out));
+                    assert !this.edges.contains(new Edge<>(node, out));
                 } else {
-                    assert cfg.edges().contains(new Edge<>(node, out));
+                    assert this.edges.contains(new Edge<>(node, out));
                 }
             }
         }
