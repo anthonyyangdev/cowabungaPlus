@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGStartNode;
@@ -24,10 +25,6 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 public class CFGGraph extends GenericGraph<CFGNode, Boolean> {
 
     private final GraphNode<CFGNode> startNode;
-
-    private CFGGraph() {
-        throw new UnsupportedOperationException("Unsupported constructor.");
-    }
 
     public CFGGraph(Location n) {
         super();
@@ -116,6 +113,46 @@ public class CFGGraph extends GenericGraph<CFGNode, Boolean> {
         this.incomingEdges.get(end).removeAll(removedEdgeSet);
 
         return removedEdge;
+    }
+
+    /**
+     * Replaces the node {@code prev} in the CFG with node {@code now}. Any
+     * edges, including the values of those edges, that include the node
+     * {@code prev} are replaced with edges with the same values that subtitute
+     * occurrences of {@code prev} with {@code now}. The node {@code prev} is
+     * also removed from the CFG entirely.
+     *
+     * @param old The node to be replaced and removed from the CFG.
+     * @param current The node to be replace {@code old}. Can be a node that
+     *                already exists in the CFG.
+     */
+    public void replaceNode(GraphNode<CFGNode> prev, GraphNode<CFGNode> now) {
+        final var incomingEdgesToPrev = this.incomingEdges.get(prev);
+        final var outgoingEdgesFromPrev = this.outgoingEdges.get(prev);
+
+        final var incomingToNow = incomingEdgesToPrev.stream().map(e -> {
+            final var start = e.start.equals(prev) ? now : e.start;
+            if (e.value.isPresent()) {
+                return new Edge<CFGNode, Boolean>(start, now, e.value.get());
+            } else {
+                return new Edge<CFGNode, Boolean>(start, now);
+            }
+        }).collect(Collectors.toList());
+
+        final var outgoingFromNow = outgoingEdgesFromPrev.stream().map(e -> {
+            final var end = e.end.equals(prev) ? now : e.end;
+            if (e.value.isPresent()) {
+                return new Edge<CFGNode, Boolean>(now, end, e.value.get());
+            } else {
+                return new Edge<CFGNode, Boolean>(now, end);
+            }
+        }).collect(Collectors.toList());
+
+        this.remove(prev);
+
+        this.insert(now);
+        incomingToNow.forEach(this::join);
+        outgoingFromNow.forEach(this::join);
     }
 
 }
