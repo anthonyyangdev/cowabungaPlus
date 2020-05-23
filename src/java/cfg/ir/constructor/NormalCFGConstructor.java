@@ -111,25 +111,18 @@ public class NormalCFGConstructor {
 
                 if (this.labelToCFG.containsKey(target)) {
                     GraphNode<CFGNode> targetNode = this.labelToCFG.get(target);
-                    final var incomingNodes = cfg.incomingNodes(stub);
-                    for (GraphNode<CFGNode> incoming: incomingNodes) {
-                        // Target node may be itself, which
-                        // indicates an empty loop coming from the parent node.
-                        if (targetNode == stub) {
-                            // Infinite loop...
-                            var selfLoop = node(new CFGSelfLoopNode());
-                            cfg.insert(selfLoop);
-                            cfg.join(incoming, selfLoop);
-                            cfg.join(selfLoop, selfLoop);
-                        } else {
-                            cfg.join(incoming, targetNode);
-                        }
+                    if (targetNode == stub) {
+                        // Infinite loop...
+                        var selfLoop = node(new CFGSelfLoopNode());
+                        cfg.replaceNode(stub, selfLoop);
+                        cfg.join(selfLoop, selfLoop);
+                    } else {
+                        cfg.replaceNode(stub, targetNode);
                     }
                 } else {
                     throw new UnsupportedOperationException(
                             "Target label was never found in the program.");
                 }
-                cfg.remove(stub);
             }
             return successor;
         }
@@ -155,7 +148,6 @@ public class NormalCFGConstructor {
             cfg.join(new Edge<>(ifNode, successor, false));
             return ifNode;
         }
-
 
         @Override
         public GraphNode<CFGNode> visit(IRJump n) {
