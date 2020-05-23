@@ -57,6 +57,10 @@ public class CFGFlattener {
     private static class FlattenCFGVisitor
         implements IrCFGVisitor<Optional<GraphNode<CFGNode>>> {
 
+        private FlattenCFGVisitor() {
+            throw new UnsupportedOperationException("Cannot use default constrtuctor");
+        }
+
         /**
          * A wrapper class so that stmts can be compared via pointer addresses,
          * instead of their overwritten equals() methods.
@@ -169,15 +173,30 @@ public class CFGFlattener {
             this.cfg = cfg;
         }
 
-        /**
-         * Sets node {@code n} to be visited and the predecessor node for the next
-         * node.
-         *
-         * @param n
-         */
-        private void epilogueProcess(CFGNode n, IRStmtWrapper stmt) {
-            this.visitedNodes.add(n);
-            this.predecessor = stmt;
+
+        public IRSeq flatten() {
+            final var startNode = cfg.startNode().value();
+            var make = this.createMake(startNode);
+            Optional<GraphNode<CFGNode>> next = this.nextNode(cfg.startNode().value());
+            while (next.isPresent()) {
+                next = next.get().value().accept(this);
+            }
+
+            while (!this.trueBranches.isEmpty()) {
+                final Pair<GraphNode<CFGNode>, String> nextTrueBranch =
+                                                        trueBranches.remove();
+                next = Optional.of(nextTrueBranch.part1());
+                make = this.createMake(next.get().value());
+                final String trueLabel = nextTrueBranch.part2();
+
+                var stmt = this.wrapStmt(make.IRLabel(trueLabel));
+                this.predecessor = stmt;
+                this.stmts.add(stmt);
+                while (next.isPresent()) {
+                    next = next.get().value().accept(this);
+                }
+            }
+            return new IRSeq(startNode.location(), this.getFunctionBody());
         }
 
         private IRNodeFactory createMake(CFGNode n) {
@@ -239,8 +258,8 @@ public class CFGFlattener {
             }
         }
 
-        private GraphNode<CFGNode> nextNode(CFGNode n) {
-            return cfg.outgoingNodes(new GraphNode<>(n)).get(0);
+        private Optional<GraphNode<CFGNode>> nextNode(CFGNode n) {
+            return Optional.of(cfg.outgoingNodes(new GraphNode<>(n)).get(0));
         }
 
         private Pair<GraphNode<CFGNode>, GraphNode<CFGNode>> ifBranches(CFGIfNode n) {
@@ -267,13 +286,24 @@ public class CFGFlattener {
             this.cfgNodeToIRStmt.put(n, wrappedStmt);
         }
 
+        /**
+         * Sets node {@code n} to be visited and the predecessor node for the next
+         * node.
+         *
+         * @param n
+         */
+        private void epilogueProcess(CFGNode n, IRStmtWrapper stmt) {
+            this.appendStmt(n, stmt);
+            this.visitedNodes.add(n);
+            this.predecessor = stmt;
+        }
+
         @Override
         public Optional<GraphNode<CFGNode>> visit(CFGCallNode n) {
             if (!this.performProcessIfVisited(n)) {
                 final var stmt = this.wrapStmt(n.call);
-                this.appendStmt(n, stmt);
                 this.epilogueProcess(n, stmt);
-                return Optional.of(this.nextNode(n));
+                return this.nextNode(n);
             }
             return Optional.empty();
         }
@@ -289,7 +319,6 @@ public class CFGFlattener {
                 final var make = this.createMake(n);
                 final var falseBranchNode = branches.part2();
                 final var stmt = this.wrapStmt(make.IRCJump(n.cond, trueLabel));
-                this.appendStmt(n, stmt);
                 this.epilogueProcess(n, stmt);
                 return Optional.of(falseBranchNode);
             }
@@ -302,9 +331,8 @@ public class CFGFlattener {
                 final var make = this.createMake(n);
                 final var stmt = this
                         .wrapStmt(make.IRMove(make.IRTemp(n.variable), n.value));
-                this.appendStmt(n, stmt);
                 this.epilogueProcess(n, stmt);
-                return Optional.of(this.nextNode(n));
+                return this.nextNode(n);
             }
             return Optional.empty();
         }
@@ -314,9 +342,8 @@ public class CFGFlattener {
             if (!this.performProcessIfVisited(n)) {
                 final var make = this.createMake(n);
                 final var stmt = this.wrapStmt(make.IRMove(n.target, n.value));
-                this.appendStmt(n, stmt);
                 this.epilogueProcess(n, stmt);
-                return Optional.of(this.nextNode(n));
+                return this.nextNode(n);
             }
             return Optional.empty();
         }
@@ -335,39 +362,10 @@ public class CFGFlattener {
             if (!this.performProcessIfVisited(n)) {
                 final var make = this.createMake(n);
                 var stmt = this.wrapStmt(make.IRReturn());
-                this.appendStmt(n, stmt);
                 this.epilogueProcess(n, stmt);
             }
             return Optional.empty();
         }
-
-
-        public IRSeq flatten() {
-            final var startNode = cfg.startNode().value();
-            var make = this.createMake(startNode);
-            Optional<GraphNode<CFGNode>> next =
-                        Optional.of(cfg.outgoingNodes(cfg.startNode()).get(0));
-            while (next.isPresent()) {
-                next = next.get().value().accept(this);
-            }
-
-            while (!this.trueBranches.isEmpty()) {
-                final Pair<GraphNode<CFGNode>, String> nextTrueBranch =
-                                                        trueBranches.remove();
-                next = Optional.of(nextTrueBranch.part1());
-                make = this.createMake(next.get().value());
-                final String trueLabel = nextTrueBranch.part2();
-
-                var stmt = this.wrapStmt(make.IRLabel(trueLabel));
-                this.predecessor = stmt;
-                this.stmts.add(stmt);
-                while (next.isPresent()) {
-                    next = next.get().value().accept(this);
-                }
-            }
-            return new IRSeq(startNode.location(), this.getFunctionBody());
-        }
-
 
         /**
          * There are no labels or statements associated with the start node.
@@ -376,9 +374,8 @@ public class CFGFlattener {
         public Optional<GraphNode<CFGNode>> visit(CFGStartNode n) {
             if (!this.performProcessIfVisited(n)) {
                 var startElement = this.wrapStmt();
-                this.appendStmt(n, startElement);
                 this.epilogueProcess(n, startElement);
-                return Optional.of(cfg.outgoingNodes(cfg.startNode()).get(0));
+                return this.nextNode(n);
             }
             return Optional.empty();
         }
@@ -390,15 +387,11 @@ public class CFGFlattener {
                 final var labelString = generator.newLabel();
                 final var stmt = this.wrapStmt(make.IRJump(make.IRName(labelString)));
                 stmt.setLabel(labelString);
-                this.appendStmt(n, stmt);
                 this.epilogueProcess(n, stmt);
             }
             return Optional.empty();
         }
 
     }
-
-
-
 
 }
