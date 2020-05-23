@@ -150,7 +150,9 @@ public class CFGGraph extends GenericGraph<CFGNode, Boolean> {
 
         this.remove(prev);
 
-        this.insert(now);
+        if (!this.containsNode(now)) {
+            this.insert(now);
+        }
         incomingToNow.forEach(this::join);
         outgoingFromNow.forEach(this::join);
     }
