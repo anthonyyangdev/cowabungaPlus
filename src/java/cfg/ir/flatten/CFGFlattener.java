@@ -2,7 +2,6 @@ package cfg.ir.flatten;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -57,10 +56,6 @@ public class CFGFlattener {
     private static class FlattenCFGVisitor
         implements IrCFGVisitor<Optional<GraphNode<CFGNode>>> {
 
-        private FlattenCFGVisitor() {
-            throw new UnsupportedOperationException("Cannot use default constrtuctor");
-        }
-
         /**
          * A wrapper class so that stmts can be compared via pointer addresses,
          * instead of their overwritten equals() methods.
@@ -71,12 +66,6 @@ public class CFGFlattener {
             private Optional<IRJump> jump;
 
             protected final List<IRStmt> stmt;
-
-            public IRStmtWrapper(List<IRStmt> stmts) {
-                this.stmt = Collections.unmodifiableList(stmts);
-                this.label = Optional.empty();
-                this.jump = Optional.empty();
-            }
 
             public IRStmtWrapper(IRStmt stmt) {
                 this.stmt = List.of(stmt);
@@ -204,10 +193,6 @@ public class CFGFlattener {
         }
 
         private IRStmtWrapper wrapStmt(IRStmt s) {
-            return new IRStmtWrapper(s);
-        }
-
-        private IRStmtWrapper wrapStmt(List<IRStmt> s) {
             return new IRStmtWrapper(s);
         }
 
