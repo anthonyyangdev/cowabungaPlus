@@ -104,9 +104,9 @@ public final class CFGUtil {
         for(Edge<CFGNode, Boolean> e: edges) {
             final int startId = nodeToLabel.get(e.start.value());
             final int endId = nodeToLabel.get(e.end.value());
-            String edgeName = "    " + startId + " -> " + endId + 
+            String edgeName = "    " + startId + " -> " + endId +
                             e.value.map(
-                                v -> "[label =\"  " + String.valueOf(v) + "\"]")
+                                v -> " [label =\"  " + String.valueOf(v) + "\"]")
                             .orElse("");
             printer.println(edgeName);
         }
