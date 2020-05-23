@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 import cfg.ir.constructor.CFGConstructor;
+import cfg.ir.constructor.CFGGraphRepOk;
 import cfg.ir.flatten.CFGFlattener;
 import cyr7.ast.Node;
 import cyr7.cli.CLI;
@@ -44,9 +45,13 @@ public class IRUtil {
 
         compUnit = compUnit.accept(new LoweringVisitor(generator)).assertThird();
         compUnit = TraceOptimizer.optimize(compUnit, generator);
-        final var alt = CFGConstructor.constructCFG(compUnit);
+        final var cfg = CFGConstructor.constructCFG(compUnit);
 
-        compUnit = CFGFlattener.flatten(alt, compUnit);
+        cfg.forEach((name, graph) -> {
+            assert CFGGraphRepOk.repOk(graph);
+        });
+
+        compUnit = CFGFlattener.flatten(cfg, compUnit);
 
         if (optConfig.cf()) {
             compUnit = (IRCompUnit)compUnit.accept(new IRConstFoldVisitor()).assertSecond();
