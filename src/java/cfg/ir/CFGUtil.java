@@ -11,8 +11,6 @@ import java.util.Map;
 import cfg.ir.constructor.CFGConstructor;
 import cfg.ir.dot.IrCFGDotUtil;
 import cfg.ir.dot.IrCFGDotUtil.DotData;
-import cfg.ir.nodes.CFGNode;
-import cfg.ir.nodes.CFGStartNode;
 import cyr7.cli.OptConfig;
 import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.IRUtil;
@@ -35,11 +33,11 @@ public final class CFGUtil {
                 fileOpener,
                 optConfig,
                 new DefaultIdGenerator());
-        Map<String, CFGStartNode> result = CFGConstructor.constructCFG(lowered);
-        outputDotForFunctionIR(result.get(functionName), writer);
+        Map<String, CFGGraph> cfg = CFGConstructor.constructCFG(lowered);
+        outputDotForFunctionIR(cfg.get(functionName), writer);
     }
 
-    public static Map<String, CFGStartNode> generateAllInitialDot(
+    public static Map<String, CFGGraph> generateAllInitialDot(
             Reader reader,
             String filename,
             IxiFileOpener fileOpener) throws Exception {
@@ -51,7 +49,7 @@ public final class CFGUtil {
         return CFGConstructor.constructCFG(lowered);
     }
 
-    public static Map<String, CFGStartNode> generateAllFinalDot(
+    public static Map<String, CFGGraph> generateAllFinalDot(
             Reader reader,
             String filename,
             IxiFileOpener fileOpener,
@@ -75,12 +73,12 @@ public final class CFGUtil {
                 "testJunk.xi",
                 null,
                 OptConfig.none(), new DefaultIdGenerator());
-        CFGNode startNode = CFGConstructor.constructCFG(lowered).get("_Imain_paai");
+        CFGGraph cfg = CFGConstructor.constructCFG(lowered).get("_Imain_paai");
         Writer writer = new PrintWriter(System.out);
-        outputDotForFunctionIR(startNode, writer);
+        outputDotForFunctionIR(cfg, writer);
     }
 
-    public static void outputDotForFunctionIR(CFGNode node, Writer writer) {
+    public static void outputDotForFunctionIR(CFGGraph node, Writer writer) {
         PrintWriter printer = new PrintWriter(writer);
         DotData data = IrCFGDotUtil.execute(node);
         printer.println("digraph nfa {");
