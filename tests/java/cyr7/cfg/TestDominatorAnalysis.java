@@ -9,14 +9,14 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import cfg.ir.dfa.WorklistAnalysis;
+import cfg.ir.dfa.loops.DominatorAnalysis;
+import cfg.ir.dfa.loops.DominatorUtil;
+import cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGNodeFactory;
+import cfg.ir.nodes.CFGStartNode;
+import cfg.ir.nodes.CFGStubNode;
 import cyr7.C;
-import cyr7.cfg.ir.dfa.WorklistAnalysis;
-import cyr7.cfg.ir.dfa.loops.DominatorAnalysis;
-import cyr7.cfg.ir.dfa.loops.DominatorUtil;
-import cyr7.cfg.ir.nodes.CFGNode;
-import cyr7.cfg.ir.nodes.CFGNodeFactory;
-import cyr7.cfg.ir.nodes.CFGStartNode;
-import cyr7.cfg.ir.nodes.CFGStubNode;
 import cyr7.ir.nodes.IRNodeFactory;
 import cyr7.ir.nodes.IRNodeFactory_c;
 import cyr7.ir.nodes.IRBinOp.OpType;

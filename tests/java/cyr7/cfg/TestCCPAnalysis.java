@@ -7,14 +7,14 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import cfg.ir.dfa.CCPAnalysis;
+import cfg.ir.dfa.WorklistAnalysis;
+import cfg.ir.dfa.CCPAnalysis.LatticeElement;
+import cfg.ir.dfa.CCPAnalysis.VLatticeElement;
+import cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGNodeFactory;
+import cfg.ir.nodes.CFGStartNode;
 import cyr7.C;
-import cyr7.cfg.ir.dfa.CCPAnalysis;
-import cyr7.cfg.ir.dfa.CCPAnalysis.LatticeElement;
-import cyr7.cfg.ir.dfa.CCPAnalysis.VLatticeElement;
-import cyr7.cfg.ir.dfa.WorklistAnalysis;
-import cyr7.cfg.ir.nodes.CFGNode;
-import cyr7.cfg.ir.nodes.CFGNodeFactory;
-import cyr7.cfg.ir.nodes.CFGStartNode;
 import cyr7.ir.nodes.IRBinOp.OpType;
 import cyr7.ir.nodes.IRNodeFactory;
 import cyr7.ir.nodes.IRNodeFactory_c;

@@ -8,10 +8,10 @@ import java.util.Map;
 import cyr7.cli.Optimization;
 import org.junit.jupiter.api.Test;
 
-import cyr7.cfg.ir.constructor.CFGConstructor;
-import cyr7.cfg.ir.flatten.CFGFlattener;
-import cyr7.cfg.ir.nodes.CFGNode;
-import cyr7.cfg.ir.nodes.CFGStartNode;
+import cfg.ir.constructor.CFGConstructor;
+import cfg.ir.flatten.CFGFlattener;
+import cfg.ir.nodes.CFGNode;
+import cfg.ir.nodes.CFGStartNode;
 import cyr7.cli.OptConfig;
 import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.IRUtil;
