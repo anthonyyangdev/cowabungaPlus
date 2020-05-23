@@ -105,6 +105,6 @@ public class IRMem extends IRExpr_c {
 
     @Override
     public String userFriendlyString() {
-        return "[ " + this.memType + " ]";
+        return "[ " + this.expr.userFriendlyString() + " ]";
     }
 }
