@@ -51,9 +51,9 @@ public class CFGVarAssignNode extends CFGNode {
 
     @Override
     public String toString() {
-        String valueString = value.toString()
+        String valueString = value.userFriendlyString()
                                   .replaceAll("\n", "");
-        return String.format("%s=%s", variable, valueString);
+        return String.format("%s = %s", variable, valueString);
     }
 
     @Override

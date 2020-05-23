@@ -33,7 +33,7 @@ public class CFGReturnNode extends CFGNode {
 
     @Override
     public String toString() {
-        return "(return)";
+        return "return";
     }
 
     @Override

@@ -120,10 +120,15 @@ public class IRCallStmt extends IRStmt {
 
     @Override
     public String userFriendlyString() {
-        String targetValues = String.join(", ", this.collectors);
+        String targetValues;
+        if (this.collectors.isEmpty()) {
+            targetValues = "";
+        } else {
+            targetValues = String.join(", ", this.collectors) + " = ";
+        }
         String functionName = this.target.userFriendlyString();
         String arguments = String.join(", ", this.args.stream()
                 .map(a -> a.userFriendlyString()).collect(Collectors.toList()));
-        return targetValues + " = " + functionName + "(" + arguments + ")";
+        return targetValues + functionName + "(" + arguments + ")";
     }
 }
