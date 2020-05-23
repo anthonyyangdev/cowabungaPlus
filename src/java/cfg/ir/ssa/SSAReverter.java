@@ -7,13 +7,12 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import cfg.ir.nodes.CFGBlockNode;
+import cfg.ir.CFGGraph;
 import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGPhiFunctionBlock;
-import cfg.ir.nodes.CFGStartNode;
-import cfg.ir.nodes.CFGStubNode;
 import cfg.ir.nodes.CFGVarAssignNode;
 import cyr7.ir.nodes.IRTemp;
+import graph.GraphNode;
 
 public class SSAReverter {
 
@@ -25,71 +24,55 @@ public class SSAReverter {
      * @param start
      * @return
      */
-    public static CFGStartNode revert(CFGStartNode start) {
-        final Set<CFGNode> visited = new HashSet<>();
-        final Queue<CFGNode> worklist = new ArrayDeque<>();
+    public static CFGGraph revert(CFGGraph cfg) {
+        final Set<GraphNode<CFGNode>> visited = new HashSet<>();
+        final Queue<GraphNode<CFGNode>> worklist = new ArrayDeque<>();
 
-        worklist.add(start);
+        worklist.add(cfg.startNode());
 
         while (!worklist.isEmpty()) {
             final var node = worklist.remove();
 
             if (visited.contains(node)) continue;
 
-            if (node instanceof CFGPhiFunctionBlock) {
+            if (node.value() instanceof CFGPhiFunctionBlock) {
                 // Remove phi function and append to previous nodes.
-                final var phi = (CFGPhiFunctionBlock)node;
+                final var incoming = cfg.incomingNodes(node);
+                final int numberOfInNodes = incoming.size();
+                final var phi = (CFGPhiFunctionBlock)node.value();
 
                 // Remove incoming edges coming from phi.
-                for (CFGNode out: node.out()) {
-                    out.in().remove(phi);
+                cfg.remove(node);
+
+                List<List<CFGNode>> newNodeList =
+                                            new ArrayList<>(numberOfInNodes);
+                for (int i = 0; i < numberOfInNodes; i++) {
+                    newNodeList.add(new ArrayList<>());
                 }
 
-                List<Set<CFGVarAssignNode>> newNodeSets = new ArrayList<>();
-                for (int i = 0; i < phi.in().size(); i++) {
-                    newNodeSets.add(new HashSet<>());
-                }
-
-                var stubNode = new CFGStubNode();
                 phi.mappings.forEach((var, args) -> {
                     for (int j = 0; j < args.size(); j++) {
                         String a = args.get(j);
-                        newNodeSets.get(j).add(new CFGVarAssignNode(phi.location(),
-                                             var, new IRTemp(phi.location(), a),
-                                             stubNode));
+                        newNodeList.get(j).add(new CFGVarAssignNode(phi.location(),
+                                             var, new IRTemp(phi.location(), a)));
                     }
                 });
-                List<CFGNode> incoming = new ArrayList<>(phi.in());
-                phi.in().clear();
-                final int numOfIncoming = incoming.size();
-                for (int j = 0; j < numOfIncoming; j++) {
-                    final var setOfMoves = newNodeSets.get(j);
-                    CFGNode base = new CFGStubNode();
-                    for (CFGVarAssignNode m: setOfMoves) {
-                        m.replaceOutEdge(stubNode, base);
-                        base = m;
-                    }
-                    final var previousNode = incoming.get(j);
-
+                for (int j = 0; j < numberOfInNodes; j++) {
                     // Remove incoming edges to phi.
-                    previousNode.replaceOutEdge(phi,
-                            new CFGBlockNode(phi.location(),
-                                             base,
-                                             phi.outNode()));
+                    final var listOfMoves = newNodeList.get(j);
+                    final var previousNode = incoming.get(j);
+                    cfg.innerInsert(previousNode, node, (CFGNode[])listOfMoves.toArray());
                 }
             }
-
             visited.add(node);
-
-            for (CFGNode out: node.out()) {
+            final var outgoing = cfg.outgoingNodes(node);
+            for (GraphNode<CFGNode> out: outgoing) {
                 if (!visited.contains(out)) {
                     worklist.add(out);
                 }
             }
-
         }
-
-        return start;
+        return cfg;
     }
 
 }

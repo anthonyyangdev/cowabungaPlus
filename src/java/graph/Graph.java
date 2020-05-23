@@ -175,4 +175,11 @@ public interface Graph<V, E> {
     public boolean containsEdge(Edge<V, E> edge);
 
 
+    /**
+     * Returns the number of edges going into {@code node}.
+     * @param node
+     * @throws NonexistentNodeException if {@code node} does not exist in the graph.
+     */
+    public int inDegree(GraphNode<V> node) throws NonexistentNodeException;
+
 }

@@ -183,5 +183,12 @@ public class GenericGraph<V, E> implements Graph<V, E> {
         return false;
     }
 
-
+    @Override
+    public int inDegree(GraphNode<V> node) {
+        if (this.incomingEdges.containsKey(node)) {
+            return this.incomingEdges.get(node).size();
+        } else {
+            throw new NonexistentNodeException(node);
+        }
+    }
 }

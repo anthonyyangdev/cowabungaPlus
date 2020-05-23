@@ -4,12 +4,14 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import cfg.ir.CFGGraph;
 import cfg.ir.nodes.CFGNode;
-import cfg.ir.nodes.CFGStartNode;
+import graph.GraphNode;
 import polyglot.util.Pair;
 
 /**
@@ -18,7 +20,7 @@ import polyglot.util.Pair;
  */
 public class DominatorTreeComputer {
 
-    private final CFGStartNode start;
+    private final CFGNode start;
     private final Map<CFGNode, Integer> dfnum;
     private final Map<CFGNode, CFGNode> ancestors;
     private final Map<CFGNode, CFGNode> semi;
@@ -44,8 +46,20 @@ public class DominatorTreeComputer {
 
     private int N;
 
-    public DominatorTreeComputer(CFGStartNode start) {
-        this.start = start;
+    private final Map<CFGNode, List<GraphNode<CFGNode>>> outgoing;
+    private final Map<CFGNode, List<GraphNode<CFGNode>>> incoming;
+
+
+    public DominatorTreeComputer(CFGGraph cfg) {
+        this.start = cfg.startNode().value();
+        this.outgoing = new HashMap<>();
+        this.incoming = new HashMap<>();
+
+        cfg.nodes().forEach(n -> {
+            outgoing.put(n.value(), cfg.outgoingNodes(n));
+            incoming.put(n.value(), cfg.incomingNodes(n));
+        });
+
         this.dfnum = new HashMap<>();
         this.ancestors = new HashMap<>();
         this.semi = new HashMap<>();
@@ -96,7 +110,9 @@ public class DominatorTreeComputer {
             this.parent.put(node, immediateParent);
 
             N++;
-            for (CFGNode out: node.out()) {
+            final var outgoing = this.outgoing.get(node);
+            for (GraphNode<CFGNode> outNode: outgoing) {
+                final var out = outNode.value();
                 if (!this.dfnum.containsKey(out)) {
                     stack.push(new Pair<>(Optional.of(node), out));
                 }
@@ -163,7 +179,9 @@ public class DominatorTreeComputer {
              * These lines calculate the semidominator of n, based on the
              * Semidominator Theorem.
              */
-            for (CFGNode v: n.in()) {
+            final var incoming = this.incoming.get(n);
+            for (GraphNode<CFGNode> node: incoming) {
+                final var v = node.value();
                 CFGNode sPrime;
                 if (dfnum.get(v) <= dfnum.get(n)) {
                     sPrime = v;
@@ -244,7 +262,9 @@ public class DominatorTreeComputer {
             return;
 
         final var s = new HashSet<CFGNode>();
-        for (CFGNode y: n.out()) {
+        final var outgoing = this.outgoing.get(n);
+        for (GraphNode<CFGNode> node: outgoing) {
+            final var y = node.value();
             if (idom.get(y) != n) {
                 s.add(y);
             }
