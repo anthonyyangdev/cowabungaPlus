@@ -86,17 +86,15 @@ public class GenericGraph<V, E> implements Graph<V, E> {
     @Override
     public boolean join(GraphNode<V> start, GraphNode<V> end)
             throws NonexistentNodeException {
-        if (!this.outgoingEdges.containsKey(start)) {
-            throw new NonexistentNodeException(start);
-        } else if (!this.incomingEdges.containsKey(end)) {
-            throw new NonexistentNodeException(end);
-        }
-        final var edge = new Edge<V, E>(start, end);
-        this.outgoingEdges.get(start).add(edge);
-        this.incomingEdges.get(end).add(edge);
-
-        return true;
+        return this.join(new Edge<V, E>(start, end));
     }
+
+    @Override
+    public boolean join(GraphNode<V> start, GraphNode<V> end, E value)
+            throws NonexistentNodeException {
+        return this.join(new Edge<V, E>(start, end, value));
+    }
+
 
     @Override
     public boolean join(Edge<V, E> edge)
@@ -109,9 +107,7 @@ public class GenericGraph<V, E> implements Graph<V, E> {
             throw new NonexistentNodeException(end);
         }
 
-        if (edge.value.isPresent()) {
-            this.outgoingEdges.get(start).add(edge);
-        }
+        this.outgoingEdges.get(start).add(edge);
         this.incomingEdges.get(end).add(edge);
 
         return true;

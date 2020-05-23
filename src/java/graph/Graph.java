@@ -107,6 +107,20 @@ public interface Graph<V, E> {
     public boolean join(GraphNode<V> start, GraphNode<V> end) throws NonexistentNodeException;
 
     /**
+     * Inserts an edge from {@code start} to {@code end} with an edge value
+     * {@code value} into the graph.
+     * @param start
+     * @param end
+     * @return Returns {@code true} if the edge does not exist in the graph,
+     * i.e. {@code containsEdge(new Edge(start, end)) == false}. Returns
+     * {@code false} if the edge does exist in the graph, i.e.
+     * {@code containsEdge(new Edge(start, end)) == true}.
+     * @throws NonexistentNodeException one of the two nodes does not exist in
+     * the graph.
+     */
+    public boolean join(GraphNode<V> start, GraphNode<V> end, E value) throws NonexistentNodeException;
+
+    /**
      * Inserts an edge from {@code edge.start} to {@code edge.end} into
      * the graph.
      * @param edge
