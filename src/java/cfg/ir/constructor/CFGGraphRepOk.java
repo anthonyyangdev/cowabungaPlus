@@ -64,7 +64,7 @@ public class CFGGraphRepOk {
                 assert cfg.incomingNodes(out).contains(node);
                 assert cfg.containsEdge(node, out);
 
-                if (out.value() instanceof CFGIfNode) {
+                if (node.value() instanceof CFGIfNode) {
                     assert !cfg.edges().contains(new Edge<>(node, out));
                 } else {
                     assert cfg.edges().contains(new Edge<>(node, out));
