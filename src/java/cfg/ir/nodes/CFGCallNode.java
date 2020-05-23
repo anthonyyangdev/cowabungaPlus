@@ -48,7 +48,7 @@ public class CFGCallNode extends CFGNode {
 
     @Override
     public String toString() {
-        return call.toString().replaceAll("\n", "");
+        return call.userFriendlyString().replaceAll("\n", "");
     }
 
     @Override

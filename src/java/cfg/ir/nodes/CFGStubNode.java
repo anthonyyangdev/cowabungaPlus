@@ -34,7 +34,7 @@ public class CFGStubNode extends CFGNode {
 
     @Override
     public String toString() {
-        return "Stub";
+        return "Stub Node";
     }
 
     @Override

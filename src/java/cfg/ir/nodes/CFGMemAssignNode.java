@@ -49,9 +49,9 @@ public class CFGMemAssignNode extends CFGNode {
 
     @Override
     public String toString() {
-        String targetString = target.toString().replaceAll("\n", "");
-        String valueString = target.toString().replaceAll("\n", "");
-        return targetString + "=" + valueString;
+        String targetString = target.userFriendlyString().replaceAll("\n", "");
+        String valueString = target.userFriendlyString().replaceAll("\n", "");
+        return targetString + " = " + valueString;
     }
 
     @Override

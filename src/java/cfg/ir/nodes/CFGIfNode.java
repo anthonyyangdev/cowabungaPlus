@@ -44,8 +44,8 @@ public class CFGIfNode extends CFGNode {
 
     @Override
     public String toString() {
-        String condString = cond.toString().replaceAll("\n", "");
-        return String.format("if(%s)", condString);
+        String condString = cond.userFriendlyString().replaceAll("\n", "");
+        return String.format("if (%s)", condString);
     }
 
     @Override
