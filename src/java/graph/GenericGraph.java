@@ -27,7 +27,6 @@ public class GenericGraph<V, E> implements Graph<V, E> {
     public Set<Edge<V, E>> edges() {
         Set<Edge<V, E>> edges = new HashSet<>();
         this.incomingEdges.values().forEach(n -> edges.addAll(n));
-        this.outgoingEdges.values().forEach(n -> edges.addAll(n));
         return edges;
     }
 
