@@ -191,4 +191,32 @@ public class GenericGraph<V, E> implements Graph<V, E> {
             throw new NonexistentNodeException(node);
         }
     }
+
+
+    /**
+     * Returns a new subgraph of {@code this} graph that contains only the
+     * nodes in {@code subNodes}. Any edges from this graph are carried to the
+     * new graph.
+     * <p>
+     * Changes to edge relations in {@code this} graph are not
+     * reflected in the new graph, but changes to the nodes will appear in
+     * the new graph.
+     * @param subNodes
+     * @throws NonexistentNodeException if a node in {@code subNodes} is not
+     *                                  contained in {@code this} graph.
+     */
+    public GenericGraph<V, E> subGraph(Set<GraphNode<V>> subNodes) {
+        GenericGraph<V, E> subGraph = new GenericGraph<>();
+        subNodes.forEach(subGraph::insert);
+        subNodes.forEach(node -> {
+            if (!this.containsNode(node))
+                throw new NonexistentNodeException(node);
+            this.incomingEdges.get(node).stream().filter(e ->
+                subNodes.contains(e.start) && subNodes.contains(e.end)
+            ).forEach(subGraph::join);
+        });
+        return subGraph;
+    }
+
+
 }
