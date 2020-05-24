@@ -35,10 +35,8 @@ import cyr7.ir.nodes.IRStmt;
 import cyr7.ir.nodes.IRTemp;
 import cyr7.visitor.MyIRVisitor;
 import graph.Edge;
-import graph.GraphNode;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import polyglot.util.Pair;
-
 
 public class NormalCFGConstructor {
 
@@ -48,16 +46,17 @@ public class NormalCFGConstructor {
         final var generator = new CFGConstructorVisitor(body.location());
         final var cfg = generator.execute(body);
         cfg.clean();
+
         return cfg;
     }
 
-    private static class CFGConstructorVisitor implements MyIRVisitor<GraphNode<CFGNode>> {
+    private static class CFGConstructorVisitor implements MyIRVisitor<CFGNode> {
 
-        private final Map<String, GraphNode<CFGNode>> labelToCFG;
-        private final Queue<Pair<GraphNode<CFGNode>, String>> jumpTargetFromCFG;
-        private final GraphNode<CFGNode> absoluteLastReturn = node(new CFGReturnNode(
-                                    new Location(Integer.MAX_VALUE, Integer.MAX_VALUE)));
-        private GraphNode<CFGNode> successor;
+        private final Map<String, CFGNode> labelToCFG;
+        private final Queue<Pair<CFGNode, String>> jumpTargetFromCFG;
+        private final CFGNode absoluteLastReturn = new CFGReturnNode(
+                                    new Location(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        private CFGNode successor;
 
         /**
          * This boolean is for testing purposes, enforcing that IRSeq is only found
@@ -79,17 +78,13 @@ public class NormalCFGConstructor {
             return new CFGStubNode();
         }
 
-        private GraphNode<CFGNode> node(CFGNode n) {
-            return new GraphNode<>(n);
-        }
-
         public CFGGraph execute(IRStmt body) {
             body.accept(this);
             return this.cfg;
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRSeq n) {
+        public CFGNode visit(IRSeq n) {
             if (this.hasEnteredIRSeq) {
                 throw new UnsupportedOperationException(
                         "Cannot enter the IRSeq visitor twice");
@@ -102,18 +97,18 @@ public class NormalCFGConstructor {
                 var stmt = stmts.get(i);
                 successor = stmt.accept(this);
             }
-            cfg.join(cfg.startNode(), successor);
+            cfg.join(cfg.startNode, successor);
 
             while (!this.jumpTargetFromCFG.isEmpty()) {
                 var nextPair = this.jumpTargetFromCFG.poll();
-                GraphNode<CFGNode> stub = nextPair.part1();
+                CFGNode stub = nextPair.part1();
                 String target = nextPair.part2();
 
                 if (this.labelToCFG.containsKey(target)) {
-                    GraphNode<CFGNode> targetNode = this.labelToCFG.get(target);
+                    CFGNode targetNode = this.labelToCFG.get(target);
                     if (targetNode == stub) {
                         // Infinite loop...
-                        var selfLoop = node(new CFGSelfLoopNode());
+                        var selfLoop = new CFGSelfLoopNode();
                         cfg.replaceNode(stub, selfLoop);
                         cfg.join(selfLoop, selfLoop);
                     } else {
@@ -128,18 +123,18 @@ public class NormalCFGConstructor {
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRCJump n) {
+        public CFGNode visit(IRCJump n) {
             // IR should be lowered, meaning false branches are fall-throughs.
             final String trueBranchLabel = n.trueLabel();
-            final GraphNode<CFGNode> ifNode;
-            final GraphNode<CFGNode> trueBranchNode;
+            final CFGNode ifNode;
+            final CFGNode trueBranchNode;
             if (this.labelToCFG.containsKey(trueBranchLabel)) {
-                ifNode = node(new CFGIfNode(n.location(), n.cond()));
+                ifNode = new CFGIfNode(n.location(), n.cond());
                 trueBranchNode = this.labelToCFG.get(trueBranchLabel);
             } else {
                 // Create stub node, and connect target to the stub node.
-                ifNode = node(new CFGIfNode(n.location(), n.cond()));
-                trueBranchNode = node(this.createStubNode());
+                ifNode = new CFGIfNode(n.location(), n.cond());
+                trueBranchNode = this.createStubNode();
                 this.jumpTargetFromCFG.add(new Pair<>(trueBranchNode, trueBranchLabel));
                 cfg.insert(trueBranchNode);
             }
@@ -150,7 +145,7 @@ public class NormalCFGConstructor {
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRJump n) {
+        public CFGNode visit(IRJump n) {
             if (n.target() instanceof IRName) {
                 String target = ((IRName) n.target()).name();
                 if (this.labelToCFG.containsKey(target)) {
@@ -158,7 +153,7 @@ public class NormalCFGConstructor {
                     return this.labelToCFG.get(target);
                 } else {
                     // Create a stub node for later computation
-                    final var stub = node(this.createStubNode());
+                    final var stub = this.createStubNode();
                     this.jumpTargetFromCFG.add(new Pair<>(stub, target));
                     cfg.insert(stub);
                     return stub;
@@ -170,30 +165,30 @@ public class NormalCFGConstructor {
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRCallStmt n) {
-            final var callNode = node(new CFGCallNode(n.location(), n));
+        public CFGNode visit(IRCallStmt n) {
+            final var callNode = new CFGCallNode(n.location(), n);
             cfg.insert(callNode);
             cfg.join(callNode, successor);
             return callNode;
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRLabel n) {
+        public CFGNode visit(IRLabel n) {
             this.labelToCFG.put(n.name(), successor);
             return successor;
         }
 
 
         @Override
-        public GraphNode<CFGNode> visit(IRMove n) {
-            final GraphNode<CFGNode> assignNode;
+        public CFGNode visit(IRMove n) {
+            final CFGNode assignNode;
             if (n.target() instanceof IRTemp) {
                 final var temp = (IRTemp) n.target();
-                assignNode = node(new CFGVarAssignNode(n.location(),
-                                                temp.name(), n.source()));
+                assignNode = new CFGVarAssignNode(n.location(),
+                                                temp.name(), n.source());
             } else {
-                assignNode = node(new CFGMemAssignNode(n.location(),
-                                                n.target(), n.source()));
+                assignNode = new CFGMemAssignNode(n.location(),
+                                                n.target(), n.source());
             }
             cfg.insert(assignNode);
             cfg.join(assignNode, successor);
@@ -202,66 +197,66 @@ public class NormalCFGConstructor {
 
 
         @Override
-        public GraphNode<CFGNode> visit(IRReturn n) {
-            final var returnNode = node(new CFGReturnNode(n.location()));
+        public CFGNode visit(IRReturn n) {
+            final var returnNode = new CFGReturnNode(n.location());
             cfg.insert(returnNode);
             return returnNode;
         }
 
 
         @Override
-        public GraphNode<CFGNode> visit(IRCompUnit n) {
+        public CFGNode visit(IRCompUnit n) {
             throw new UnsupportedOperationException(
                     "Cannot use IRCompUnit in this visitor.");
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRExp n) {
+        public CFGNode visit(IRExp n) {
             throw new UnsupportedOperationException("Cannot use IRExp in LIR.");
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRFuncDecl n) {
+        public CFGNode visit(IRFuncDecl n) {
             throw new UnsupportedOperationException(
                     "Cannot use IRFuncDecl in this visitor.");
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRBinOp n) {
+        public CFGNode visit(IRBinOp n) {
             throw new UnsupportedOperationException(
                     "Cannot use IR expressions in this visitor.");
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRCall n) {
+        public CFGNode visit(IRCall n) {
             throw new UnsupportedOperationException("Cannot use IRCall in LIR.");
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRConst n) {
+        public CFGNode visit(IRConst n) {
             throw new UnsupportedOperationException(
                     "Cannot use IR expressions in this visitor.");
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRESeq n) {
+        public CFGNode visit(IRESeq n) {
             throw new UnsupportedOperationException("Cannot use IRESeq in LIR.");
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRMem n) {
+        public CFGNode visit(IRMem n) {
             throw new UnsupportedOperationException(
                     "Cannot use IR expressions in this visitor.");
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRName n) {
+        public CFGNode visit(IRName n) {
             throw new UnsupportedOperationException(
                     "There are no reasons to use IRName other than it being inside of IRJump or IRCallStmt.");
         }
 
         @Override
-        public GraphNode<CFGNode> visit(IRTemp n) {
+        public CFGNode visit(IRTemp n) {
             throw new UnsupportedOperationException(
                     "Cannot use IR expressions in this visitor.");
         }

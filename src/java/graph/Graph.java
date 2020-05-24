@@ -21,7 +21,7 @@ public interface Graph<V, E> {
      * Likewise, inserting/removing nodes into/from the graph after this
      * method is called does not affect the returned set of nodes.
      */
-    public Set<GraphNode<V>> nodes();
+    public Set<V> nodes();
 
     /**
      * Returns a set of edges used in this graph. All edges in this graph are
@@ -49,7 +49,7 @@ public interface Graph<V, E> {
      * and becomes a new node. Returns {@code false} if {@code node} is already
      * a node in the graph, i.e. {@code containsNode(node) == true}.
      */
-    public boolean insert(GraphNode<V> node);
+    public boolean insert(V node);
 
     /**
      * Removes {@code node}, as well as any edges that includes {@code node} as
@@ -59,7 +59,7 @@ public interface Graph<V, E> {
      * @throws NonexistentNodeException if {@code node} is not a node
      * in the graph, i.e. {@code containsNode(node) == false}.
      */
-    public GraphNode<V> remove(GraphNode<V> node) throws NonexistentNodeException;
+    public V remove(V node) throws NonexistentNodeException;
 
     /**
      * Returns the list of graph nodes {@code n} where {@code node} is a start
@@ -75,7 +75,7 @@ public interface Graph<V, E> {
      * @throws NonexistentNodeException if {@code node} is not a node
      * in the graph, i.e. {@code containsNode(node) == false}.
      */
-    public List<GraphNode<V>> outgoingNodes(GraphNode<V> node) throws NonexistentNodeException;
+    public List<V> outgoingNodes(V node) throws NonexistentNodeException;
 
     /**
      * Returns the list of graph nodes {@code n} where {@code node} is an end
@@ -91,7 +91,7 @@ public interface Graph<V, E> {
      * @throws NonexistentNodeException if {@code node} is not a node
      * in the graph, i.e. {@code containsNode(node) == false}.
      */
-    public List<GraphNode<V>> incomingNodes(GraphNode<V> node) throws NonexistentNodeException;
+    public List<V> incomingNodes(V node) throws NonexistentNodeException;
 
     /**
      * Inserts an edge from {@code start} to {@code end} into the graph.
@@ -104,7 +104,7 @@ public interface Graph<V, E> {
      * @throws NonexistentNodeException one of the two nodes does not exist in
      * the graph.
      */
-    public boolean join(GraphNode<V> start, GraphNode<V> end) throws NonexistentNodeException;
+    public boolean join(V start, V end) throws NonexistentNodeException;
 
     /**
      * Inserts an edge from {@code start} to {@code end} with an edge value
@@ -118,7 +118,7 @@ public interface Graph<V, E> {
      * @throws NonexistentNodeException one of the two nodes does not exist in
      * the graph.
      */
-    public boolean join(GraphNode<V> start, GraphNode<V> end, E value) throws NonexistentNodeException;
+    public boolean join(V start, V end, E value) throws NonexistentNodeException;
 
     /**
      * Inserts an edge from {@code edge.start} to {@code edge.end} into
@@ -143,7 +143,7 @@ public interface Graph<V, E> {
      * {@code end} does not exist in the graph, i.e.
      * {@code containsEdge(new Edge(start, end)) == false}.
      */
-    public Edge<V, E> unlink(GraphNode<V> start, GraphNode<V> end) throws NonexistentEdgeException;
+    public Edge<V, E> unlink(V start, V end) throws NonexistentEdgeException;
 
     /**
      * Removes the edge from {@code start} to {@code end} from the graph.
@@ -160,13 +160,13 @@ public interface Graph<V, E> {
      * {@code true} if {@code node} is a node in the graph.
      * Returns {@code false} if {@code node} is not a node in the graph.
      */
-    public boolean containsNode(GraphNode<V> node);
+    public boolean containsNode(V node);
 
     /**
      * Returns {@code true} if the edge exists in the graph.
      * Returns {@code false} if the edge does not exist in the graph.
      */
-    public boolean containsEdge(GraphNode<V> start, GraphNode<V> end);
+    public boolean containsEdge(V start, V end);
 
     /**
      * Returns {@code true} if the edge exists in the graph,
@@ -180,6 +180,6 @@ public interface Graph<V, E> {
      * @param node
      * @throws NonexistentNodeException if {@code node} does not exist in the graph.
      */
-    public int inDegree(GraphNode<V> node) throws NonexistentNodeException;
+    public int inDegree(V node) throws NonexistentNodeException;
 
 }
