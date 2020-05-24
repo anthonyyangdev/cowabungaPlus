@@ -23,8 +23,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import cfg.ir.CFGGraph;
 import cfg.ir.CFGUtil;
+import cfg.ir.graph.CFGGraph;
 import cyr7.ir.IRUtil;
 import cyr7.lexer.LexerUtil;
 import cyr7.parser.ParserUtil;

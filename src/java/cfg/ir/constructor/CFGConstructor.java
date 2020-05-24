@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cfg.ir.CFGGraph;
+import cfg.ir.graph.CFGGraph;
 import cfg.ir.nodes.CFGStartNode;
 import cyr7.ir.block.BasicBlock;
 import cyr7.ir.nodes.IRCompUnit;

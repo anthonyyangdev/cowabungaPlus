@@ -12,7 +12,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import cfg.ir.CFGGraph;
+import cfg.ir.graph.CFGGraph;
 import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGNodeFactory;
 import cyr7.ir.nodes.IRCallStmt;

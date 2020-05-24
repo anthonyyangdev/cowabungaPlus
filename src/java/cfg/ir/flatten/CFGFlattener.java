@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
-import cfg.ir.CFGGraph;
+import cfg.ir.graph.CFGGraph;
 import cfg.ir.nodes.CFGCallNode;
 import cfg.ir.nodes.CFGIfNode;
 import cfg.ir.nodes.CFGMemAssignNode;

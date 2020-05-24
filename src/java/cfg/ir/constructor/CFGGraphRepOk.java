@@ -4,7 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cfg.ir.CFGGraph;
+import cfg.ir.graph.CFGGraph;
 import cfg.ir.nodes.CFGCallNode;
 import cfg.ir.nodes.CFGIfNode;
 import cfg.ir.nodes.CFGMemAssignNode;

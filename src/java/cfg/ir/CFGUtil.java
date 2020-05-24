@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import cfg.ir.constructor.CFGConstructor;
+import cfg.ir.graph.CFGGraph;
 import cfg.ir.nodes.CFGNode;
 import cyr7.cli.OptConfig;
 import cyr7.ir.DefaultIdGenerator;

@@ -6,9 +6,9 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import cfg.ir.CFGGraph;
 import cfg.ir.constructor.CFGConstructor;
 import cfg.ir.flatten.CFGFlattener;
+import cfg.ir.graph.CFGGraph;
 import cyr7.cli.OptConfig;
 import cyr7.cli.Optimization;
 import cyr7.ir.DefaultIdGenerator;

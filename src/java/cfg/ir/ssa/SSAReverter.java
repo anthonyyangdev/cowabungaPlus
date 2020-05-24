@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import cfg.ir.CFGGraph;
+import cfg.ir.graph.CFGGraph;
 import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGPhiFunctionBlock;
 import cfg.ir.nodes.CFGVarAssignNode;
