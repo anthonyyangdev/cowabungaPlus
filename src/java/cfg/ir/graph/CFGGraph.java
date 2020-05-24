@@ -44,7 +44,6 @@ public class CFGGraph {
      * node.
      */
     public void clean() {
-
         Set<CFGNode> reachable =
                     Graphs.reachableNodes(this.graph.asGraph(), this.startNode);
         final var unreachable = new HashSet<>(this.graph.nodes());
@@ -74,6 +73,14 @@ public class CFGGraph {
         if (this.graph.hasEdgeConnecting(start, end)) {
             this.graph.removeEdge(start, end);
             return;
+        }
+        throw new NonexistentEdgeException(new Edge<>(start, end));
+    }
+
+    public Optional<Boolean> edgeValue(CFGNode start, CFGNode end) {
+        final var value = this.graph.edgeValue(start, end);
+        if (value.isPresent()) {
+            return value.get();
         }
         throw new NonexistentEdgeException(new Edge<>(start, end));
     }
@@ -167,6 +174,35 @@ public class CFGGraph {
 
     public int outDegree(CFGNode node) {
         return this.graph.outDegree(node);
+    }
+
+
+    /**
+     * Replaces the node {@code prev} in the CFG with node {@code now}. Any
+     * edges, including the values of those edges, that include the node
+     * {@code prev} are replaced with edges with the same values that subtitute
+     * occurrences of {@code prev} with {@code now}. The node {@code prev} is
+     * also removed from the CFG entirely.
+     *
+     * @param old The node to be replaced and removed from the CFG.
+     * @param current The node to be replace {@code old}. Can be a node that
+     *                already exists in the CFG.
+     */
+    public void replaceNode(CFGNode prev, CFGNode now) {
+        if (prev.equals(now)) {
+            return;
+        }
+        if (!this.containsNode(now)) {
+            this.insert(now);
+        }
+        this.graph.incidentEdges(prev).forEach(edge -> {
+            if (edge.nodeV().equals(prev)) {
+                this.join(edge.nodeU(), now);
+            } else {
+                this.join(now, edge.nodeV());
+            }
+        });
+        this.remove(prev);
     }
 
 }
