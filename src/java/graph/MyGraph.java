@@ -8,7 +8,7 @@ import java.util.Set;
  * @author ayang
  * @param <V> The type of value stored in each graph node.
  */
-public interface Graph<V, E> {
+public interface MyGraph<V, E> {
 
     /**
      * Returns a set of graph nodes inserted into this graph. Nodes are

@@ -159,7 +159,6 @@ public class CFGGraph {
         return this.graph.hasEdgeConnecting(start, end);
     }
 
-
     public boolean containsEdge(Edge<CFGNode, Boolean> edge) {
         final var start = edge.start;
         final var end = edge.end;
