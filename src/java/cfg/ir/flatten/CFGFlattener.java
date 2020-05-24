@@ -31,7 +31,6 @@ import cyr7.ir.nodes.IRNodeFactory;
 import cyr7.ir.nodes.IRNodeFactory_c;
 import cyr7.ir.nodes.IRSeq;
 import cyr7.ir.nodes.IRStmt;
-import graph.GraphNode;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import polyglot.util.Pair;
 
@@ -44,7 +43,7 @@ public class CFGFlattener {
         Map<String, IRFuncDecl> functions = new HashMap<>();
         DefaultIdGenerator gen = new DefaultIdGenerator();
         cfgMap.forEach((functionName, cfg) -> {
-            final var flattener = new FlattenCFGVisitor(cfg, gen);
+            final FlattenCFGVisitor flattener = new FlattenCFGVisitor(cfg, gen);
             IRSeq flattened = flattener.flatten();
             IRFuncDecl function = new IRFuncDecl(compUnit.location(),
                         functionName, flattened, compUnit.getFunction(functionName).type());
@@ -54,7 +53,7 @@ public class CFGFlattener {
     }
 
     private static class FlattenCFGVisitor
-        implements IrCFGVisitor<Optional<GraphNode<CFGNode>>> {
+        implements IrCFGVisitor<Optional<CFGNode>> {
 
         /**
          * A wrapper class so that stmts can be compared via pointer addresses,
@@ -140,7 +139,7 @@ public class CFGFlattener {
          * not matter; the order in which these CFGNode sub-graphs are transformed
          * is not important.
          */
-        private final Queue<Pair<GraphNode<CFGNode>, String>> trueBranches;
+        private final Queue<Pair<CFGNode, String>> trueBranches;
 
         /**
          * The previous IRStmt added to the list of statements when traversing
@@ -164,25 +163,24 @@ public class CFGFlattener {
 
 
         public IRSeq flatten() {
-            final var startNode = cfg.startNode().value();
+            final var startNode = cfg.startNode;
             var make = this.createMake(startNode);
-            Optional<GraphNode<CFGNode>> next = this.nextNode(cfg.startNode().value());
+            Optional<CFGNode> next = this.nextNode(cfg.startNode);
             while (next.isPresent()) {
-                next = next.get().value().accept(this);
+                next = next.get().accept(this);
             }
 
             while (!this.trueBranches.isEmpty()) {
-                final Pair<GraphNode<CFGNode>, String> nextTrueBranch =
-                                                        trueBranches.remove();
+                final Pair<CFGNode, String> nextTrueBranch = trueBranches.remove();
                 next = Optional.of(nextTrueBranch.part1());
-                make = this.createMake(next.get().value());
+                make = this.createMake(next.get());
                 final String trueLabel = nextTrueBranch.part2();
 
                 var stmt = this.wrapStmt(make.IRLabel(trueLabel));
                 this.predecessor = stmt;
                 this.stmts.add(stmt);
                 while (next.isPresent()) {
-                    next = next.get().value().accept(this);
+                    next = next.get().accept(this);
                 }
             }
             return new IRSeq(startNode.location(), this.getFunctionBody());
@@ -243,12 +241,12 @@ public class CFGFlattener {
             }
         }
 
-        private Optional<GraphNode<CFGNode>> nextNode(CFGNode n) {
-            return Optional.of(cfg.outgoingNodes(new GraphNode<>(n)).get(0));
+        private Optional<CFGNode> nextNode(CFGNode n) {
+            return Optional.of(cfg.outgoingNodes(n).get(0));
         }
 
-        private Pair<GraphNode<CFGNode>, GraphNode<CFGNode>> ifBranches(CFGIfNode n) {
-            final var outNodes = cfg.outgoingNodes(new GraphNode<>(n));
+        private Pair<CFGNode, CFGNode> ifBranches(CFGIfNode n) {
+            final var outNodes = cfg.outgoingNodes(n);
             assert outNodes.size() == 2;
             return new Pair<>(outNodes.get(0), outNodes.get(1));
         }
@@ -284,7 +282,7 @@ public class CFGFlattener {
         }
 
         @Override
-        public Optional<GraphNode<CFGNode>> visit(CFGCallNode n) {
+        public Optional<CFGNode> visit(CFGCallNode n) {
             if (!this.performProcessIfVisited(n)) {
                 final var stmt = this.wrapStmt(n.call);
                 this.epilogueProcess(n, stmt);
@@ -294,7 +292,7 @@ public class CFGFlattener {
         }
 
         @Override
-        public Optional<GraphNode<CFGNode>> visit(CFGIfNode n) {
+        public Optional<CFGNode> visit(CFGIfNode n) {
             if (!this.performProcessIfVisited(n)) {
                 final var branches = this.ifBranches(n);
                 final var trueBranchNode = branches.part1();
@@ -311,7 +309,7 @@ public class CFGFlattener {
         }
 
         @Override
-        public Optional<GraphNode<CFGNode>> visit(CFGVarAssignNode n) {
+        public Optional<CFGNode> visit(CFGVarAssignNode n) {
             if (!this.performProcessIfVisited(n)) {
                 final var make = this.createMake(n);
                 final var stmt = this
@@ -323,7 +321,7 @@ public class CFGFlattener {
         }
 
         @Override
-        public Optional<GraphNode<CFGNode>> visit(CFGMemAssignNode n) {
+        public Optional<CFGNode> visit(CFGMemAssignNode n) {
             if (!this.performProcessIfVisited(n)) {
                 final var make = this.createMake(n);
                 final var stmt = this.wrapStmt(make.IRMove(n.target, n.value));
@@ -343,7 +341,7 @@ public class CFGFlattener {
          * </ol>
          */
         @Override
-        public Optional<GraphNode<CFGNode>> visit(CFGReturnNode n) {
+        public Optional<CFGNode> visit(CFGReturnNode n) {
             if (!this.performProcessIfVisited(n)) {
                 final var make = this.createMake(n);
                 var stmt = this.wrapStmt(make.IRReturn());
@@ -356,7 +354,7 @@ public class CFGFlattener {
          * There are no labels or statements associated with the start node.
          */
         @Override
-        public Optional<GraphNode<CFGNode>> visit(CFGStartNode n) {
+        public Optional<CFGNode> visit(CFGStartNode n) {
             if (!this.performProcessIfVisited(n)) {
                 var startElement = this.wrapStmt();
                 this.epilogueProcess(n, startElement);
@@ -366,7 +364,7 @@ public class CFGFlattener {
         }
 
         @Override
-        public Optional<GraphNode<CFGNode>> visit(CFGSelfLoopNode n) {
+        public Optional<CFGNode> visit(CFGSelfLoopNode n) {
             if (!this.performProcessIfVisited(n)) {
                 final var make = this.createMake(n);
                 final var labelString = generator.newLabel();
