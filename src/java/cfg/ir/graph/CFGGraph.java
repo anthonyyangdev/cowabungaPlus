@@ -205,4 +205,104 @@ public class CFGGraph {
         this.remove(prev);
     }
 
+
+    /**
+     * Inserts a new node with value {@code prev} before {@code node}.
+     * This means all edges that went into {@code node} now point to
+     * {@code prev}. Outgoing edges from {@code node} remain the same. Lastly,
+     * an edge from {@code prev} to {@code node} is created.
+     * @param prev
+     * @param node
+     */
+    public void prependNode(CFGNode node, CFGNode... newNode) {
+        if (newNode.length == 0) return;
+
+        CFGNode firstInChain = newNode[0];
+        this.insert(firstInChain);
+        CFGNode lastInChain = firstInChain;
+        for (int i = 1; i < newNode.length; i++) {
+            final var nextGraphNode = newNode[i];
+            this.insert(nextGraphNode);
+            this.join(lastInChain, nextGraphNode);
+            lastInChain = nextGraphNode;
+        }
+
+        final var incomingNodes = this.incomingNodes(node);
+        incomingNodes.forEach(in -> {
+            final var value = this.edgeValue(in, node);
+            this.unlink(in, node);
+            if (value.isPresent()) {
+                this.join(in, firstInChain, value.get());
+            } else {
+                this.join(in, firstInChain);
+            }
+        });
+        this.join(lastInChain, node);
+    }
+
+
+
+    /**
+     * Inserts a new node with value {@code prev} before {@code node}.
+     * This means all edges that went into {@code node} now point to
+     * {@code prev}. Outgoing edges from {@code node} remain the same. Lastly,
+     * an edge from {@code prev} to {@code node} is created.
+     * @param prev
+     * @param node
+     */
+    public void postpendNode(CFGNode node, CFGNode... newNode) {
+        if (newNode.length == 0) return;
+
+        CFGNode firstInChain = newNode[0];
+        this.insert(firstInChain);
+        CFGNode lastInChain = firstInChain;
+        for (int i = 1; i < newNode.length; i++) {
+            final var nextGraphNode = newNode[i];
+            this.insert(nextGraphNode);
+            this.join(lastInChain, nextGraphNode);
+            lastInChain = nextGraphNode;
+        }
+
+        final var lastNode = lastInChain;
+        final var outgoingNodes = this.incomingNodes(node);
+        outgoingNodes.forEach(end -> {
+            final var value = this.edgeValue(node, end);
+            this.unlink(node, end);
+            if (value.isPresent()) {
+                this.join(lastNode, end, value.get());
+            } else {
+                this.join(lastNode, end);
+            }
+        });
+        this.join(firstInChain, node);
+    }
+
+
+
+    /**
+     * Inserts a new node with value {@code prev} before {@code node}.
+     * This means all edges that went into {@code node} now point to
+     * {@code prev}. Outgoing edges from {@code node} remain the same. Lastly,
+     * an edge from {@code prev} to {@code node} is created.
+     * @param prev
+     * @param node
+     */
+    public void innerInsert(CFGNode start, CFGNode end, CFGNode... newNode) {
+        if (newNode.length == 0) return;
+
+        CFGNode firstInChain = newNode[0];
+        this.insert(firstInChain);
+        CFGNode lastInChain = firstInChain;
+        for (int i = 1; i < newNode.length; i++) {
+            final var nextGraphNode = newNode[i];
+            this.insert(nextGraphNode);
+            this.join(lastInChain, nextGraphNode);
+            lastInChain = nextGraphNode;
+        }
+
+        this.unlink(start, end);
+        this.join(start, firstInChain);
+        this.join(lastInChain, end);
+    }
+
 }
