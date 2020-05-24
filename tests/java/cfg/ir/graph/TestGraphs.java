@@ -1,4 +1,4 @@
-package graph;
+package cfg.ir.graph;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,12 +12,13 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import cfg.ir.graph.CFGGraph;
 import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGNodeFactory;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRConst;
 import cyr7.ir.nodes.IRExpr;
+import graph.Edge;
+import graph.NonexistentEdgeException;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 class TestGraphs {
@@ -35,7 +36,7 @@ class TestGraphs {
 
     @Test
     void testInsertAndRemove() {
-        final CFGGraph genericGraph = new CFGGraph(LOC);
+        final CFGGraph cfg = new CFGGraph(LOC);
 
         // Test Insertion
         final var retNode = make.Return();
@@ -43,96 +44,96 @@ class TestGraphs {
         final var selfLoopNode = make.SelfLoop();
         final var callNode = call();
 
-        genericGraph.insert(retNode);
-        genericGraph.insert(ifConstNode);
-        genericGraph.insert(selfLoopNode);
-        genericGraph.insert(callNode);
+        cfg.insert(retNode);
+        cfg.insert(ifConstNode);
+        cfg.insert(selfLoopNode);
+        cfg.insert(callNode);
 
         // Contains insert nodes
-        assertTrue(genericGraph.containsNode(genericGraph.startNode));
-        assertTrue(genericGraph.containsNode(retNode));
-        assertTrue(genericGraph.containsNode(ifConstNode));
-        assertTrue(genericGraph.containsNode(selfLoopNode));
-        assertTrue(genericGraph.containsNode(callNode));
+        assertTrue(cfg.containsNode(cfg.startNode));
+        assertTrue(cfg.containsNode(retNode));
+        assertTrue(cfg.containsNode(ifConstNode));
+        assertTrue(cfg.containsNode(selfLoopNode));
+        assertTrue(cfg.containsNode(callNode));
 
-        assertTrue(genericGraph.nodes().equals(Set.of(genericGraph.startNode, retNode,
+        assertTrue(cfg.nodes().equals(Set.of(cfg.startNode, retNode,
                                       ifConstNode, selfLoopNode, callNode)));
 
         // CFGNodes are equal by memory location, not content.
-        assertFalse(genericGraph.containsNode(make.If(new IRConst(LOC, 3))));
-        assertFalse(genericGraph.containsNode(call()));
+        assertFalse(cfg.containsNode(make.If(new IRConst(LOC, 3))));
+        assertFalse(cfg.containsNode(call()));
 
         // No edges are suddenly created.
-        assertTrue(genericGraph.edges().isEmpty());
-        assertFalse(genericGraph.containsEdge(retNode, retNode));
-        assertFalse(genericGraph.containsEdge(ifConstNode, retNode));
-        assertFalse(genericGraph.containsEdge(selfLoopNode, retNode));
-        assertFalse(genericGraph.containsEdge(callNode, retNode));
+        assertTrue(cfg.edges().isEmpty());
+        assertFalse(cfg.containsEdge(retNode, retNode));
+        assertFalse(cfg.containsEdge(ifConstNode, retNode));
+        assertFalse(cfg.containsEdge(selfLoopNode, retNode));
+        assertFalse(cfg.containsEdge(callNode, retNode));
 
 
         // Test Joining graph nodes
-        genericGraph.join(genericGraph.startNode, retNode);
-        assertTrue(genericGraph.containsEdge(genericGraph.startNode, retNode));
-        assertFalse(genericGraph.containsEdge(retNode, genericGraph.startNode));
+        cfg.join(cfg.startNode, retNode);
+        assertTrue(cfg.containsEdge(cfg.startNode, retNode));
+        assertFalse(cfg.containsEdge(retNode, cfg.startNode));
 
-        assertEquals(1, genericGraph.edges().size());
-        assertTrue(genericGraph.containsEdge(genericGraph.startNode, retNode));
-        assertFalse(genericGraph.containsEdge(new Edge<>(genericGraph.startNode, retNode, true)));
-        assertFalse(genericGraph.containsEdge(new Edge<>(genericGraph.startNode, retNode, false)));
+        assertEquals(1, cfg.edges().size());
+        assertTrue(cfg.containsEdge(cfg.startNode, retNode));
+        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode, retNode, true)));
+        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode, retNode, false)));
 
-        genericGraph.join(new Edge<>(genericGraph.startNode, retNode, true));
-        assertEquals(2, genericGraph.edges().size());
-        assertTrue(genericGraph.containsEdge(genericGraph.startNode, retNode));
-        assertTrue(genericGraph.containsEdge(new Edge<>(genericGraph.startNode, retNode, true)));
-        assertFalse(genericGraph.containsEdge(new Edge<>(genericGraph.startNode, retNode, false)));
+        cfg.join(new Edge<>(cfg.startNode, retNode, true));
+        assertEquals(1, cfg.edges().size());
+        assertTrue(cfg.containsEdge(cfg.startNode, retNode));
+        assertTrue(cfg.containsEdge(new Edge<>(cfg.startNode, retNode, true)));
+        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode, retNode, false)));
 
 
-        genericGraph.join(genericGraph.startNode, retNode);
-        assertEquals(2, genericGraph.edges().size());
-        assertTrue(genericGraph.containsEdge(genericGraph.startNode, retNode));
-        assertTrue(genericGraph.containsEdge(new Edge<>(genericGraph.startNode, retNode, true)));
-        assertFalse(genericGraph.containsEdge(new Edge<>(genericGraph.startNode, retNode, false)));
+        cfg.join(cfg.startNode, retNode);
+        assertEquals(1, cfg.edges().size());
+        assertTrue(cfg.containsEdge(cfg.startNode, retNode));
+        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode, retNode, true)));
+        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode, retNode, false)));
 
 
         // Test unlink
         // Node is not in graph.
-        assertThrows(NonexistentEdgeException.class, () -> genericGraph.unlink(new Edge<>(genericGraph.startNode, retNode, false)));
-        assertEquals(2, genericGraph.edges().size());
-        assertTrue(genericGraph.containsEdge(genericGraph.startNode, retNode));
-        assertTrue(genericGraph.containsEdge(new Edge<>(genericGraph.startNode, retNode, true)));
-        assertFalse(genericGraph.containsEdge(new Edge<>(genericGraph.startNode, retNode, false)));
+        assertThrows(NonexistentEdgeException.class, () -> cfg.unlink(new Edge<>(cfg.startNode, retNode, false)));
+        assertEquals(1, cfg.edges().size());
+        assertTrue(cfg.containsEdge(cfg.startNode, retNode));
+        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode, retNode, true)));
+        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode, retNode, false)));
 
-        genericGraph.unlink(genericGraph.startNode, retNode);
-        assertFalse(genericGraph.containsEdge(genericGraph.startNode, retNode));
-        assertEquals(Collections.emptySet(), genericGraph.edges());
-        assertFalse(genericGraph.containsEdge(genericGraph.startNode, retNode));
-        assertFalse(genericGraph.containsEdge(new Edge<>(genericGraph.startNode, retNode, true)));
-        assertFalse(genericGraph.containsEdge(new Edge<>(genericGraph.startNode, retNode, false)));
+        cfg.unlink(cfg.startNode, retNode);
+        assertFalse(cfg.containsEdge(cfg.startNode, retNode));
+        assertEquals(Collections.emptySet(), cfg.edges());
+        assertFalse(cfg.containsEdge(cfg.startNode, retNode));
+        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode, retNode, true)));
+        assertFalse(cfg.containsEdge(new Edge<>(cfg.startNode, retNode, false)));
 
-        genericGraph.join(genericGraph.startNode, retNode);
-        genericGraph.join(new Edge<>(genericGraph.startNode, retNode, true));
-        genericGraph.join(retNode, genericGraph.startNode);
-        genericGraph.join(retNode, ifConstNode);
-        genericGraph.join(callNode, selfLoopNode);
+        cfg.join(cfg.startNode, retNode);
+        cfg.join(new Edge<>(cfg.startNode, retNode, true));
+        cfg.join(retNode, cfg.startNode);
+        cfg.join(retNode, ifConstNode);
+        cfg.join(callNode, selfLoopNode);
 
         // Test Removal
-        genericGraph.remove(retNode);
-        genericGraph.remove(ifConstNode);
-        genericGraph.remove(selfLoopNode);
-        genericGraph.remove(callNode);
+        cfg.remove(retNode);
+        cfg.remove(ifConstNode);
+        cfg.remove(selfLoopNode);
+        cfg.remove(callNode);
 
-        assertTrue(genericGraph.containsNode(genericGraph.startNode));
-        assertFalse(genericGraph.containsNode(retNode));
-        assertFalse(genericGraph.containsNode(ifConstNode));
-        assertFalse(genericGraph.containsNode(selfLoopNode));
-        assertFalse(genericGraph.containsNode(callNode));
+        assertTrue(cfg.containsNode(cfg.startNode));
+        assertFalse(cfg.containsNode(retNode));
+        assertFalse(cfg.containsNode(ifConstNode));
+        assertFalse(cfg.containsNode(selfLoopNode));
+        assertFalse(cfg.containsNode(callNode));
 
-        assertEquals(Set.of(genericGraph.startNode), genericGraph.nodes());
-        assertEquals(Collections.emptySet(), genericGraph.edges());
-        assertFalse(genericGraph.containsEdge(retNode, retNode));
-        assertFalse(genericGraph.containsEdge(ifConstNode, retNode));
-        assertFalse(genericGraph.containsEdge(selfLoopNode, retNode));
-        assertFalse(genericGraph.containsEdge(callNode, retNode));
+        assertEquals(Set.of(cfg.startNode), cfg.nodes());
+        assertEquals(Collections.emptySet(), cfg.edges());
+        assertFalse(cfg.containsEdge(retNode, retNode));
+        assertFalse(cfg.containsEdge(ifConstNode, retNode));
+        assertFalse(cfg.containsEdge(selfLoopNode, retNode));
+        assertFalse(cfg.containsEdge(callNode, retNode));
     }
 
 
