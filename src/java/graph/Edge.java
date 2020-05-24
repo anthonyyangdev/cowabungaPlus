@@ -15,22 +15,22 @@ public class Edge<V, E> {
     /**
      * The starting node of the edge.
      */
-    public final GraphNode<V> start;
+    public final V start;
 
     /**
      * The end node of the edge.
      */
-    public final GraphNode<V> end;
+    public final V end;
 
     public final Optional<E> value;
 
-    public Edge(GraphNode<V> start, GraphNode<V> end) {
+    public Edge(V start, V end) {
         this.start = start;
         this.end = end;
         this.value = Optional.empty();
     }
 
-    public Edge(GraphNode<V> start, GraphNode<V> end, E value) {
+    public Edge(V start, V end, E value) {
         this.start = start;
         this.end = end;
         this.value = Optional.of(value);
