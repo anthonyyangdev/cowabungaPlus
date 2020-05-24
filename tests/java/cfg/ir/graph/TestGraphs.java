@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -233,8 +234,8 @@ class TestGraphs {
         cfg.insert(ret);
 
         cfg.join(cfg.startNode, ifNode);
-        cfg.join(ifNode, ret, true);
-        cfg.join(ifNode, assign, false);
+        cfg.join(ifNode, ret, Optional.of(true));
+        cfg.join(ifNode, assign, Optional.of(false));
         cfg.join(assign, ret);
 
         final var outgoingIf = cfg.outgoingNodes(ifNode);

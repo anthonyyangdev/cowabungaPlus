@@ -247,6 +247,9 @@ public class CFGFlattener {
 
         private Pair<CFGNode, CFGNode> ifBranches(CFGIfNode n) {
             final var outNodes = cfg.outgoingNodes(n);
+            if (outNodes.size() == 1) {
+                return new Pair<>(outNodes.get(0), outNodes.get(0));
+            }
             assert outNodes.size() == 2;
             return new Pair<>(outNodes.get(0), outNodes.get(1));
         }
@@ -265,7 +268,7 @@ public class CFGFlattener {
             final var wrappedStmt = stmt;
             this.stmts.add(wrappedStmt);
             this.wrapStmt().label.ifPresent(lbl ->
-            this.cfgNodeToLabels.put(n, lbl.name()));
+                this.cfgNodeToLabels.put(n, lbl.name()));
             this.cfgNodeToIRStmt.put(n, wrappedStmt);
         }
 

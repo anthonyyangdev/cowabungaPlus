@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
@@ -110,19 +109,20 @@ public class CFGGraph {
 
 
     public List<CFGNode> outgoingNodes(CFGNode node) {
-        return this.graph.successors(node).stream().sorted((x, y) -> {
-            final var valToX = this.graph.edgeValue(node, x).get();
-            final var valToY = this.graph.edgeValue(node, y).get();
-            if (valToX.isEmpty()) {
-                return 1;
-            } else if (valToY.isEmpty()) {
-                return -1;
-            } else if (valToX.get()) {
-                return -1;
+        final var succs = this.graph.successors(node);
+        if (succs.size() <= 1) { return List.copyOf(succs); }
+        if (succs.size() == 2 ) {
+            ArrayList<CFGNode> outs = new ArrayList<>(succs);
+            final var first = outs.get(0);
+            if (this.edgeValue(node, first).get()) {
+                return outs;
             } else {
-                return 1;
+                outs.set(0, outs.get(1));
+                outs.set(1, first);
+                return outs;
             }
-        }).collect(Collectors.toList());
+        }
+        throw new AssertionError("Number of outgoing nodes cannot exceed two.");
     }
 
 
@@ -136,8 +136,8 @@ public class CFGGraph {
     }
 
 
-    public void join(CFGNode start, CFGNode end, Boolean value) {
-        this.graph.putEdgeValue(start, end, Optional.of(value));
+    public void join(CFGNode start, CFGNode end, Optional<Boolean> value) {
+        this.graph.putEdgeValue(start, end, value);
     }
 
 
@@ -196,9 +196,11 @@ public class CFGGraph {
         }
         this.graph.incidentEdges(prev).forEach(edge -> {
             if (edge.nodeV().equals(prev)) {
-                this.join(edge.nodeU(), now);
+                this.join(edge.nodeU(), now,
+                        this.edgeValue(edge.nodeU(), prev));
             } else {
-                this.join(now, edge.nodeV());
+                this.join(now, edge.nodeV(),
+                        this.edgeValue(prev, edge.nodeV()));
             }
         });
         this.remove(prev);
@@ -231,7 +233,7 @@ public class CFGGraph {
             final var value = this.edgeValue(in, node);
             this.unlink(in, node);
             if (value.isPresent()) {
-                this.join(in, firstInChain, value.get());
+                this.join(in, firstInChain, value);
             } else {
                 this.join(in, firstInChain);
             }
@@ -268,7 +270,7 @@ public class CFGGraph {
             final var value = this.edgeValue(node, end);
             this.unlink(node, end);
             if (value.isPresent()) {
-                this.join(lastNode, end, value.get());
+                this.join(lastNode, end, value);
             } else {
                 this.join(lastNode, end);
             }

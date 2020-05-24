@@ -75,8 +75,12 @@ public class CFGGraphRepOk {
         public Void visit(CFGIfNode n) {
             assert cfg.incomingNodes(n).size() >= 1;
 
-            assert cfg.outgoingNodes(n).size() == 2;
+            if (cfg.outgoingNodes(n).size() == 1) {
+                this.generalRepOk(n);
+                return null;
+            }
 
+            assert cfg.outgoingNodes(n).size() == 2;
             this.generalRepOk(n);
 
             final var outgoing = cfg.outgoingNodes(n);
