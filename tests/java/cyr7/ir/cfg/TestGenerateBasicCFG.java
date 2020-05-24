@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import cfg.ir.CFGGraph;
 import cfg.ir.constructor.CFGConstructor;
-import cfg.ir.nodes.CFGStartNode;
 import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCompUnit;
 import cyr7.ir.nodes.IRConst;
@@ -30,7 +30,7 @@ class TestGenerateBasicCFG {
 
         var comp = new IRCompUnit(loc, "base", map);
 
-        Map<String, CFGStartNode> result = CFGConstructor.constructCFG(comp);
+        Map<String, CFGGraph> result = CFGConstructor.constructCFG(comp);
 
         System.out.println(result);
 
@@ -49,7 +49,7 @@ class TestGenerateBasicCFG {
 
         var comp = new IRCompUnit(loc, "base", map);
 
-        Map<String, CFGStartNode> result = CFGConstructor.constructCFG(comp);
+        Map<String, CFGGraph> result = CFGConstructor.constructCFG(comp);
 
         System.out.println(result);
     }
@@ -69,7 +69,7 @@ class TestGenerateBasicCFG {
 
         var comp = new IRCompUnit(loc, "base", map);
 
-        Map<String, CFGStartNode> result = CFGConstructor.constructCFG(comp);
+        Map<String, CFGGraph> result = CFGConstructor.constructCFG(comp);
 
         System.out.println(result);
     }

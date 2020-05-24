@@ -2,17 +2,15 @@ package cyr7.cfg;
 
 import java.io.StringReader;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
-import cyr7.cli.Optimization;
 import org.junit.jupiter.api.Test;
 
+import cfg.ir.CFGGraph;
 import cfg.ir.constructor.CFGConstructor;
 import cfg.ir.flatten.CFGFlattener;
-import cfg.ir.nodes.CFGNode;
-import cfg.ir.nodes.CFGStartNode;
 import cyr7.cli.OptConfig;
+import cyr7.cli.Optimization;
 import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.IRUtil;
 import cyr7.ir.nodes.IRCJump;
@@ -24,14 +22,13 @@ import cyr7.ir.nodes.IRMem;
 import cyr7.ir.nodes.IRMove;
 import cyr7.ir.nodes.IRReturn;
 import cyr7.ir.nodes.IRSeq;
-import cyr7.ir.nodes.IRStmt;
 import cyr7.ir.nodes.IRTemp;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 class TestFlattenBasicCFG {
 
-    private void testWithAlternateFlattener(CFGNode root) {
-        IRStmt result = CFGFlattener.flatten(root);
+    private void testWithAlternateFlattener(Map<String, CFGGraph> cfgs, IRCompUnit comp) {
+        IRCompUnit result = CFGFlattener.flatten(cfgs, comp);
         System.out.println(result);
     }
 
@@ -46,9 +43,9 @@ class TestFlattenBasicCFG {
         var map = new HashMap<String, IRFuncDecl>();
         map.put("assign", func);
         var comp = new IRCompUnit(loc, "base", map);
-        Map<String, CFGStartNode> result = CFGConstructor.constructCFG(comp);
+        Map<String, CFGGraph> result = CFGConstructor.constructCFG(comp);
 
-        this.testWithAlternateFlattener(result.get("assign"));
+        this.testWithAlternateFlattener(result, comp);
     }
 
     @Test
@@ -63,9 +60,9 @@ class TestFlattenBasicCFG {
         var map = new HashMap<String, IRFuncDecl>();
         map.put("if", func);
         var comp = new IRCompUnit(loc, "base", map);
-        Map<String, CFGStartNode> result = CFGConstructor.constructCFG(comp);
+        Map<String, CFGGraph> result = CFGConstructor.constructCFG(comp);
 
-        this.testWithAlternateFlattener(new LinkedList<>(result.values()).get(0));
+        this.testWithAlternateFlattener(result, comp);
     }
 
     @Test
@@ -77,8 +74,8 @@ class TestFlattenBasicCFG {
                 "while.xi", null, OptConfig.of(Optimization.CF),
                 new DefaultIdGenerator());
 
-        Map<String, CFGStartNode> result = CFGConstructor.constructCFG(comp);
-        this.testWithAlternateFlattener(new LinkedList<>(result.values()).get(0));
+        Map<String, CFGGraph> result = CFGConstructor.constructCFG(comp);
+        this.testWithAlternateFlattener(result, comp);
     }
 
 
@@ -91,8 +88,8 @@ class TestFlattenBasicCFG {
                 "while.xi", null, OptConfig.of(Optimization.CF),
                 new DefaultIdGenerator());
 
-        Map<String, CFGStartNode> result = CFGConstructor.constructCFG(comp);
-        this.testWithAlternateFlattener(new LinkedList<>(result.values()).get(0));
+        Map<String, CFGGraph> result = CFGConstructor.constructCFG(comp);
+        this.testWithAlternateFlattener(result, comp);
     }
 
 
@@ -105,8 +102,8 @@ class TestFlattenBasicCFG {
         IRCompUnit comp = IRUtil.generateIR(new StringReader(prgmString),
                 "return.xi", null, OptConfig.of(Optimization.CF),
                 new DefaultIdGenerator());
-        Map<String, CFGStartNode> result = CFGConstructor.constructCFG(comp);
-        this.testWithAlternateFlattener(new LinkedList<>(result.values()).get(0));
+        Map<String, CFGGraph> result = CFGConstructor.constructCFG(comp);
+        this.testWithAlternateFlattener(result, comp);
     }
 
 
@@ -127,8 +124,8 @@ class TestFlattenBasicCFG {
                 "nestedControls.xi", null, OptConfig.of(Optimization.CF),
                 new DefaultIdGenerator());
 
-        Map<String, CFGStartNode> result = CFGConstructor.constructCFG(comp);
-        this.testWithAlternateFlattener(new LinkedList<>(result.values()).get(0));
+        Map<String, CFGGraph> result = CFGConstructor.constructCFG(comp);
+        this.testWithAlternateFlattener(result, comp);
     }
 
     @Test
@@ -140,8 +137,8 @@ class TestFlattenBasicCFG {
                 "nestedControls.xi", null, OptConfig.of(Optimization.CF),
                 new DefaultIdGenerator());
 
-        Map<String, CFGStartNode> result = CFGConstructor.constructCFG(comp);
+        Map<String, CFGGraph> result = CFGConstructor.constructCFG(comp);
 
-        this.testWithAlternateFlattener(new LinkedList<>(result.values()).get(0));
+        this.testWithAlternateFlattener(result, comp);
     }
 }
