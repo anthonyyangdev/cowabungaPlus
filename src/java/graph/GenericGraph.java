@@ -219,4 +219,147 @@ public class GenericGraph<V, E> implements Graph<V, E> {
     }
 
 
+    /**
+     * Inserts a new node with value {@code prev} before {@code node}.
+     * This means all edges that went into {@code node} now point to
+     * {@code prev}. Outgoing edges from {@code node} remain the same. Lastly,
+     * an edge from {@code prev} to {@code node} is created.
+     * @param prev
+     * @param node
+     */
+    @SuppressWarnings("unchecked")
+    public void prependNode(GraphNode<V> node, V... newNode) {
+        if (newNode.length == 0) return;
+
+        GraphNode<V> firstInChain = new GraphNode<>(newNode[0]);
+        this.insert(firstInChain);
+        GraphNode<V> lastInChain = firstInChain;
+        for (int i = 1; i < newNode.length; i++) {
+            final var nextGraphNode = new GraphNode<>(newNode[i]);
+            this.insert(nextGraphNode);
+            this.join(lastInChain, nextGraphNode);
+            lastInChain = nextGraphNode;
+        }
+
+        final var incomingNodes = Set.copyOf(this.incomingEdges.get(node));
+        incomingNodes.forEach(e -> {
+            this.unlink(e.start, node);
+            if (e.value.isPresent()) {
+                this.join(e.start, firstInChain, e.value.get());
+            } else {
+                this.join(e.start, firstInChain);
+            }
+        });
+        this.join(lastInChain, node);
+    }
+
+
+
+    /**
+     * Inserts a new node with value {@code prev} before {@code node}.
+     * This means all edges that went into {@code node} now point to
+     * {@code prev}. Outgoing edges from {@code node} remain the same. Lastly,
+     * an edge from {@code prev} to {@code node} is created.
+     * @param prev
+     * @param node
+     */
+    @SuppressWarnings("unchecked")
+    public void postpendNode(GraphNode<V> node, V... newNode) {
+        if (newNode.length == 0) return;
+
+        GraphNode<V> firstInChain = new GraphNode<V>(newNode[0]);
+        this.insert(firstInChain);
+        GraphNode<V> lastInChain = firstInChain;
+        for (int i = 1; i < newNode.length; i++) {
+            final var nextGraphNode = new GraphNode<>(newNode[i]);
+            this.insert(nextGraphNode);
+            this.join(lastInChain, nextGraphNode);
+            lastInChain = nextGraphNode;
+        }
+
+        final var lastNode = lastInChain;
+        final var outgoingNodes = Set.copyOf(this.incomingEdges.get(node));
+        outgoingNodes.forEach(e -> {
+            this.unlink(node, e.end);
+            if (e.value.isPresent()) {
+                this.join(lastNode, e.end, e.value.get());
+            } else {
+                this.join(lastNode, e.end);
+            }
+        });
+        this.join(firstInChain, node);
+    }
+
+
+
+    /**
+     * Inserts a new node with value {@code prev} before {@code node}.
+     * This means all edges that went into {@code node} now point to
+     * {@code prev}. Outgoing edges from {@code node} remain the same. Lastly,
+     * an edge from {@code prev} to {@code node} is created.
+     * @param prev
+     * @param node
+     */
+    @SuppressWarnings("unchecked")
+    public void innerInsert(GraphNode<V> start, GraphNode<V> end, V... newNode) {
+        if (newNode.length == 0) return;
+
+        GraphNode<V> firstInChain = new GraphNode<V>(newNode[0]);
+        this.insert(firstInChain);
+        GraphNode<V> lastInChain = firstInChain;
+        for (int i = 1; i < newNode.length; i++) {
+            final var nextGraphNode = new GraphNode<>(newNode[i]);
+            this.insert(nextGraphNode);
+            this.join(lastInChain, nextGraphNode);
+            lastInChain = nextGraphNode;
+        }
+
+        this.unlink(start, end);
+        this.join(start, firstInChain);
+        this.join(lastInChain, end);
+    }
+
+
+    /**
+     * Replaces the node {@code prev} in the CFG with node {@code now}. Any
+     * edges, including the values of those edges, that include the node
+     * {@code prev} are replaced with edges with the same values that subtitute
+     * occurrences of {@code prev} with {@code now}. The node {@code prev} is
+     * also removed from the CFG entirely.
+     *
+     * @param old The node to be replaced and removed from the CFG.
+     * @param current The node to be replace {@code old}. Can be a node that
+     *                already exists in the CFG.
+     */
+    public void replaceNode(GraphNode<V> prev, GraphNode<V> now) {
+        final var incomingEdgesToPrev = this.incomingEdges.get(prev);
+        final var outgoingEdgesFromPrev = this.outgoingEdges.get(prev);
+
+        final var incomingToNow = incomingEdgesToPrev.stream().map(e -> {
+            final var start = e.start.equals(prev) ? now : e.start;
+            if (e.value.isPresent()) {
+                return new Edge<V, E>(start, now, e.value.get());
+            } else {
+                return new Edge<V, E>(start, now);
+            }
+        }).collect(Collectors.toList());
+
+        final var outgoingFromNow = outgoingEdgesFromPrev.stream().map(e -> {
+            final var end = e.end.equals(prev) ? now : e.end;
+            if (e.value.isPresent()) {
+                return new Edge<V, E>(now, end, e.value.get());
+            } else {
+                return new Edge<V, E>(now, end);
+            }
+        }).collect(Collectors.toList());
+
+        this.remove(prev);
+
+        if (!this.containsNode(now)) {
+            this.insert(now);
+        }
+        incomingToNow.forEach(this::join);
+        outgoingFromNow.forEach(this::join);
+    }
+
 }
