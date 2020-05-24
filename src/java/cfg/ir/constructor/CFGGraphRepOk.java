@@ -2,7 +2,6 @@ package cfg.ir.constructor;
 
 import java.util.ArrayDeque;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import cfg.ir.graph.CFGGraph;
 import cfg.ir.nodes.CFGCallNode;
@@ -15,7 +14,6 @@ import cfg.ir.nodes.CFGStartNode;
 import cfg.ir.nodes.CFGVarAssignNode;
 import cfg.ir.visitor.IrCFGVisitor;
 import graph.Edge;
-import graph.GraphNode;
 
 public class CFGGraphRepOk {
 
@@ -23,9 +21,7 @@ public class CFGGraphRepOk {
 
     public static boolean repOk(CFGGraph cfg) {
         final var checker = new CFGGraphRepOkVisitor(cfg);
-        final var queue = new ArrayDeque<>(cfg.nodes().stream()
-                            .map(GraphNode<CFGNode>::value)
-                            .collect(Collectors.toList()));
+        final var queue = new ArrayDeque<>(cfg.nodes());
 
         while (!queue.isEmpty()) {
             final var node = queue.remove();
@@ -37,115 +33,98 @@ public class CFGGraphRepOk {
     private static class CFGGraphRepOkVisitor implements IrCFGVisitor<Void> {
 
         private final CFGGraph cfg;
-        private final Set<GraphNode<CFGNode>> nodes;
-        private final Set<Edge<CFGNode, Boolean>> edges;
+        private final Set<CFGNode> nodes;
         private boolean foundStartNode;
 
         public CFGGraphRepOkVisitor(CFGGraph cfg) {
             this.cfg = cfg;
             this.nodes = cfg.nodes();
-            this.edges = cfg.edges();
             this.foundStartNode = false;
         }
 
-        private GraphNode<CFGNode> node(CFGNode n) {
-            return new GraphNode<>(n);
-        }
-
-        private void generalRepOk(GraphNode<CFGNode> node) {
+        private void generalRepOk(CFGNode node) {
             assert nodes.contains(node);
 
             final var incoming = cfg.incomingNodes(node);
             final var outgoing = cfg.outgoingNodes(node);
 
-            for (GraphNode<CFGNode> in: incoming) {
+            for (CFGNode in: incoming) {
                 assert nodes.contains(in);
                 assert cfg.outgoingNodes(in).contains(node);
                 assert cfg.containsEdge(in, node);
             }
 
-            for (GraphNode<CFGNode> out: outgoing) {
+            for (CFGNode out: outgoing) {
                 assert nodes.contains(out);
                 assert cfg.incomingNodes(out).contains(node);
                 assert cfg.containsEdge(node, out);
-
-                if (node.value() instanceof CFGIfNode) {
-                    assert !this.edges.contains(new Edge<>(node, out));
-                } else {
-                    assert this.edges.contains(new Edge<>(node, out));
-                }
             }
         }
 
         @Override
         public Void visit(CFGCallNode n) {
-            final var node = node(n);
+            assert cfg.incomingNodes(n).size() >= 1;
 
-            assert cfg.incomingNodes(node).size() >= 1;
+            assert cfg.outgoingNodes(n).size() == 1;
 
-            assert cfg.outgoingNodes(node).size() == 1;
-
-            this.generalRepOk(node);
+            this.generalRepOk(n);
             return null;
         }
 
         @Override
         public Void visit(CFGIfNode n) {
-            final var node = node(n);
+            assert cfg.incomingNodes(n).size() >= 1;
 
-            assert cfg.incomingNodes(node).size() >= 1;
+            assert cfg.outgoingNodes(n).size() == 2;
 
-            assert cfg.outgoingNodes(node).size() == 2;
+            this.generalRepOk(n);
 
-            this.generalRepOk(node);
-
-            final var outgoing = cfg.outgoingNodes(node);
+            final var outgoing = cfg.outgoingNodes(n);
             final var trueBranch = outgoing.get(0);
             final var falseBranch = outgoing.get(1);
 
-            assert cfg.containsEdge(new Edge<>(node, trueBranch, true));
-            assert cfg.containsEdge(new Edge<>(node, falseBranch, false));
+            assert cfg.containsEdge(new Edge<>(n, trueBranch, true));
+            assert cfg.containsEdge(new Edge<>(n, falseBranch, false));
 
-            assert !cfg.containsEdge(new Edge<>(node, trueBranch));
-            assert !cfg.containsEdge(new Edge<>(node, falseBranch));
+            assert !cfg.containsEdge(new Edge<>(n, trueBranch));
+            assert !cfg.containsEdge(new Edge<>(n, falseBranch));
+
+            assert cfg.edgeValue(n, trueBranch).get().equals(Boolean.TRUE);
+            assert cfg.edgeValue(n, falseBranch).get().equals(Boolean.FALSE);
 
             return null;
         }
 
         @Override
         public Void visit(CFGVarAssignNode n) {
-            final var node = node(n);
+            assert cfg.incomingNodes(n).size() >= 1;
 
-            assert cfg.incomingNodes(node).size() >= 1;
+            assert cfg.outgoingNodes(n).size() == 1;
 
-            assert cfg.outgoingNodes(node).size() == 1;
-
-            this.generalRepOk(node);
+            this.generalRepOk(n);
             return null;
         }
 
         @Override
         public Void visit(CFGMemAssignNode n) {
-            final var node = node(n);
 
-            assert cfg.incomingNodes(node).size() >= 1;
 
-            assert cfg.outgoingNodes(node).size() == 1;
+            assert cfg.incomingNodes(n).size() >= 1;
 
-            this.generalRepOk(node);
+            assert cfg.outgoingNodes(n).size() == 1;
+
+            this.generalRepOk(n);
             return null;
         }
 
         @Override
         public Void visit(CFGReturnNode n) {
-            final var node = node(n);
+            assert cfg.incomingNodes(n).size() >= 1;
+            assert !cfg.incomingNodes(n).contains(n);
 
-            assert cfg.incomingNodes(node).size() >= 1;
-            assert !cfg.incomingNodes(node).contains(node);
+            assert cfg.outgoingNodes(n).size() == 0;
 
-            assert cfg.outgoingNodes(node).size() == 0;
-
-            this.generalRepOk(node);
+            this.generalRepOk(n);
 
             return null;
         }
@@ -154,27 +133,23 @@ public class CFGGraphRepOk {
         public Void visit(CFGStartNode n) {
             assert !this.foundStartNode;
 
-            final var node = node(n);
+            assert cfg.incomingNodes(n).size() == 0;
 
-            assert cfg.incomingNodes(node).size() == 0;
+            assert cfg.outgoingNodes(n).size() == 1;
+            assert !cfg.outgoingNodes(n).contains(n);
 
-            assert cfg.outgoingNodes(node).size() == 1;
-            assert !cfg.outgoingNodes(node).contains(node);
-
-            this.generalRepOk(node);
+            this.generalRepOk(n);
             return null;
         }
 
         @Override
         public Void visit(CFGSelfLoopNode n) {
-            final var node = node(n);
+            assert cfg.incomingNodes(n).size() >= 2;
+            assert cfg.incomingNodes(n).contains(n);
 
-            assert cfg.incomingNodes(node).size() >= 2;
-            assert cfg.incomingNodes(node).contains(node);
-
-            assert cfg.outgoingNodes(node).size() == 1;
-            assert cfg.outgoingNodes(node).contains(node);
-            this.generalRepOk(node);
+            assert cfg.outgoingNodes(n).size() == 1;
+            assert cfg.outgoingNodes(n).contains(n);
+            this.generalRepOk(n);
             return null;
         }
 
