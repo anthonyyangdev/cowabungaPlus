@@ -24,7 +24,6 @@ import cfg.ir.nodes.CFGVarAssignNode;
 import cfg.ir.opt.IRTempReplacer;
 import cfg.ir.visitor.IrCFGVisitor;
 import cyr7.ir.nodes.IRCallStmt;
-import graph.GraphNode;
 
 public class SSATransformer {
 
@@ -72,7 +71,7 @@ public class SSATransformer {
             });
 
             final var visitor = new Visitor(count, stack);
-            nameVariables(count, stack, domTree, cfg.startNode(), cfg, visitor);
+            nameVariables(count, stack, domTree, cfg.startNode, cfg, visitor);
             return cfg;
         }
 
@@ -81,21 +80,21 @@ public class SSATransformer {
                 final Map<String, Integer> count,
                 final Map<String, Deque<Integer>> stack,
                 final Map<CFGNode, Set<CFGNode>> domTree,
-                final GraphNode<CFGNode> node,
+                final CFGNode node,
                 final CFGGraph cfg,
                 final Visitor visitor) {
 
             List<String> definitions = new ArrayList<>();
 
             // First part of rename(n)
-            if (node.value() instanceof CFGPhiFunctionBlock) {
+            if (node instanceof CFGPhiFunctionBlock) {
                 // We'll write the case for phi functions here, so
                 // that we don't need to add a node to the visitor file.
                 // If needed, we can add it to the visitor and copy the
                 // following into the visitor.
                 // stack and count values are the same as the ones in the
                 // visitor b/c of referencing.
-                final var phi = (CFGPhiFunctionBlock)node.value();
+                final var phi = (CFGPhiFunctionBlock)node;
                 final var defs = Set.copyOf(phi.mappings.keySet());
                 defs.stream().forEach(def -> {
                     final int i = count.get(def) + 1;
@@ -106,18 +105,16 @@ public class SSATransformer {
                     phi.mappings.put(def + "_" + i, args);
                 });
             } else {
-                definitions.addAll(node.value().accept(visitor));
-                node.value().refreshDfaSets();
+                definitions.addAll(node.accept(visitor));
+                node.refreshDfaSets();
             }
 
             // for each successor y of node, check for phi functions
             final var outgoing = cfg.outgoingNodes(node);
-            for (GraphNode<CFGNode> outNodes: outgoing) {
-                final var y = outNodes.value();
+            for (CFGNode y: outgoing) {
                 if (y instanceof CFGPhiFunctionBlock) {
                     final var phi = (CFGPhiFunctionBlock)y;
-                    final int j = cfg.incomingNodes(new GraphNode<>(phi))
-                                     .indexOf(node);
+                    final int j = cfg.incomingNodes(phi).indexOf(node);
                     final var defs = phi.mappings.keySet();
                     for (String def: defs) {
                         final var args = phi.mappings.get(def);
@@ -127,8 +124,8 @@ public class SSATransformer {
                     }
                 }
             }
-            for (CFGNode out: domTree.get(node.value())) {
-                nameVariables(count, stack, domTree, new GraphNode<>(out), cfg, visitor);
+            for (CFGNode out: domTree.get(node)) {
+                nameVariables(count, stack, domTree, out, cfg, visitor);
             }
             for (String def: definitions) {
                 stack.get(def).pop();
@@ -266,13 +263,12 @@ public class SSATransformer {
 
         requiredPhiFuncMap.keySet().forEach(n -> {
             final var setOfVars = requiredPhiFuncMap.get(n);
-            final var paramSize = cfg.inDegree(new GraphNode<>(n));
+            final var paramSize = cfg.inDegree(n);
 
             final var phiBlock =
                     new CFGPhiFunctionBlock(n.location(), paramSize, setOfVars);
-
             // Need to insert phiBlock before n, but still keep n
-            cfg.prependNode(new GraphNode<>(phiBlock), n);
+            cfg.prependNode(phiBlock, n);
         });
 
         return cfg;
@@ -290,23 +286,23 @@ public class SSATransformer {
      * @return
      */
     private static Map<String, Set<CFGNode>> getDefsites(CFGGraph cfg) {
-        final var start = cfg.startNode();
-        Set<GraphNode<CFGNode>> visited = new HashSet<>();
-        Deque<GraphNode<CFGNode>> worklist = new ArrayDeque<>();
+        final var start = cfg.startNode;
+        Set<CFGNode> visited = new HashSet<>();
+        Deque<CFGNode> worklist = new ArrayDeque<>();
         Map<String, Set<CFGNode>> defsites = new HashMap<>();
         worklist.add(start);
 
         while (!worklist.isEmpty()) {
             final var node = worklist.remove();
-            node.value().defs().forEach(def -> {
+            node.defs().forEach(def -> {
                 if (!defsites.containsKey(def)) {
                     defsites.put(def, new HashSet<>());
                 }
-                defsites.get(def).add(node.value());
+                defsites.get(def).add(node);
             });
             visited.add(node);
             final var outgoing = cfg.outgoingNodes(node);
-            for (GraphNode<CFGNode> out: outgoing) {
+            for (CFGNode out: outgoing) {
                 if (!visited.contains(out)) {
                     worklist.add(out);
                 }

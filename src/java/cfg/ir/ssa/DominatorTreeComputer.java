@@ -11,7 +11,6 @@ import java.util.Set;
 
 import cfg.ir.graph.CFGGraph;
 import cfg.ir.nodes.CFGNode;
-import graph.GraphNode;
 import polyglot.util.Pair;
 
 /**
@@ -46,18 +45,18 @@ public class DominatorTreeComputer {
 
     private int N;
 
-    private final Map<CFGNode, List<GraphNode<CFGNode>>> outgoing;
-    private final Map<CFGNode, List<GraphNode<CFGNode>>> incoming;
+    private final Map<CFGNode, List<CFGNode>> outgoing;
+    private final Map<CFGNode, List<CFGNode>> incoming;
 
 
     public DominatorTreeComputer(CFGGraph cfg) {
-        this.start = cfg.startNode().value();
+        this.start = cfg.startNode;
         this.outgoing = new HashMap<>();
         this.incoming = new HashMap<>();
 
         cfg.nodes().forEach(n -> {
-            outgoing.put(n.value(), cfg.outgoingNodes(n));
-            incoming.put(n.value(), cfg.incomingNodes(n));
+            outgoing.put(n, cfg.outgoingNodes(n));
+            incoming.put(n, cfg.incomingNodes(n));
         });
 
         this.dfnum = new HashMap<>();
@@ -111,8 +110,7 @@ public class DominatorTreeComputer {
 
             N++;
             final var outgoing = this.outgoing.get(node);
-            for (GraphNode<CFGNode> outNode: outgoing) {
-                final var out = outNode.value();
+            for (CFGNode out: outgoing) {
                 if (!this.dfnum.containsKey(out)) {
                     stack.push(new Pair<>(Optional.of(node), out));
                 }
@@ -180,8 +178,7 @@ public class DominatorTreeComputer {
              * Semidominator Theorem.
              */
             final var incoming = this.incoming.get(n);
-            for (GraphNode<CFGNode> node: incoming) {
-                final var v = node.value();
+            for (CFGNode v: incoming) {
                 CFGNode sPrime;
                 if (dfnum.get(v) <= dfnum.get(n)) {
                     sPrime = v;
@@ -263,8 +260,7 @@ public class DominatorTreeComputer {
 
         final var s = new HashSet<CFGNode>();
         final var outgoing = this.outgoing.get(n);
-        for (GraphNode<CFGNode> node: outgoing) {
-            final var y = node.value();
+        for (CFGNode y: outgoing) {
             if (idom.get(y) != n) {
                 s.add(y);
             }

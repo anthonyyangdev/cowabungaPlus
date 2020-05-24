@@ -12,7 +12,6 @@ import cfg.ir.nodes.CFGNode;
 import cfg.ir.nodes.CFGPhiFunctionBlock;
 import cfg.ir.nodes.CFGVarAssignNode;
 import cyr7.ir.nodes.IRTemp;
-import graph.GraphNode;
 
 public class SSAReverter {
 
@@ -25,21 +24,21 @@ public class SSAReverter {
      * @return
      */
     public static CFGGraph revert(CFGGraph cfg) {
-        final Set<GraphNode<CFGNode>> visited = new HashSet<>();
-        final Queue<GraphNode<CFGNode>> worklist = new ArrayDeque<>();
+        final Set<CFGNode> visited = new HashSet<>();
+        final Queue<CFGNode> worklist = new ArrayDeque<>();
 
-        worklist.add(cfg.startNode());
+        worklist.add(cfg.startNode);
 
         while (!worklist.isEmpty()) {
             final var node = worklist.remove();
 
             if (visited.contains(node)) continue;
 
-            if (node.value() instanceof CFGPhiFunctionBlock) {
+            if (node instanceof CFGPhiFunctionBlock) {
                 // Remove phi function and append to previous nodes.
                 final var incoming = cfg.incomingNodes(node);
                 final int numberOfInNodes = incoming.size();
-                final var phi = (CFGPhiFunctionBlock)node.value();
+                final var phi = (CFGPhiFunctionBlock)node;
 
                 // Remove incoming edges coming from phi.
                 cfg.remove(node);
@@ -66,7 +65,7 @@ public class SSAReverter {
             }
             visited.add(node);
             final var outgoing = cfg.outgoingNodes(node);
-            for (GraphNode<CFGNode> out: outgoing) {
+            for (CFGNode out: outgoing) {
                 if (!visited.contains(out)) {
                     worklist.add(out);
                 }
