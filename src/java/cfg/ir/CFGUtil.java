@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import com.google.common.graph.EndpointPair;
+
 import cfg.ir.constructor.CFGConstructor;
 import cfg.ir.graph.CFGGraph;
 import cfg.ir.nodes.CFGNode;
@@ -21,7 +23,6 @@ import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.IRUtil;
 import cyr7.ir.nodes.IRCompUnit;
 import cyr7.typecheck.IxiFileOpener;
-import graph.Edge;
 public final class CFGUtil {
 
     public static void generateDot(
@@ -89,12 +90,12 @@ public final class CFGUtil {
         final AtomicInteger count = new AtomicInteger();
         final List<String> nodes = cfg.nodes().stream().map(n -> {
                 final int id = count.getAndIncrement();
-                final String label = "    " + id + " [label =\"" + n.value().toString() + "\"]";
-                nodeToLabel.put(n.value(), id);
+                final String label = "    " + id + " [label =\"" + n.toString() + "\"]";
+                nodeToLabel.put(n, id);
                 return label;
             }).collect(Collectors.toList());
 
-        final List<Edge<CFGNode, Boolean>> edges = new ArrayList<>(cfg.edges());
+        final List<EndpointPair<CFGNode>> edges = new ArrayList<>(cfg.edges());
 
         printer.println("digraph nfa {");
         printer.println("    node [shape=rectangle]");
@@ -102,11 +103,11 @@ public final class CFGUtil {
             printer.println("    "+ label + ";");
         }
         printer.println();
-        for(Edge<CFGNode, Boolean> e: edges) {
-            final int startId = nodeToLabel.get(e.start.value());
-            final int endId = nodeToLabel.get(e.end.value());
+        for(EndpointPair<CFGNode> e: edges) {
+            final int startId = nodeToLabel.get(e.nodeU());
+            final int endId = nodeToLabel.get(e.nodeV());
             String edgeName = "    " + startId + " -> " + endId +
-                            e.value.map(
+                            cfg.edgeValue(e.nodeU(), e.nodeV()).map(
                                 v -> " [label =\"  " + String.valueOf(v) + "\"]")
                             .orElse("");
             printer.println(edgeName);
