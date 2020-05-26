@@ -26,14 +26,19 @@ public class SCCGraph {
         public SCC(Graph<CFGNode> graph) {
             this.graph = graph;
         }
-
     }
 
     private final MutableValueGraph<SCC, Optional<Boolean>> graph;
+    private final Map<CFGNode, SCC> nodeToScc;
     private SCC startNode;
 
     private SCCGraph() {
         this.graph = ValueGraphBuilder.directed().allowsSelfLoops(true).build();
+        this.nodeToScc = new HashMap<>();
+    }
+
+    public SCC sccOfNode(CFGNode node) {
+        return nodeToScc.get(node);
     }
 
     public void setStart(SCC start) {
@@ -55,8 +60,7 @@ public class SCCGraph {
      * @param graph
      * @param start
      */
-    public static MutableValueGraph<SCC, Optional<Boolean>>
-        generateSccGraph(CFGGraph graph, CFGNode start) {
+    public static SCCGraph generate(CFGGraph graph, CFGNode start) {
         SCCGraph sccGraph = new SCCGraph();
 
         Set<CFGNode> visited = new HashSet<>();
@@ -131,7 +135,9 @@ public class SCCGraph {
                 component.clear();
             }
         }
-        return sccGraph.graph;
+
+        sccGraph.nodeToScc.putAll(nodeToSccNode);
+        return sccGraph;
     }
 
 
