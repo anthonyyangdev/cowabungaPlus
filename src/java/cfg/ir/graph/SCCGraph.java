@@ -55,7 +55,8 @@ public class SCCGraph {
      * @param graph
      * @param start
      */
-    public static SCCGraph generateSccGraph(CFGGraph graph, CFGNode start) {
+    public static MutableValueGraph<SCC, Optional<Boolean>>
+        generateSccGraph(CFGGraph graph, CFGNode start) {
         SCCGraph sccGraph = new SCCGraph();
 
         Set<CFGNode> visited = new HashSet<>();
@@ -130,7 +131,7 @@ public class SCCGraph {
                 component.clear();
             }
         }
-        return sccGraph;
+        return sccGraph.graph;
     }
 
 
