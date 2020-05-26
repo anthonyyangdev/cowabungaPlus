@@ -1,104 +1,137 @@
-//package cfg.ir.graph;
-//
-//import java.util.ArrayDeque;
-//import java.util.Deque;
-//import java.util.HashMap;
-//import java.util.HashSet;
-//import java.util.Map;
-//import java.util.Objects;
-//import java.util.Queue;
-//import java.util.Set;
-//
-//import graph.GenericGraph;
-//import graph.GraphNode;
-//
-//public class SCCGraph<V, E>
-//    extends GenericGraph<GenericGraph<V, E>, E> {
-//
-//    private GraphNode<GenericGraph<V, E>> startNode;
-//
-//    private SCCGraph() {}
-//
-//    public void setStart(GraphNode<GenericGraph<V, E>> start) {
-//        this.startNode = start;
-//    }
-//
-//    public GraphNode<GenericGraph<V, E>> startNode() {
-//        return startNode;
-//    }
-//
-//    private static <V, E> GraphNode<GenericGraph<V, E>>
-//        scc(GenericGraph<V, E> graph) {
-//        return new GraphNode<>(graph);
-//    }
-//
-//
-//    /**
-//     * Generates a graph with strongly-connected components, using a
-//     * generic {@code graph} and a designated {@code start} node.
-//     * @param <V>
-//     * @param <E>
-//     * @param graph
-//     * @param start
-//     */
-//    private static <V, E> SCCGraph<V, E>
-//        generateSccGraph(GenericGraph<V, E> graph, GraphNode<V> start) {
-//        SCCGraph<V, E> sccGraph = new SCCGraph<>();
-//
-//        Set<GraphNode<V>> visited = new HashSet<>();
-//        Queue<GraphNode<V>> postOrderTraversal = new ArrayDeque<>();
-//        Deque<GraphNode<V>> nextNodeToVisit = new ArrayDeque<>();
-//        nextNodeToVisit.add(start);
-//
-//        // Get postOrderTraversal via DFS
-//        while (!nextNodeToVisit.isEmpty()) {
-//            final var nextNode = nextNodeToVisit.pop();
-//            postOrderTraversal.add(nextNode);
-//            visited.add(nextNode);
-//            final var outgoing = graph.outgoingNodes(nextNode);
-//            for (GraphNode<V> out: outgoing) {
-//                if (!visited.contains(out)) {
-//                    nextNodeToVisit.push(out);
-//                }
-//            }
-//        }
-//
-//        // Generate a SCC graph by reverse-traversal.
-//        Set<GraphNode<V>> component = new HashSet<>();
-//        Map<GraphNode<V>, GraphNode<GenericGraph<V, E>>>
-//            nodeToSccNode = new HashMap<>();
-//        while (!postOrderTraversal.isEmpty()) {
-//            final var nextNode = postOrderTraversal.remove();
-//            component.add(nextNode);
-//            if (postOrderTraversal.isEmpty()
-//                    || !graph.outgoingNodes(postOrderTraversal.peek()).contains(nextNode)) {
-//                // Create an SCC here.
-//                final var sccComponent = scc(graph.subGraph(component));
-//                component.forEach(n -> nodeToSccNode.put(n, sccComponent));
-//                sccGraph.insert(sccComponent);
-//
-//                component.stream().map(graph::incomingNodes)
-//                    .flatMap(in -> in.stream()
-//                                 .map(nodeToSccNode::get)
-//                                 .filter(Objects::nonNull)
-//                                 .distinct())
-//                    .forEach(inScc -> sccGraph.join(inScc, sccComponent));
-//
-//                component.stream().map(graph::outgoingNodes)
-//                    .flatMap(out -> out.stream()
-//                             .map(nodeToSccNode::get)
-//                             .filter(Objects::nonNull)
-//                             .distinct())
-//                    .forEach(outScc -> sccGraph.join(sccComponent, outScc));
-//
-//                if (component.contains(start)) {
-//                    sccGraph.setStart(sccComponent);
-//                }
-//                component.clear();
-//            }
-//        }
-//        return sccGraph;
-//    }
-//
-//
-//}
+package cfg.ir.graph;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+
+import com.google.common.graph.Graph;
+import com.google.common.graph.Graphs;
+import com.google.common.graph.MutableValueGraph;
+import com.google.common.graph.ValueGraphBuilder;
+
+import cfg.ir.nodes.CFGNode;
+import polyglot.util.Pair;
+
+public class SCCGraph {
+
+    public static class SCC {
+        public final Graph<CFGNode> graph;
+
+        public SCC(Graph<CFGNode> graph) {
+            this.graph = graph;
+        }
+
+    }
+
+    private final MutableValueGraph<SCC, Optional<Boolean>> graph;
+    private SCC startNode;
+
+    private SCCGraph() {
+        this.graph = ValueGraphBuilder.directed().allowsSelfLoops(true).build();
+    }
+
+    public void setStart(SCC start) {
+        this.startNode = start;
+    }
+
+    public SCC startNode() {
+        return startNode;
+    }
+
+    private static SCC scc(Graph<CFGNode> graph) {
+        return new SCC(graph);
+    }
+
+
+    /**
+     * Generates a graph with strongly-connected components, using a
+     * a graph {@code graph} and a designated {@code start} node.
+     * @param graph
+     * @param start
+     */
+    public static SCCGraph generateSccGraph(CFGGraph graph, CFGNode start) {
+        SCCGraph sccGraph = new SCCGraph();
+
+        Set<CFGNode> visited = new HashSet<>();
+        Queue<CFGNode> postOrderTraversal = new ArrayDeque<>();
+        Deque<CFGNode> nextNodeToVisit = new ArrayDeque<>();
+        nextNodeToVisit.add(start);
+
+        // Get postOrderTraversal via DFS
+        while (!nextNodeToVisit.isEmpty()) {
+            final var nextNode = nextNodeToVisit.pop();
+            postOrderTraversal.add(nextNode);
+            visited.add(nextNode);
+            final var outgoing = graph.outgoingNodes(nextNode);
+            for (CFGNode out: outgoing) {
+                if (!visited.contains(out)) {
+                    nextNodeToVisit.push(out);
+                }
+            }
+        }
+
+        // Generate a SCC graph by reverse-traversal.
+        Set<CFGNode> component = new HashSet<>();
+        Map<CFGNode, SCC> nodeToSccNode = new HashMap<>();
+        while (!postOrderTraversal.isEmpty()) {
+            final var nextNode = postOrderTraversal.remove();
+            component.add(nextNode);
+            if (postOrderTraversal.isEmpty()
+                    || !graph.outgoingNodes(postOrderTraversal.peek()).contains(nextNode)) {
+                // Create an SCC here.
+                final var sccComponent =
+                        scc(Graphs.inducedSubgraph(graph.graph(), component));
+                component.forEach(n -> nodeToSccNode.put(n, sccComponent));
+                sccGraph.graph.addNode(sccComponent);
+
+
+                component.stream().map(n->new Pair<>(graph.incomingNodes(n), n))
+                      .flatMap(inPair -> {
+                          final var incoming = inPair.part1();
+                          final var target = inPair.part2();
+                          return incoming.stream()
+                                  .map(i -> new Pair<>(nodeToSccNode.get(i),
+                                                graph.edgeValue(i, target)))
+                                  .filter(o -> Objects.nonNull(o.part1()))
+                                  .distinct();
+                      })
+                      .forEach(inScc -> {
+                          final var scc = inScc.part1();
+                          final var value = inScc.part2();
+                          sccGraph.graph.putEdgeValue(scc, sccComponent, value);
+                      });
+
+                component.stream().map(n->new Pair<>(graph.outgoingNodes(n), n))
+                    .flatMap(outPair -> {
+                        final var outgoing = outPair.part1();
+                        final var begin = outPair.part2();
+                        return outgoing.stream()
+                                .map(out -> new Pair<>(nodeToSccNode.get(out),
+                                        graph.edgeValue(begin, out)))
+                                .filter(o -> Objects.nonNull(o.part1()))
+                                .distinct();
+                    })
+                    .forEach(outScc -> {
+                        final var scc = outScc.part1();
+                        final var value = outScc.part2();
+                        sccGraph.graph.putEdgeValue(sccComponent, scc, value);
+                    });
+
+
+                if (component.contains(start)) {
+                    sccGraph.setStart(sccComponent);
+                }
+                component.clear();
+            }
+        }
+        return sccGraph;
+    }
+
+
+}

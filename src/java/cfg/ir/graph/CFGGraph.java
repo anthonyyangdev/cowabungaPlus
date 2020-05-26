@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graph;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
@@ -37,6 +38,9 @@ public class CFGGraph {
         this.graph.addNode(startNode);
     }
 
+    public Graph<CFGNode> graph() {
+        return this.graph.asGraph();
+    }
 
     /**
      * Removes all nodes from the graph that are unreachable from the start
