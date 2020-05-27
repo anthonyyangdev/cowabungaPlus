@@ -1,6 +1,5 @@
 package cfg.ir.dfa;
 
-import cfg.ir.nodes.CFGBlockNode;
 import cfg.ir.nodes.CFGCallNode;
 import cfg.ir.nodes.CFGIfNode;
 import cfg.ir.nodes.CFGMemAssignNode;
@@ -24,8 +23,6 @@ public interface ForwardTransferFunction<L> {
     L transfer(CFGVarAssignNode n, L in);
 
     L transfer(CFGSelfLoopNode n, L in);
-
-    L transfer(CFGBlockNode n, L in);
 
     L transfer(CFGPhiFunctionBlock n, L in);
 
