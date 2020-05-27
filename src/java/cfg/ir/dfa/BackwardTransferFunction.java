@@ -1,6 +1,5 @@
 package cfg.ir.dfa;
 
-import cfg.ir.nodes.CFGBlockNode;
 import cfg.ir.nodes.CFGCallNode;
 import cfg.ir.nodes.CFGIfNode;
 import cfg.ir.nodes.CFGMemAssignNode;
@@ -22,8 +21,6 @@ public interface BackwardTransferFunction<L> {
     L transfer(CFGVarAssignNode n, L out);
 
     L transfer(CFGSelfLoopNode n, L out);
-
-    L transfer(CFGBlockNode n, L out);
 
     L transfer(CFGPhiFunctionBlock n, L in);
 

@@ -49,13 +49,13 @@ public class CFGBlockNode extends CFGNode {
     @Override
     public <T> List<T> acceptForward(
             ForwardTransferFunction<T> transferFunction, T input) {
-        return List.of(transferFunction.transfer(this, input));
+        throw new UnsupportedOperationException("Difficult");
     }
 
     @Override
     public <T> T acceptBackward(BackwardTransferFunction<T> transferFunction,
             T input) {
-        return transferFunction.transfer(this, input);
+        throw new UnsupportedOperationException("Difficult");
     }
 
     @Override

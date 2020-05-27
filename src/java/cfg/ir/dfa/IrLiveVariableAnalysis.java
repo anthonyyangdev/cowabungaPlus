@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import cfg.ir.dfa.IrLiveVariableAnalysis.IrLiveVarLattice;
-import cfg.ir.nodes.CFGBlockNode;
 import cfg.ir.nodes.CFGCallNode;
 import cfg.ir.nodes.CFGIfNode;
 import cfg.ir.nodes.CFGMemAssignNode;
@@ -101,11 +100,6 @@ public enum IrLiveVariableAnalysis implements BackwardDataflowAnalysis<IrLiveVar
                 IrLiveVarLattice out) {
             return transfer(Collections.emptySet(),
                     out.liveVars, Collections.emptySet());
-        }
-
-        @Override
-        public IrLiveVarLattice transfer(CFGBlockNode n, IrLiveVarLattice out) {
-            return transfer(n.uses(), out.liveVars, n.defs());
         }
 
         @Override
