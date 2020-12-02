@@ -632,10 +632,7 @@ public class CLI {
                 }
                 closeIOStreams(input, output);
             }
-
-            IxiFileOpener opener =
-                ixiFilename -> getLibraryReader(ixiFilename + ".ixi");
-
+            var opener = new BuiltinLibraryLoader(CLI.libRoot).getIxiFileOpener();
             if (wantsTypechecking) {
                 debugPrint("Typechecking file: " + filename);
                 try {
