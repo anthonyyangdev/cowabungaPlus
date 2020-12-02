@@ -65,7 +65,7 @@ public final class Util {
 
 
     public static <T> List<T> immutableCopy(List<? extends T> list) {
-        return Collections.unmodifiableList(new ArrayList<>(list));
+        return List.copyOf(list);
     }
 
     private Util() { }

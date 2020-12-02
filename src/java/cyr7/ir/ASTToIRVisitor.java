@@ -3,7 +3,6 @@ package cyr7.ir;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
@@ -56,7 +55,6 @@ import cyr7.ast.toplevel.XiProgramNode;
 import cyr7.ast.type.PrimitiveTypeNode;
 import cyr7.ast.type.TypeExprArrayNode;
 import cyr7.ir.interpret.Configuration;
-import cyr7.ir.lowering.LoweringVisitor.Result;
 import cyr7.ir.nodes.IRBinOp;
 import cyr7.ir.nodes.IRBinOp.OpType;
 import cyr7.ir.nodes.IRCompUnit;
@@ -291,7 +289,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     private List<IRExpr> getArraySizeExprs(TypeExprArrayNode n) {
         Optional<ExprNode> sizeExpr = n.size;
         List<IRExpr> arraySizes = new ArrayList<>();
-        while (!sizeExpr.isEmpty()) {
+        while (sizeExpr.isPresent()) {
             IRExpr size = sizeExpr.get().accept(this).assertFirst();
             arraySizes.add(size);
             if (n.child instanceof TypeExprArrayNode) {
@@ -313,12 +311,12 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
         // Sizes of each index
         List<IRExpr> arraySizes = this.getArraySizeExprs(n.type);
 
-        List<IRStmt> stmts = new ArrayList<IRStmt>();
-        Queue<IRTemp> sizeTemps = new ArrayDeque<IRTemp>();
+        List<IRStmt> stmts = new ArrayList<>();
+        Queue<IRTemp> sizeTemps = new ArrayDeque<>();
 
-        for (int i = 0; i < arraySizes.size(); i++) {
+        for (IRExpr arraySize : arraySizes) {
             IRTemp sizeTemp = make.IRTemp(generator.newTemp());
-            stmts.add(make.IRMove(sizeTemp, arraySizes.get(i)));
+            stmts.add(make.IRMove(sizeTemp, arraySize));
             sizeTemps.add(sizeTemp);
         }
         IRExpr val = this.allocateArray(n.type, sizeTemps);
@@ -373,11 +371,9 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
         commands.add(n.guard.accept(new CTranslationVisitor(generator, lt,
                 lf)));
         commands.add(make.IRLabel(lf));
-        if (n.elseBlock.isPresent()) {
-            commands.add(n.elseBlock.get()
-                                    .accept(this)
-                                    .assertSecond());
-        }
+        n.elseBlock.ifPresent(stmtNode -> commands.add(stmtNode
+                .accept(this)
+                .assertSecond()));
         commands.add(make.IRJump(make.IRName(end)));
         commands.add(make.IRLabel(lt));
         commands.add(n.ifBlock.accept(this)
@@ -636,7 +632,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                         make.IRTemp(summedArrAddr),
                         make.IRConst(8))));
 
-        /**
+        /*
          * i = 0; while (i < leftArr.size) { summed[i] = leftArr[i]; i++; } j =
          * 0; while (j < rightArr.size) { summed[leftArr.size + j] =
          * rightArr[j]; j++; }

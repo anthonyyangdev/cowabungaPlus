@@ -2,7 +2,6 @@ package cyr7.util;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,7 +12,7 @@ public final class Sets {
     public static <T> Set<T> union(Collection<? extends T> lhs, Collection<? extends T> rhs) {
         return Stream.concat(lhs.stream(), rhs.stream()).collect(Collectors.toSet());
     }
-    
+
     public static <T> Set<T> intersection(Set<? extends T> lhs, Set<? extends T> rhs) {
         Set<T> elements = new HashSet<>(lhs);
         elements.retainAll(rhs);
