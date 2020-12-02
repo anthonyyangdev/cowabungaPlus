@@ -1,6 +1,14 @@
-# cs4120
+# CS4120
 
-As cowabungans, we make compilers in Java
+Xi Compiler originally branched from [group project](https://github.com/connorreinhold/cowabunga). 
+
+## Extensions
+
+TBD
+
+## Setup
+
+Install jflex from the [official download page](https://jflex.de/download.html).
 
 ## Frequent Commands
 
@@ -13,5 +21,3 @@ Build jar: `mvn package`
 Build compiler: `./xic-build`
 
 Run compiler: `./xic [options] <source files>`
-
-Prepare Submission: `make zip`
