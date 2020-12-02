@@ -44,32 +44,32 @@ import java.util.Stack;
 public class IRSimulator {
 
     /** compilation unit to be interpreted */
-    private IRCompUnit compUnit;
+    private final IRCompUnit compUnit;
 
     /** map from address to instruction */
     protected Map<Long, IRNode> indexToInsn;
 
     /** map from labeled name to address */
-    private Map<String, Long> nameToIndex;
+    private final Map<String, Long> nameToIndex;
 
     /** a random number generator for initializing garbage */
     protected Random r;
 
     /** heap */
-    private ArrayList<Long> mem;
+    private final ArrayList<Long> mem;
 
     /** heap size maximum **/
-    private long heapSizeMax;
+    private final long heapSizeMax;
 
     protected ExprStack exprStack;
-    private BufferedReader inReader;
+    private final BufferedReader inReader;
 
     protected Set<String> libraryFunctions;
 
     protected static int debugLevel = 0;
 
-    public static final int DEFAULT_HEAP_SIZE = 512 * 10240;
-    public static final int BIG_HEAP_SIZE = 128 * 10240;
+    public static final int DEFAULT_HEAP_SIZE = 128 * 10240;
+    public static final int BIG_HEAP_SIZE = 512 * 10240;
 
     private final PrintStream stdout;
 
@@ -100,7 +100,7 @@ public class IRSimulator {
 
         r = new Random();
 
-        mem = new ArrayList<Long>();
+        mem = new ArrayList<>();
 
         exprStack = new ExprStack();
         inReader = new BufferedReader(new InputStreamReader(System.in));
@@ -157,7 +157,7 @@ public class IRSimulator {
     public long calloc(long size) {
         long retval = malloc(size);
         for (int i = (int) retval; i < retval + size; i++) {
-            mem.set(i, 0l);
+            mem.set(i, 0L);
         }
         return retval;
     }
@@ -332,7 +332,7 @@ public class IRSimulator {
                 break;
             }
             case "_IparseInt_t2ibai": {
-                StringBuffer buf = new StringBuffer();
+                StringBuilder buf = new StringBuilder();
                 long ptr = args[0], size = read(ptr - ws);
                 for (int i = 0; i < size; ++i)
                     buf.append((char) read(ptr + i * ws));
@@ -458,7 +458,7 @@ public class IRSimulator {
         }
         else if (insn instanceof IRCall) {
             int argsCount = ((IRCall) insn).args().size();
-            long args[] = new long[argsCount];
+            long[] args = new long[argsCount];
             for (int i = argsCount - 1; i >= 0; --i)
                 args[i] = exprStack.popValue();
             if (debugLevel > 2) {
@@ -570,7 +570,7 @@ public class IRSimulator {
         protected long ip;
 
         /** local registers (register name -> value) */
-        private Map<String, Long> regs;
+        private final Map<String, Long> regs;
 
         public ExecutionFrame(long ip) {
             this.ip = ip;
@@ -653,7 +653,7 @@ public class IRSimulator {
      */
     protected static class ExprStack {
 
-        private Stack<StackItem> stack;
+        private final Stack<StackItem> stack;
 
         public ExprStack() {
             stack = new Stack<>();
@@ -695,7 +695,7 @@ public class IRSimulator {
 
     public static class StackItem {
         public enum Kind {
-            COMPUTED, MEM, TEMP, NAME;
+            COMPUTED, MEM, TEMP, NAME
         }
 
         public Kind type;
@@ -722,7 +722,7 @@ public class IRSimulator {
                 temp = string;
             else name = string;
         }
-    };
+    }
 
     public static class Trap extends RuntimeException {
         private static final long serialVersionUID =
@@ -731,7 +731,7 @@ public class IRSimulator {
         public Trap(String message) {
             super(message);
         }
-    };
+    }
 
     public static class OutOfBoundTrap extends Trap {
         private static final long serialVersionUID =
@@ -740,5 +740,5 @@ public class IRSimulator {
         public OutOfBoundTrap(String message) {
             super(message);
         }
-    };
+    }
 }
