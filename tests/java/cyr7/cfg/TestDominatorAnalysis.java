@@ -9,13 +9,13 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import cfg.ir.dfa.WorklistAnalysis;
-import cfg.ir.dfa.loops.DominatorAnalysis;
-import cfg.ir.dfa.loops.DominatorUtil;
-import cfg.ir.nodes.CFGNode;
-import cfg.ir.nodes.CFGNodeFactory;
-import cfg.ir.nodes.CFGStartNode;
-import cfg.ir.nodes.CFGStubNode;
+import cyr7.cfg.ir.dfa.WorklistAnalysis;
+import cyr7.cfg.ir.dfa.loops.DominatorAnalysis;
+import cyr7.cfg.ir.dfa.loops.DominatorUtil;
+import cyr7.cfg.ir.nodes.CFGNode;
+import cyr7.cfg.ir.nodes.CFGNodeFactory;
+import cyr7.cfg.ir.nodes.CFGStartNode;
+import cyr7.cfg.ir.nodes.CFGStubNode;
 import cyr7.C;
 import cyr7.ir.nodes.IRNodeFactory;
 import cyr7.ir.nodes.IRNodeFactory_c;
@@ -71,23 +71,23 @@ public class TestDominatorAnalysis {
         CFGStartNode line0 = make.Start(line1);
 
         var result = WorklistAnalysis.analyze(line0, DominatorAnalysis.INSTANCE);
-        
+
         Map<CFGNode, Set<CFGNode>> dominators = DominatorUtil.generateMap(result.out());
-        
-        assertEquals(Set.of(line0, line1), 
+
+        assertEquals(Set.of(line0, line1),
                 dominators.get(line1));
-        assertEquals(Set.of(line0, line1, line2), 
+        assertEquals(Set.of(line0, line1, line2),
                 dominators.get(line2));
-        assertEquals(Set.of(line0, line1, line2, line3), 
+        assertEquals(Set.of(line0, line1, line2, line3),
                 dominators.get(line3));
-        assertEquals(Set.of(line0, line1, line2, line5), 
+        assertEquals(Set.of(line0, line1, line2, line5),
                 dominators.get(line5));
-        assertEquals(Set.of(line0, line1, line2, line6), 
+        assertEquals(Set.of(line0, line1, line2, line6),
                 dominators.get(line6));
-        assertEquals(Set.of(line0, line1, line2, line6, line7), 
+        assertEquals(Set.of(line0, line1, line2, line6, line7),
                 dominators.get(line7));
     }
-    
+
     /**
      * 1:   x = 12
      * 1.1: y = -x
@@ -140,25 +140,25 @@ public class TestDominatorAnalysis {
 
         var result = WorklistAnalysis.analyze(line0, DominatorAnalysis.INSTANCE);
         Map<CFGNode, Set<CFGNode>> dominators = DominatorUtil.generateMap(result.out());
-        
-        assertEquals(Set.of(line0, line1), 
+
+        assertEquals(Set.of(line0, line1),
                 dominators.get(line1));
-        assertEquals(Set.of(line0, line1, line1Point1), 
+        assertEquals(Set.of(line0, line1, line1Point1),
                 dominators.get(line1Point1));
-        assertEquals(Set.of(line0, line1, line1Point1, line1Point2), 
+        assertEquals(Set.of(line0, line1, line1Point1, line1Point2),
                 dominators.get(line1Point2));
-        assertEquals(Set.of(line0, line1, line1Point1, line1Point2, line2), 
+        assertEquals(Set.of(line0, line1, line1Point1, line1Point2, line2),
                 dominators.get(line2));
-        assertEquals(Set.of(line0, line1, line1Point1, line1Point2, line2, line3), 
+        assertEquals(Set.of(line0, line1, line1Point1, line1Point2, line2, line3),
                 dominators.get(line3));
-        assertEquals(Set.of(line0, line1, line1Point1, line1Point2, line2, line3, line4), 
+        assertEquals(Set.of(line0, line1, line1Point1, line1Point2, line2, line3, line4),
                 dominators.get(line4));
-        assertEquals(Set.of(line0, line1, line1Point1, line1Point2, line2, line5), 
+        assertEquals(Set.of(line0, line1, line1Point1, line1Point2, line2, line5),
                 dominators.get(line5));
-        assertEquals(Set.of(line0, line1, line1Point1, line1Point2, line2, line6), 
+        assertEquals(Set.of(line0, line1, line1Point1, line1Point2, line2, line6),
                 dominators.get(line6));
     }
-    
+
     /**
      * 1:   x = 12
      * 2:   while (x < 12)
@@ -166,7 +166,7 @@ public class TestDominatorAnalysis {
      * 4:       a = 3
      * 5:   x = 2
      */
-    
+
     @Test
     void testSimpleLoop() {
         CFGNode line6 = make.Return();
@@ -174,34 +174,34 @@ public class TestDominatorAnalysis {
                 makeIR.IRConst(2),
                 line6);
         CFGStubNode line3Stub = new CFGStubNode();
-        CFGNode line2 = make.If(line3Stub, line5, makeIR.IRBinOp(OpType.LT, 
+        CFGNode line2 = make.If(line3Stub, line5, makeIR.IRBinOp(OpType.LT,
                 makeIR.IRTemp("x"), makeIR.IRConst(12)));
         CFGNode line4 = make.VarAssign("a",
                 makeIR.IRConst(3),
                 line2);
-        CFGNode line3 = make.VarAssign("x", makeIR.IRConst(5), 
+        CFGNode line3 = make.VarAssign("x", makeIR.IRConst(5),
                 line4);
         line2.replaceOutEdge(line3Stub, line3);
-        CFGNode line1 = make.VarAssign("x", makeIR.IRConst(12), 
+        CFGNode line1 = make.VarAssign("x", makeIR.IRConst(12),
                 line2);
         CFGStartNode line0 = make.Start(line1);
 
         var result = WorklistAnalysis.analyze(line0, DominatorAnalysis.INSTANCE);
         Map<CFGNode, Set<CFGNode>> dominators = DominatorUtil.generateMap(result.out());
-        
-        assertEquals(Set.of(line0, line1), 
+
+        assertEquals(Set.of(line0, line1),
                 dominators.get(line1));
-        assertEquals(Set.of(line0, line1, line2), 
+        assertEquals(Set.of(line0, line1, line2),
                 dominators.get(line2));
-        assertEquals(Set.of(line0, line1, line2, line3), 
+        assertEquals(Set.of(line0, line1, line2, line3),
                 dominators.get(line3));
-        assertEquals(Set.of(line0, line1, line2, line3, line4), 
+        assertEquals(Set.of(line0, line1, line2, line3, line4),
                 dominators.get(line4));
-        assertEquals(Set.of(line0, line1, line2, line5), 
+        assertEquals(Set.of(line0, line1, line2, line5),
                 dominators.get(line5));
-        assertEquals(Set.of(line0, line1, line2, line5, line6), 
+        assertEquals(Set.of(line0, line1, line2, line5, line6),
                 dominators.get(line6));
     }
-    
-    
+
+
 }
