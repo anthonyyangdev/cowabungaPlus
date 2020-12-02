@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileReader;
 import java.io.InputStreamReader;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,17 +18,17 @@ public class LexerProvidedTest {
 
     private void testFile(String filename) throws Exception {
         MyLexer lexer = new MyLexer(new FileReader(
-                           getClass().getClassLoader()
-                                     .getResource(
-                                             "lexer/"+ filename+ ".xi")
+                           Objects.requireNonNull(getClass().getClassLoader()
+                                   .getResource(
+                                           "lexer/" + filename + ".xi"))
                                      .getFile()));
 
         Scanner solution = new Scanner(new InputStreamReader(
-                            getClass().getClassLoader()
-                                      .getResourceAsStream(
-                                              "lexer/"
-                                              + filename
-                                              + ".lexedsol")));
+                Objects.requireNonNull(getClass().getClassLoader()
+                        .getResourceAsStream(
+                                "lexer/"
+                                        + filename
+                                        + ".lexedsol"))));
 
         while (solution.hasNextLine()) {
             String line = solution.nextLine();
