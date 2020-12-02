@@ -51,7 +51,7 @@ public class CLI {
     private static boolean debugPrintingEnabled = false;
     private static ASMUtil.TilerConf tiler = TilerConf.COMPLEX;
 
-    private static OptConfig optConfig = OptConfig.of(SUPPORTED_OPTIMIZATIONS);
+    private static final OptConfig optConfig = OptConfig.of(SUPPORTED_OPTIMIZATIONS);
 
     private static boolean wantsLexing = false;
     private static boolean wantsParsing = false;
