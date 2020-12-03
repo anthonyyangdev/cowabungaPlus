@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class DynamicXiHeapTest {
 
     private val maxSize = 128 * 10240
@@ -92,7 +92,7 @@ class DynamicXiHeapTest {
         }
 
         @Test
-        fun `allocate about 75% of the heap, release, and then reallocate`() {
+        fun `allocate about 75 percent of the heap, release, and then reallocate`() {
             val firstAllocationPtr = heap.malloc(maxSize * 3L / 4L)
             assertEquals(0, firstAllocationPtr % ws)
             heap.free(firstAllocationPtr)

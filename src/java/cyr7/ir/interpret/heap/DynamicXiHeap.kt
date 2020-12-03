@@ -2,73 +2,127 @@ package cyr7.ir.interpret.heap
 
 import cyr7.ir.interpret.Configuration
 import cyr7.ir.interpret.IRSimulator
-import org.jetbrains.annotations.TestOnly
 import kotlin.math.ceil
 import kotlin.math.roundToLong
 
 class DynamicXiHeap(maxSize: Int): IXiHeap {
-
     private fun Long.asInts(): Pair<Int, Int> {
-        return ushr(32).toInt() to toInt()
+        val first = shr(32).toInt()
+        val second = toInt()
+        return first to second
+    }
+    private fun Long.sizeAndStatus(): Pair<Int, Boolean> {
+        val isFree = and(1L) == 1L
+        val size = shr(1).toInt()
+        return size to isFree
+    }
+    private fun Int.extend(): Long {
+        return this.toLong().shl(32).ushr(32)
+    }
+    private fun Long.sizeVal() = sizeAndStatus().first
+    private fun Long.replaceHead(value: Int): Long {
+        val left = value.toLong().shl(32)
+        val right = this.toInt().extend()
+        return left.or(right)
+    }
+    private fun Long.replaceEnd(value: Int): Long {
+        val left = shr(32).shl(32)
+        val right = value.extend()
+        return left.or(right)
+    }
+    private fun asLong(int1: Int, int2: Int): Long {
+        return int1.toLong().shl(32).or(int2.toLong())
+    }
+    private fun sizeAndStatus(size: Int, free: Boolean): Long {
+        return size.toLong().shl(1).or(if (free) 1 else 0)
     }
 
-    private fun repOk() {}
+    private fun getPrev(idx: Int): Int? {
+        return heap[idx + 1].asInts().first.takeIf { it != nullPoint }
+    }
+    private fun getNext(idx: Int): Int? {
+        return heap[idx + 1].asInts().second.takeIf { it != nullPoint }
+    }
+    private fun setPrev(idx: Int, prev: Int?) {
+        heap[idx + 1] = heap[idx + 1].replaceHead(prev ?: nullPoint)
+    }
+    private fun setNext(idx: Int, next: Int?) {
+        heap[idx + 1] = heap[idx + 1].replaceEnd(next ?: nullPoint)
+    }
+    private fun setSizeAndStatus(idx: Int, size: Int, free: Boolean) {
+        heap[idx] = size.toLong().shl(1).or(if (free) 1 else 0)
+        heap[idx + size - 1] = heap[idx]
+    }
 
+    private fun behindIsFree(idx: Int): Boolean {
+        return heap[idx - 1].sizeAndStatus().second
+    }
+    private fun forwardIsFree(idx: Int): Boolean {
+        return heap[idx + sizeof(idx)].sizeAndStatus().second
+    }
+    private fun sizeof(idx: Int) = heap[idx].sizeVal()
 
+    private fun repOk() {
+        assert(heap[1] == 0L)
+        var prevIdx: Int? = null
+        var idx = getHeadIdx()
+        while (idx != null) {
+            assert(heap[idx].and(1) == 1L)
+            assert(prevIdx == getPrev(idx))
+            assert(getPrev(idx) == heap[idx + 1].shr(32).toInt().takeIf { it != nullPoint })
+            prevIdx = idx
+            idx = getNext(idx)
+        }
+    }
     private val nullPoint = Int.MIN_VALUE
     private val ws = Configuration.WORD_SIZE
 
-    private val heap: LongArray = LongArray(maxSize).apply {
-        this[0] = 2
-        this[1] = 0
-        this[2] = maxSize.toLong()
-        this[3] = nullPoint.toLong()
-        this[4] = nullPoint.toLong()
+    private fun getHeadIdx() = heap[0].toInt().takeIf { it != nullPoint }
+    private fun setHeadIdx(idx: Int?) { heap[0] = idx?.toLong() ?: nullPoint.toLong() }
+    private val heap: LongArray = LongArray(maxSize)
+
+    init {
+        heap[1] = 0
+        setSizeAndStatus(2, maxSize - 2, true)
+        setPrev(2, nullPoint); setNext(2, nullPoint)
+        setHeadIdx(2)
     }
 
-    private data class FreeBlock(val size: Long, val prev: Int, val next: Int)
-    private fun getBlock(idx: Int): FreeBlock {
-        return FreeBlock(heap[idx], heap[idx + 1].toInt(), heap[idx + 2].toInt())
-    }
+    private data class FreeBlock(val blocks: Int, val prev: Int?, val next: Int?)
+    private fun getBlock(idx: Int) = FreeBlock(sizeof(idx), getPrev(idx), getNext(idx))
 
     /**
      * Finds the next free block index with enough requested `size`
+     * @param blocks the number of blocks requested.
      * @return index of the heap.
      */
-    private fun allocate(size: Long): Int {
-        assert(size % ws == 0L)
-
-        val adjustedSize = size + ws
-        var headIdx = heap[0].toInt()
-        while (headIdx > 0) {
+    private fun allocate(blocks: Int): Int {
+        val blocksNeeded = blocks + 2
+        var headIdx: Int? = getHeadIdx()
+        while (headIdx != null) {
             val metadata = getBlock(headIdx)
-            val availableSize = metadata.size
-            if (availableSize >= adjustedSize) {
-                assert(heap[headIdx - 1].asInts().first == 0)
-                val remainingSpace = availableSize - adjustedSize
-                if (remainingSpace >= ws * 3) {
+            val availableBlocks = metadata.blocks
+            if (availableBlocks >= blocksNeeded) {
+                val remainingSpace = availableBlocks - blocksNeeded
+                val prev = metadata.prev
+                val next = metadata.next
+                if (remainingSpace >= 4) {
                     // Can create new free block
                     // Buffer blocks
-                    val nextIdx = headIdx + (adjustedSize / ws).toInt()
-                    heap[headIdx - 1] = nextIdx.toLong()
-                    heap[nextIdx - 1] = 0
+                    setSizeAndStatus(headIdx, blocksNeeded, false)
+                    val nextIdx = headIdx + blocksNeeded
+                    setSizeAndStatus(nextIdx, remainingSpace, true)
+                    setPrev(nextIdx, prev); setNext(nextIdx, next)
 
-                    val prev = metadata.prev
-                    val next = metadata.next
-                    heap[nextIdx] = remainingSpace
-                    heap[nextIdx + 1] = prev.toLong()
-                    heap[nextIdx + 2] = next.toLong()
-                    when {
-                        prev != nullPoint -> heap[prev + 2] = nextIdx.toLong()
-                        else -> heap[0] = nextIdx.toLong()
-                    }
-                    if (next != nullPoint) heap[next + 1] = nextIdx.toLong()
+                    if (prev != null) setNext(prev, nextIdx) else setHeadIdx(nextIdx)
+                    if (next != null) setPrev(next, nextIdx)
                 } else {
-                    val nextIdx = headIdx + (availableSize / ws).toInt()
-                    heap[headIdx - 1] = nextIdx.toLong()
-                    heap[nextIdx - 1] = 0
+                    setSizeAndStatus(headIdx, availableBlocks, false)
+                    if (prev != null) setNext(prev, next) else setHeadIdx(next)
+                    if (next != null) setPrev(next, prev)
                 }
-                return headIdx
+                repOk()
+                return headIdx + 1
             } else {
                 headIdx = metadata.next
             }
@@ -77,33 +131,33 @@ class DynamicXiHeap(maxSize: Int): IXiHeap {
     }
 
     override fun free(addr: Long) {
-        val idx = getMemoryIndex(addr)
-
-        val headIdx = heap[0].toInt()
-        heap[headIdx + 1] = idx.toLong()
-        heap[idx + 1] = nullPoint.toLong()
-        heap[idx + 2] = headIdx.toLong()
-        heap[0] = idx.toLong()
-
-        val bufferBlock = heap[idx - 1].asInts()
-        heap[idx] = bufferBlock.second.toLong() * ws
-
-        val nextIdx = bufferBlock.second
-        val nextBufferBlock = heap[nextIdx - 1].asInts()
+        val idx = getMemoryIndex(addr) - 1
+        var idxToAdd = idx
 
         // Check if block after is free
-        if (nextBufferBlock.second == 0) {
-            heap[idx] += (heap[bufferBlock.second])
-        }
-        // Check if block before is free
-        if (bufferBlock.first > 0) {
-            heap[bufferBlock.first] += heap[idx]
-            var newHeadIdx = bufferBlock.first
-            while (heap[newHeadIdx + 1] != nullPoint.toLong()) {
-                newHeadIdx = heap[newHeadIdx + 1].toInt()
+        if (forwardIsFree(idx)) {
+            val size = sizeof(idx); val forwardIdx = idx + size
+            setSizeAndStatus(idx, sizeof(idx) + sizeof(forwardIdx), true)
+            getNext(forwardIdx)?.let { next ->
+                getPrev(forwardIdx)?.let { prev ->
+                    setNext(prev, next); setPrev(next, prev)
+                }
             }
-            heap[0] = newHeadIdx.toLong()
         }
+        if (behindIsFree(idx)) {
+            val size = sizeof(idx); val behindIdx = idx - heap[idx - 1].sizeVal()
+            setSizeAndStatus(behindIdx, size + sizeof(behindIdx), true)
+            getNext(behindIdx)?.let { next ->
+                getPrev(behindIdx)?.let { prev ->
+                    setNext(prev, next); setPrev(next, prev)
+                }
+            }
+            idxToAdd = behindIdx
+        }
+        val headIdx = getHeadIdx()
+        setPrev(idxToAdd, null); setNext(idxToAdd, headIdx)
+        if (headIdx != null) setPrev(headIdx, idxToAdd)
+        setHeadIdx(idxToAdd)
         repOk()
     }
 
@@ -111,8 +165,8 @@ class DynamicXiHeap(maxSize: Int): IXiHeap {
         val allocatedSize = when {
             size % ws == 0L -> size
             else -> ceil(size.toDouble() / ws).roundToLong() * ws
-        }
-        val ptr = allocate(allocatedSize).toLong() * ws
+        } / 8L
+        val ptr = allocate(allocatedSize.toInt()).toLong() * ws
         repOk()
         return ptr
     }
