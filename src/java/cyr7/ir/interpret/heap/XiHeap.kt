@@ -1,5 +1,6 @@
-package cyr7.ir.interpret
+package cyr7.ir.interpret.heap
 
+import cyr7.ir.interpret.Configuration
 import cyr7.ir.interpret.IRSimulator.Trap
 import kotlin.random.Random
 import kotlin.random.asJavaRandom
@@ -7,6 +8,7 @@ import kotlin.random.asJavaRandom
 open class XiHeap(private val heapSizeMax: Long) {
     private val r = Random.asJavaRandom()
     val heap: ArrayList<Long> = ArrayList()
+    private val ws = Configuration.WORD_SIZE
 
     /**
      * Allocate a specified amount of bytes on the heap
@@ -50,6 +52,13 @@ open class XiHeap(private val heapSizeMax: Long) {
         return heap[i]
     }
 
+    fun stringAt(addr: Long): String {
+        val size = read(addr - ws)
+        return LongRange(0, size).map { i ->
+            read(addr + i * ws).toChar()
+        }.joinToString("")
+    }
+
     /**
      * Write a value at the specified location on the heap
      * @param addr the address to be written
@@ -59,6 +68,15 @@ open class XiHeap(private val heapSizeMax: Long) {
         val i = getMemoryIndex(addr).toInt()
         if (i >= heap.size) throw Trap("Attempting to store past end of heap")
         heap[i] = value
+    }
+
+    fun addString(string: String): Long {
+        val len = string.length
+        val ptr = malloc(((len + 1) * ws).toLong())
+        store(ptr, len.toLong())
+        for (i in 0 until len)
+            store(ptr + (i + 1) * ws, string[i].toLong())
+        return ptr + ws
     }
 
     fun getMemoryIndex(addr: Long): Long {

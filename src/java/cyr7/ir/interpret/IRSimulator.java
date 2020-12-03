@@ -1,6 +1,8 @@
 package cyr7.ir.interpret;
 
 import cyr7.cli.CLI;
+import cyr7.ir.interpret.builtin.LibraryFunction;
+import cyr7.ir.interpret.heap.XiHeap;
 import cyr7.ir.nodes.IRBinOp;
 import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
