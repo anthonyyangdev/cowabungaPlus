@@ -8,6 +8,6 @@ class UnparseInt(settings: SimulatorSettings): LibraryFunction(settings) {
     override fun moduleName() = "conv"
     override fun execute(args: LongArray): List<Long> {
         val line = args[0].toString()
-        return listOf(heap.addString(line))
+        return listOf(heap.storeString(line))
     }
 }

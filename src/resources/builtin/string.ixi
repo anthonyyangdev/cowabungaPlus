@@ -3,31 +3,31 @@
 substring(str: int[], start: int, end: int): int[]
 
 // Creates a copy of the string
-copy(str: int[]): int[]
+copyString(str: int[]): int[]
 
 // Trims whitespace on the left side of the string
-trimLeft(str: int[]): int[]
+trimStringLeft(str: int[]): int[]
 
 // Trims whitespace on the right side of the string
-trimRight(str: int[]): int[]
+trimStringRight(str: int[]): int[]
 
 // Trimes whitespace on the left and right sides of the string
-trim(str: int[]): int[]
+trimString(str: int[]): int[]
 
 // Finds the index of [str] where [sub] begins. Returns -1 if [sub] is not in [str]
-indexOf(str: int[], sub: int[]): int
+indexOfString(str: int[], sub: int[]): int
 
 // Return a copy of the argument, with all lowercase letters translated to uppercase,
 // using the US-ASCII character set.
-uppercase(str: int[]): int[]
+uppercaseString(str: int[]): int[]
 
 // Return a copy of the argument, with all lowercase letters translated to lowercase,
 // using the US-ASCII character set.
-lowercase(str: int[]): int[]
+lowercaseString(str: int[]): int[]
 
 // The comparison function for strings.
 // Returns -1 if [str] < [str2]
 // Returns 0 if [str1] == [str2]
 // Returns 1 if [str1] > [str2]
 // Comparison is done lexicographically.
-compare(str1: int[], str2: int[]): int[]
+compareString(str1: int[], str2: int[]): int

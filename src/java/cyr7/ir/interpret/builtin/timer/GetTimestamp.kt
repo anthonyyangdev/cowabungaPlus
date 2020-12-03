@@ -11,6 +11,6 @@ class GetTimestamp(settings: SimulatorSettings): LibraryFunction(settings) {
     override fun execute(args: LongArray): List<Long> {
         val formatter = SimpleDateFormat("M/dd/yyyy hh:mm:ss", Locale.getDefault())
         val currentDate = formatter.format(Calendar.getInstance().time)
-        return listOf(heap.addString(currentDate))
+        return listOf(heap.storeString(currentDate))
     }
 }

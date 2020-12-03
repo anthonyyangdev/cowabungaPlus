@@ -8,6 +8,6 @@ class ReadLn(settings: SimulatorSettings): LibraryFunction(settings) {
     override fun moduleName() = "io"
     override fun execute(args: LongArray): List<Long> {
         val line = inReader.readLine()
-        return listOf(heap.addString(line))
+        return listOf(heap.storeString(line))
     }
 }

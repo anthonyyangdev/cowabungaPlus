@@ -7,6 +7,7 @@ import cyr7.ir.interpret.builtin.conv.UnparseInt
 import cyr7.ir.interpret.builtin.internal.Alloc
 import cyr7.ir.interpret.builtin.internal.OutOfBounds
 import cyr7.ir.interpret.builtin.io.*
+import cyr7.ir.interpret.builtin.string.*
 import cyr7.ir.interpret.builtin.timer.GetTimestamp
 import cyr7.ir.interpret.builtin.timer.TimestampDifference
 
@@ -14,7 +15,10 @@ class BuiltInLibrary(settings: SimulatorSettings) {
     private val libraryFunction = listOf(Print(settings), PrintLn(settings), Eof(settings),
             ReadLn(settings), GetChar(settings), UnparseInt(settings), ParseInt(settings),
             Alloc(settings), OutOfBounds(settings), Assert(settings), GetTimestamp(settings),
-            TimestampDifference(settings))
+            TimestampDifference(settings), Substring(settings), CopyString(settings),
+            CompareString(settings), IndexOfString(settings), LowercaseString(settings),
+            UppercaseString(settings), TrimString(settings), TrimStringLeft(settings),
+            TrimStringRight(settings))
             .map { it.callName() to it }.toMap()
     fun contains(name: String) = libraryFunction.containsKey(name)
 

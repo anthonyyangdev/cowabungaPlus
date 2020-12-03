@@ -54,7 +54,7 @@ open class XiHeap(private val heapSizeMax: Long) {
 
     fun stringAt(addr: Long): String {
         val size = read(addr - ws)
-        return LongRange(0, size).map { i ->
+        return LongRange(0, size - 1).map { i ->
             read(addr + i * ws).toChar()
         }.joinToString("")
     }
@@ -70,7 +70,7 @@ open class XiHeap(private val heapSizeMax: Long) {
         heap[i] = value
     }
 
-    fun addString(string: String): Long {
+    fun storeString(string: String): Long {
         val len = string.length
         val ptr = malloc(((len + 1) * ws).toLong())
         store(ptr, len.toLong())

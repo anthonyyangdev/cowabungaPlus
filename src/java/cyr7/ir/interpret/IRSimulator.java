@@ -356,7 +356,6 @@ public class IRSimulator {
     }
 
     /**
-     *
      * @param name name of the label
      * @return the IR node at the named label
      */
@@ -448,7 +447,7 @@ public class IRSimulator {
             return Collections.unmodifiableMap(this.regs);
         }
 
-    };
+    }
 
     /**
      * While traversing the IR tree, we require a stack in order to hold
