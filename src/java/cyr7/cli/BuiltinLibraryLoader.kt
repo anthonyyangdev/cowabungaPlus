@@ -2,28 +2,47 @@ package cyr7.cli
 
 import cyr7.typecheck.IxiFileOpener
 import java.io.*
+import java.lang.RuntimeException
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
-
 class BuiltinLibraryLoader(val libRoot: File) {
 
-    private val builtinLibraries: Map<String, JarEntry>
-    private val jarFile: JarFile
+    private val builtinLibrariesPath: Map<String, File>?
+    private val builtinLibrariesJars: Map<String, JarEntry>?
+    private val jarFile: JarFile?
     init {
-        val src = this.javaClass.protectionDomain.codeSource
-        jarFile = JarFile(src.location.path)
-
-        val jarEntries = jarFile.entries()
-        builtinLibraries = jarEntries.toList().mapNotNull { entry ->
-            val name = entry.name
-            if (name.matches(Regex("^builtin/.+"))) {
-                Paths.get(name).fileName.toString() to entry
-            } else {
-                null
+        val cl = this.javaClass.classLoader
+        val libraryPath = cl.getResource("builtin")
+                ?: throw RuntimeException("Cannot find builtin resource directory")
+        when {
+            libraryPath.toString().startsWith("jar") -> {
+                builtinLibrariesPath = null
+                val codeSource = this.javaClass.protectionDomain.codeSource
+                jarFile = JarFile(codeSource.location.path)
+                val jarEntries = jarFile.entries()
+                builtinLibrariesJars = jarEntries.toList().mapNotNull { entry ->
+                    val name = entry.name
+                    if (name.matches(Regex("^builtin/.+"))) {
+                        Paths.get(name).fileName.toString() to entry
+                    } else {
+                        null
+                    }
+                }.toMap()
             }
-        }.toMap()
+            libraryPath.toString().startsWith("file") -> {
+                builtinLibrariesJars = null
+                jarFile = null
+                builtinLibrariesPath = File(libraryPath.toURI()).listFiles()?.mapNotNull {
+                    Path.of(it.toURI()).fileName.toString() to it
+                }?.toMap() ?: throw RuntimeException("Cannot find resource")
+            }
+            else -> {
+                throw RuntimeException("Cannot find builtin resource directory")
+            }
+        }
     }
 
     fun getIxiFileOpener(): IxiFileOpener {
@@ -31,16 +50,32 @@ class BuiltinLibraryLoader(val libRoot: File) {
     }
 
     private fun getLibraryReader(filename: String): Reader {
-        return builtinLibraries[filename].let { e ->
-            if (e != null) {
-                val inputStream = jarFile.getInputStream(e)
-                InputStreamReader(inputStream)
-            } else {
-                val sourcePath = Paths.get(libRoot.absolutePath, filename)
-                CLI.debugPrint("Opening reader to: $sourcePath")
-                BufferedReader(FileReader(sourcePath.toFile()))
+        when {
+            builtinLibrariesJars != null -> {
+                return builtinLibrariesJars[filename].let { e ->
+                    if (e != null) {
+                        val inputStream = jarFile!!.getInputStream(e)
+                        InputStreamReader(inputStream)
+                    } else getLibraryFromUserSpace(filename)
+                }
+            }
+            builtinLibrariesPath != null -> {
+                return builtinLibrariesPath[filename].let { f ->
+                    if (f != null) {
+                        val inputStream = FileInputStream(f)
+                        InputStreamReader(inputStream)
+                    } else getLibraryFromUserSpace(filename)
+                }
+            }
+            else -> {
+                throw RuntimeException("Improper library setup")
             }
         }
+    }
+    private fun getLibraryFromUserSpace(filename: String): Reader {
+        val sourcePath = Paths.get(libRoot.absolutePath, filename)
+        CLI.debugPrint("Opening reader to: $sourcePath")
+        return BufferedReader(FileReader(sourcePath.toFile()))
     }
 
 }

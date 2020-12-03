@@ -49,7 +49,7 @@ public class IRSimulator {
     private final Map<String, Long> nameToIndex;
 
     /** a random number generator for initializing garbage */
-    protected Random r;
+    protected Random r = new Random();
 
     protected ExprStack exprStack;
     protected XiHeap heap;
@@ -146,9 +146,7 @@ public class IRSimulator {
                 frame.put(Configuration.ABSTRACT_ARG_PREFIX + i, args[i]);
 
             // Simulate!
-            System.out.println("Begin simulation");
             while (frame.advance());
-            System.out.println("Finish simulation");
 
             String typeInName = name.substring(name.lastIndexOf("_") + 1);
             int numReturnVals = 1;

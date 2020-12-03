@@ -400,7 +400,6 @@ public class CLI {
         if (pos > 0) {
             name = name.substring(0, pos);
         }
-
         return name;
     }
 
