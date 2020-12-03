@@ -7,21 +7,16 @@ import kotlin.math.roundToLong
 import kotlin.random.Random
 import kotlin.random.asJavaRandom
 
-open class XiHeap(private val heapSizeMax: Long) {
+class XiHeap(private val heapSizeMax: Long): IXiHeap {
     private val r = Random.asJavaRandom()
-    val heap: ArrayList<Long> = ArrayList()
+    private val heap: ArrayList<Long> = ArrayList()
     private val ws = Configuration.WORD_SIZE
 
-    /**
-     * Allocate a specified amount of bytes on the heap
-     * @param size the number of bytes to be allocated
-     * @return the starting address of the allocated region on the heap
-     */
-    fun malloc(size: Long): Long {
-        var allocatedSize = size
+    override fun malloc(size: Long): Long {
         if (size < 0) throw Trap("Invalid size")
-        if (size % Configuration.WORD_SIZE != 0L) {
-            allocatedSize = ceil(size.toDouble() / ws).roundToLong() * ws
+        val allocatedSize = when {
+            size % ws == 0L -> size
+            else -> ceil(size.toDouble() / ws).roundToLong() * ws
         }
         val retval: Long = heap.size.toLong()
         if (retval + allocatedSize > heapSizeMax)
@@ -32,12 +27,7 @@ open class XiHeap(private val heapSizeMax: Long) {
         return retval
     }
 
-    /**
-     * Allocate a specified amount of bytes on the heap and initialize them to 0.
-     * @param size the number of bytes to be allocated
-     * @return the starting address of the allocated region on the heap
-     */
-    fun calloc(size: Long): Long {
+    override fun calloc(size: Long): Long {
         val retval = malloc(size)
         for (i in retval.toInt() until retval + size) {
             heap[i.toInt()] = 0L
@@ -45,21 +35,13 @@ open class XiHeap(private val heapSizeMax: Long) {
         return retval
     }
 
-    /**
-     * Read a value at the specified location on the heap
-     * @param addr the address to be read
-     * @return the value at `addr`
-     */
-    fun read(addr: Long): Long {
+    override fun read(addr: Long): Long {
         val i = getMemoryIndex(addr).toInt()
         if (i >= heap.size) throw Trap("Attempting to read past end of heap")
         return heap[i]
     }
 
-    /**
-     * Returns the string at the address in the heap.
-     */
-    fun stringAt(addr: Long): String {
+    override fun stringAt(addr: Long): String {
         val size = read(addr - ws)
         // Ignore the last entry, which is 0.
         return LongRange(0, size - 1).map { i ->
@@ -67,30 +49,24 @@ open class XiHeap(private val heapSizeMax: Long) {
         }.joinToString("")
     }
 
-    /**
-     * Write a value at the specified location on the heap
-     * @param addr the address to be written
-     * @param value the value to be written
-     */
-    fun store(addr: Long, value: Long) {
+    override fun store(addr: Long, value: Long) {
         val i = getMemoryIndex(addr).toInt()
         if (i >= heap.size) throw Trap("Attempting to store past end of heap")
         heap[i] = value
     }
 
-    /**
-     * Adds a string to the heap and returns the pointer to that string.
-     */
-    fun storeString(string: String): Long {
-        val len = string.length
+    override fun storeString(value: String): Long {
+        val len = value.length
         val ptr = malloc(((len + 2) * ws).toLong())
         store(ptr, len.toLong())
         for (i in 0 until len) {
-            store(ptr + (i + 1) * ws, string[i].toLong())
+            store(ptr + (i + 1) * ws, value[i].toLong())
         }
         store(ptr + (len + 1) * ws, 0)
         return ptr + ws
     }
+
+    override fun free(addr: Long) {}
 
     private fun getMemoryIndex(addr: Long): Long {
         if (addr % Configuration.WORD_SIZE != 0L)

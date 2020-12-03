@@ -2,7 +2,8 @@ package cyr7.ir.interpret;
 
 import cyr7.cli.CLI;
 import cyr7.ir.interpret.builtin.LibraryFunction;
-import cyr7.ir.interpret.heap.XiHeap;
+import cyr7.ir.interpret.heap.IXiHeap;
+import cyr7.ir.interpret.heap.XiHeapFactory;
 import cyr7.ir.nodes.IRBinOp;
 import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
@@ -54,7 +55,7 @@ public class IRSimulator {
     protected Random r = new Random();
 
     protected ExprStack exprStack;
-    protected XiHeap heap;
+    protected IXiHeap heap;
 
     protected BuiltInLibrary libraryFunctions;
 
@@ -87,7 +88,7 @@ public class IRSimulator {
     public IRSimulator(IRCompUnit compUnit, int heapSize, PrintStream stdout) {
         this.exprStack = new ExprStack();
         this.compUnit = compUnit;
-        this.heap = new XiHeap(heapSize);
+        this.heap = XiHeapFactory.Companion.createInstance(heapSize);
         var inReader = new BufferedReader(new InputStreamReader(System.in));
         var simulatorSettings = new SimulatorSettings(heap, inReader, stdout);
         libraryFunctions = new BuiltInLibrary(simulatorSettings);
