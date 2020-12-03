@@ -609,7 +609,6 @@ public class CLI {
                 try {
                     input = getReader(filename);
                     output = getWriter(
-                        destinationRoot.getAbsolutePath(),
                         filename,
                         getMainFilename(Path.of(filename)),
                         "lexed");
@@ -624,7 +623,7 @@ public class CLI {
                 debugPrint("Parsing file: " + filename);
                 try {
                     input = getReader(filename);
-                    output = getWriter(destinationRoot.getAbsolutePath(), filename, getMainFilename(Path.of(filename)), "parsed");
+                    output = getWriter(filename, getMainFilename(Path.of(filename)), "parsed");
                     ParserUtil.parse(input, output, filename, isIXI);
                 } catch (Exception e) {
                     writer.write(e.getMessage());
@@ -636,7 +635,7 @@ public class CLI {
                 debugPrint("Typechecking file: " + filename);
                 try {
                     input = getReader(filename);
-                    output = getWriter(destinationRoot.getAbsolutePath(), filename, getMainFilename(Path.of(filename)), "typed");
+                    output = getWriter(filename, getMainFilename(Path.of(filename)), "typed");
                     TypeCheckUtil.typeCheck(
                         input,
                         output,
@@ -654,7 +653,6 @@ public class CLI {
                 try {
                     input = getReader(filename);
                     output = getWriter(
-                        destinationRoot.getAbsolutePath(),
                         filename,
                         getMainFilename(Path.of(filename)) + "_initial",
                         "ir");
@@ -675,7 +673,6 @@ public class CLI {
                 try {
                     input = getReader(filename);
                     output = getWriter(
-                        destinationRoot.getAbsolutePath(),
                         filename,
                         getMainFilename(Path.of(filename)) + "_final",
                         "ir");
@@ -710,7 +707,6 @@ public class CLI {
                                 + "_initial";
                         System.out.println();
                         output = getWriter(
-                            destinationRoot.getAbsolutePath(),
                             filename,
                             functionFilename,
                             "dot");
@@ -742,7 +738,6 @@ public class CLI {
                                 + demangleFunction(f)
                                 + "_final";
                         output = getWriter(
-                            destinationRoot.getAbsolutePath(),
                             filename,
                             functionFilename,
                             "dot");
@@ -762,7 +757,6 @@ public class CLI {
                     Path path = Path.of(filename);
                     input = getReader(filename);
                     output = getWriter(
-                        destinationRoot.getAbsolutePath(),
                         filename,
                         getMainFilename(Path.of(filename)),
                         "ir");
@@ -785,7 +779,6 @@ public class CLI {
                 try {
                     input = getReader(filename);
                     output = getWriter(
-                        destinationRoot.getAbsolutePath(),
                         filename,
                         getMainFilename(Path.of(filename)),
                         "mir_run");
@@ -807,7 +800,6 @@ public class CLI {
                 try {
                     input = getReader(filename);
                     output = getWriter(
-                        destinationRoot.getAbsolutePath(),
                         filename,
                         getMainFilename(Path.of(filename)),
                         "ir_run");
@@ -829,7 +821,6 @@ public class CLI {
                 try {
                     input = getReader(filename);
                     output = getWriter(
-                        assemblyRoot.getAbsolutePath(),
                         filename,
                         getMainFilename(Path.of(filename)),
                         "s");
@@ -854,23 +845,33 @@ public class CLI {
     }
 
     private static Reader getReader(String filename) throws IOException {
-        Path sourcePath = Paths.get(sourceRoot.getAbsolutePath(), filename);
+        Path sourcePath;
+        if (Paths.get(filename).isAbsolute()) {
+            sourcePath = Paths.get(filename);
+        } else {
+            sourcePath = Paths.get(sourceRoot.getAbsolutePath(), filename);
+        }
         debugPrint("Opening reader to: " + sourcePath);
         return new BufferedReader(new FileReader(sourcePath.toFile()));
     }
 
-    private static Writer getWriter(String absolutePath, String relativePath, String filename, String fileExtension)
+    private static Writer getWriter(String relativePath, String filename, String fileExtension)
             throws IOException {
-        Path destPath = Paths.get(absolutePath, relativePath).getParent();
-        File dest = new File(destPath.toFile(),
-            String.format("%s.%s", filename, fileExtension));
+        String outputDirectory = "__xic_output";
+        Path destPath;
+        if (Path.of(relativePath).isAbsolute()) {
+            destPath = Path.of(relativePath).getParent().resolve(outputDirectory);
+        } else {
+            String absolutePath = destinationRoot.getAbsolutePath();
+            destPath = Paths.get(absolutePath, relativePath).getParent().resolve(outputDirectory);
+        }
+        File dest = new File(destPath.toFile(), String.format("%s.%s", filename, fileExtension));
+        System.out.println(dest);
         if (!dest.exists()) {
             // Create directories if they don't exist
             dest.getParentFile().mkdirs();
         }
-
         debugPrint("Opening writer to: " + dest);
-
         return new BufferedWriter(new FileWriter(dest));
     }
 
