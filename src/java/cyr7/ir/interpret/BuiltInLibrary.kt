@@ -12,14 +12,26 @@ import cyr7.ir.interpret.builtin.timer.GetTimestamp
 import cyr7.ir.interpret.builtin.timer.TimestampDifference
 
 class BuiltInLibrary(settings: SimulatorSettings) {
-    private val libraryFunction = listOf(Print(settings), PrintLn(settings), Eof(settings),
-            ReadLn(settings), GetChar(settings), UnparseInt(settings), ParseInt(settings),
-            Alloc(settings), OutOfBounds(settings), Assert(settings), GetTimestamp(settings),
-            TimestampDifference(settings), Substring(settings), CopyString(settings),
-            CompareString(settings), IndexOfString(settings), LowercaseString(settings),
-            UppercaseString(settings), TrimString(settings), TrimStringLeft(settings),
-            TrimStringRight(settings))
-            .map { it.callName() to it }.toMap()
+    private val ioFunctions = listOf(
+            Print(settings), PrintLn(settings), Eof(settings),
+            ReadLn(settings), GetChar(settings), ReadFile(settings),
+            AppendFile(settings), ReadFileLines(settings), WriteFile(settings)
+    )
+    private val convFunctions = listOf(
+            UnparseInt(settings), ParseInt(settings)
+    )
+    private val internalFunctions = listOf(
+            Alloc(settings), OutOfBounds(settings)
+    )
+    private val assertFunctions = listOf(Assert(settings))
+    private val timerFunctions = listOf(GetTimestamp(settings), TimestampDifference(settings))
+    private val stringFunctions = listOf(
+            Substring(settings), CopyString(settings), CompareString(settings),
+            IndexOfString(settings), LowercaseString(settings), UppercaseString(settings),
+            TrimString(settings), TrimStringLeft(settings), TrimStringRight(settings)
+    )
+    private val libraryFunction = (ioFunctions + convFunctions + internalFunctions
+            + assertFunctions + timerFunctions + stringFunctions).map { it.callName() to it }.toMap()
     fun contains(name: String) = libraryFunction.containsKey(name)
 
     /**

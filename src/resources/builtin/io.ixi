@@ -8,3 +8,8 @@ getchar() : int // Read a single character from standard input.
                 // Returns -1 if the end of input has been reached.
 
 eof() : bool // Test for end of file on standard input.
+
+readFile(filename: int[]): int[] // Reads a file and returns the contents
+readFileLines(filename: int[]): int[][] // Reads a file and splits the contents by newlines
+writeFile(filename: int[], data: int[]) // Writes contents into filename
+appendFile(filename: int[], data: int[]) // Appends contents into filename
