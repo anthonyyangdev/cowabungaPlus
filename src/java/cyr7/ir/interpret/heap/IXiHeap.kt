@@ -24,7 +24,7 @@ interface IXiHeap {
 
     /**
      * Retrieves the string at the address in the heap.
-     * @param addr the address of the string to obtain
+     * @param addr the address of the first character of the string, or zero cell if empty.
      * @return the string value at `addr`
      */
     fun stringAt(addr: Long): String

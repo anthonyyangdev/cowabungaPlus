@@ -1,6 +1,5 @@
 package cyr7.ir.interpret.builtin.io
 
-import cyr7.ir.interpret.Configuration
 import cyr7.ir.interpret.SimulatorSettings
 import cyr7.ir.interpret.builtin.LibraryFunction
 import java.io.File

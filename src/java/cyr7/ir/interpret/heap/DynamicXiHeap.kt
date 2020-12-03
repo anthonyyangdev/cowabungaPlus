@@ -2,34 +2,37 @@ package cyr7.ir.interpret.heap
 
 import cyr7.ir.interpret.Configuration
 import cyr7.ir.interpret.IRSimulator
-import kotlin.collections.ArrayList
+import org.jetbrains.annotations.TestOnly
 import kotlin.math.ceil
 import kotlin.math.roundToLong
 
-class DynamicXiHeap: IXiHeap {
+class DynamicXiHeap(maxSize: Int): IXiHeap {
 
     private fun Long.asInts(): Pair<Int, Int> {
         return ushr(32).toInt() to toInt()
     }
 
+    private fun repOk() {}
+
+
     private val nullPoint = Int.MIN_VALUE
     private val ws = Configuration.WORD_SIZE
 
-    private val heap: ArrayList<Long> = arrayListOf()
-    init {
-        heap[0] = 2
-        heap[1] = 0
-        heap[2] = Long.MAX_VALUE
-        heap[3] = nullPoint.toLong()
-        heap[4] = nullPoint.toLong()
+    private val heap: LongArray = LongArray(maxSize).apply {
+        this[0] = 2
+        this[1] = 0
+        this[2] = maxSize.toLong()
+        this[3] = nullPoint.toLong()
+        this[4] = nullPoint.toLong()
     }
+
     private data class FreeBlock(val size: Long, val prev: Int, val next: Int)
     private fun getBlock(idx: Int): FreeBlock {
         return FreeBlock(heap[idx], heap[idx + 1].toInt(), heap[idx + 2].toInt())
     }
 
     /**
-     * Finds the next free block with enough requested `size`
+     * Finds the next free block index with enough requested `size`
      * @return index of the heap.
      */
     private fun allocate(size: Long): Int {
@@ -46,7 +49,7 @@ class DynamicXiHeap: IXiHeap {
                 if (remainingSpace >= ws * 3) {
                     // Can create new free block
                     // Buffer blocks
-                    val nextIdx = headIdx + (adjustedSize % ws).toInt()
+                    val nextIdx = headIdx + (adjustedSize / ws).toInt()
                     heap[headIdx - 1] = nextIdx.toLong()
                     heap[nextIdx - 1] = 0
 
@@ -55,10 +58,13 @@ class DynamicXiHeap: IXiHeap {
                     heap[nextIdx] = remainingSpace
                     heap[nextIdx + 1] = prev.toLong()
                     heap[nextIdx + 2] = next.toLong()
-                    if (prev != nullPoint) heap[prev + 2] = nextIdx.toLong()
+                    when {
+                        prev != nullPoint -> heap[prev + 2] = nextIdx.toLong()
+                        else -> heap[0] = nextIdx.toLong()
+                    }
                     if (next != nullPoint) heap[next + 1] = nextIdx.toLong()
                 } else {
-                    val nextIdx = headIdx + (availableSize % ws).toInt()
+                    val nextIdx = headIdx + (availableSize / ws).toInt()
                     heap[headIdx - 1] = nextIdx.toLong()
                     heap[nextIdx - 1] = 0
                 }
@@ -71,15 +77,16 @@ class DynamicXiHeap: IXiHeap {
     }
 
     override fun free(addr: Long) {
-        val idx = getMemoryIndex(addr) - 1
+        val idx = getMemoryIndex(addr)
+
         val headIdx = heap[0].toInt()
         heap[headIdx + 1] = idx.toLong()
         heap[idx + 1] = nullPoint.toLong()
         heap[idx + 2] = headIdx.toLong()
         heap[0] = idx.toLong()
 
-        val bufferBlock = heap[idx].asInts()
-        heap[idx] = bufferBlock.second.toLong()
+        val bufferBlock = heap[idx - 1].asInts()
+        heap[idx] = bufferBlock.second.toLong() * ws
 
         val nextIdx = bufferBlock.second
         val nextBufferBlock = heap[nextIdx - 1].asInts()
@@ -88,11 +95,16 @@ class DynamicXiHeap: IXiHeap {
         if (nextBufferBlock.second == 0) {
             heap[idx] += (heap[bufferBlock.second])
         }
-
         // Check if block before is free
         if (bufferBlock.first > 0) {
             heap[bufferBlock.first] += heap[idx]
+            var newHeadIdx = bufferBlock.first
+            while (heap[newHeadIdx + 1] != nullPoint.toLong()) {
+                newHeadIdx = heap[newHeadIdx + 1].toInt()
+            }
+            heap[0] = newHeadIdx.toLong()
         }
+        repOk()
     }
 
     override fun malloc(size: Long): Long {
@@ -100,32 +112,40 @@ class DynamicXiHeap: IXiHeap {
             size % ws == 0L -> size
             else -> ceil(size.toDouble() / ws).roundToLong() * ws
         }
-        return allocate(allocatedSize).toLong()
+        val ptr = allocate(allocatedSize).toLong() * ws
+        repOk()
+        return ptr
     }
 
     override fun calloc(size: Long): Long {
         val ptr = malloc(size)
-        for (i in ptr until ptr + size)
+        val start = getMemoryIndex(ptr)
+        for (i in start until start + (size / ws))
             heap[i.toInt()] = 0
+        repOk()
         return ptr
     }
 
     override fun read(addr: Long): Long {
         val i = getMemoryIndex(addr)
+        repOk()
         return heap[i]
     }
 
     override fun stringAt(addr: Long): String {
         val size = read(addr - ws)
         // Ignore the last entry, which is 0.
-        return LongRange(0, size - 1).map { i ->
+        val str = LongRange(0, size - 1).map { i ->
             read(addr + i * ws).toChar()
         }.joinToString("")
+        repOk()
+        return str
     }
 
     override fun store(addr: Long, value: Long) {
         val i = getMemoryIndex(addr)
         heap[i] = value
+        repOk()
     }
 
     override fun storeString(value: String): Long {
@@ -136,6 +156,7 @@ class DynamicXiHeap: IXiHeap {
             store(ptr + (i + 1) * ws, value[i].toLong())
         }
         store(ptr + (len + 1) * ws, 0)
+        repOk()
         return ptr + ws
     }
 
