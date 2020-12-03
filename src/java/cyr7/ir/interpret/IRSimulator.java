@@ -23,19 +23,15 @@ import edu.cornell.cs.cs4120.util.InternalCompilerError;
 import polyglot.util.SerialVersionUID;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -55,23 +51,15 @@ public class IRSimulator {
     /** a random number generator for initializing garbage */
     protected Random r;
 
-    /** heap */
-    private final ArrayList<Long> mem;
-
-    /** heap size maximum **/
-    private final long heapSizeMax;
-
     protected ExprStack exprStack;
-    private final BufferedReader inReader;
+    protected XiHeap heap;
 
-    protected Set<String> libraryFunctions;
+    protected BuiltInLibrary libraryFunctions;
 
     protected static int debugLevel = 0;
 
     public static final int DEFAULT_HEAP_SIZE = 128 * 10240;
     public static final int BIG_HEAP_SIZE = 512 * 10240;
-
-    private final PrintStream stdout;
 
     /**
      * Construct an IR interpreter with a default heap size
@@ -95,102 +83,17 @@ public class IRSimulator {
      * @param heapSize the heap size
      */
     public IRSimulator(IRCompUnit compUnit, int heapSize, PrintStream stdout) {
+        this.exprStack = new ExprStack();
         this.compUnit = compUnit;
-        this.heapSizeMax = heapSize;
-
-        r = new Random();
-
-        mem = new ArrayList<>();
-
-        exprStack = new ExprStack();
-        inReader = new BufferedReader(new InputStreamReader(System.in));
-
-        libraryFunctions = new LinkedHashSet<>();
-        // io declarations
-        libraryFunctions.add("_Iprint_pai");
-        libraryFunctions.add("_Iprintln_pai");
-        libraryFunctions.add("_Ireadln_ai");
-        libraryFunctions.add("_Igetchar_i");
-        libraryFunctions.add("_Ieof_b");
-        // conv declarations
-        libraryFunctions.add("_IparseInt_t2ibai");
-        libraryFunctions.add("_IunparseInt_aii");
-        // special declarations
-        libraryFunctions.add("_xi_alloc");
-        libraryFunctions.add("_xi_out_of_bounds");
-        // other declarations
-        libraryFunctions.add("_Iassert_pb");
+        this.heap = new XiHeap(heapSize);
+        var inReader = new BufferedReader(new InputStreamReader(System.in));
+        var simulatorSettings = new SimulatorSettings(heap, inReader, stdout);
+        libraryFunctions = new BuiltInLibrary(simulatorSettings);
 
         InsnMapsBuilder imb = new InsnMapsBuilder();
         compUnit = (IRCompUnit) imb.visit(compUnit);
         indexToInsn = imb.indexToInsn();
         nameToIndex = imb.nameToIndex();
-
-        this.stdout = stdout;
-
-    }
-
-    /**
-     * Allocate a specified amount of bytes on the heap
-     * @param size the number of bytes to be allocated
-     * @return the starting address of the allocated region on the heap
-     */
-    public long malloc(long size) {
-        if (size < 0) throw new Trap("Invalid size");
-        if (size % Configuration.WORD_SIZE != 0)
-            throw new Trap("Can only allocate in chunks of "
-                    + Configuration.WORD_SIZE + " bytes!");
-
-        long retval = mem.size();
-        if (retval + size > heapSizeMax) throw new Trap("Out of heap!");
-        for (int i = 0; i < size; i++) {
-            mem.add(r.nextLong());
-        }
-        return retval;
-    }
-
-    /**
-     * Allocate a specified amount of bytes on the heap and initialize them to 0.
-     * @param size the number of bytes to be allocated
-     * @return the starting address of the allocated region on the heap
-     */
-    public long calloc(long size) {
-        long retval = malloc(size);
-        for (int i = (int) retval; i < retval + size; i++) {
-            mem.set(i, 0L);
-        }
-        return retval;
-    }
-
-    /**
-     * Read a value at the specified location on the heap
-     * @param addr the address to be read
-     * @return the value at {@code addr}
-     */
-    public long read(long addr) {
-        int i = (int)getMemoryIndex(addr);
-        if (i >= mem.size())
-            throw new Trap("Attempting to read past end of heap");
-        return mem.get(i);
-    }
-
-    /**
-     * Write a value at the specified location on the heap
-     * @param addr the address to be written
-     * @param value the value to be written
-     */
-    public void store(long addr, long value) {
-        int i = (int)getMemoryIndex(addr);
-        if (i >= mem.size())
-            throw new Trap("Attempting to store past end of heap");
-        mem.set(i, value);
-    }
-
-    protected long getMemoryIndex(long addr) {
-        if (addr % Configuration.WORD_SIZE != 0)
-            throw new Trap("Unaligned memory access: " + addr + " (word size="
-                    + Configuration.WORD_SIZE + ")");
-        return addr / Configuration.WORD_SIZE;
     }
 
     /**
@@ -220,8 +123,8 @@ public class IRSimulator {
      */
     public long call(ExecutionFrame parent, String name, long... args) {
         // Catch standard library calls.
-        if (libraryFunctions.contains(name)) {
-            final List<Long> ret = libraryCall(name, args);
+        final List<Long> ret = libraryFunctions.call(name, args);
+        if (ret != null) {
             for (int i = 0; i < ret.size(); i++) {
                 parent.put(Configuration.ABSTRACT_RET_PREFIX + i, ret.get(i));
             }
@@ -243,7 +146,9 @@ public class IRSimulator {
                 frame.put(Configuration.ABSTRACT_ARG_PREFIX + i, args[i]);
 
             // Simulate!
-            while (frame.advance()) ;
+            System.out.println("Begin simulation");
+            while (frame.advance());
+            System.out.println("Finish simulation");
 
             String typeInName = name.substring(name.lastIndexOf("_") + 1);
             int numReturnVals = 1;
@@ -270,106 +175,6 @@ public class IRSimulator {
             }
         }
         return 0;
-
-    }
-
-    /**
-     * Simulate a library function call, returning the list of returned values
-     * @param name name of the function call
-     * @param args arguments to the function call, which may include
-     *          the pointer to the location of multiple results
-     */
-    protected List<Long> libraryCall(String name, long[] args) {
-        if (debugLevel > 2) {
-            System.err.println("Calling library function: " + name);
-            System.err.println("Args: " + Arrays.toString(args));
-        }
-        final int ws = Configuration.WORD_SIZE;
-        final List<Long> ret = new ArrayList<>();
-        try {
-            switch (name) {
-            // io declarations
-            case "_Iprint_pai": {
-                long ptr = args[0], size = read(ptr - ws);
-                for (long i = 0; i < size; ++i)
-                    stdout.print((char) read(ptr + i * ws));
-                break;
-            }
-            case "_Iprintln_pai": {
-                long ptr = args[0], size = read(ptr - ws);
-                for (long i = 0; i < size; ++i)
-                    stdout.print((char) read(ptr + i * ws));
-                stdout.println();
-                break;
-            }
-            case "_Ireadln_ai": {
-                String line = inReader.readLine();
-                int len = line.length();
-                long ptr = malloc((len + 1) * ws);
-                store(ptr, len);
-                for (int i = 0; i < len; ++i)
-                    store(ptr + (i + 1) * ws, line.charAt(i));
-                ret.add(ptr + ws);
-                break;
-            }
-            case "_Igetchar_i": {
-                ret.add((long) inReader.read());
-                break;
-            }
-            case "_Ieof_b": {
-                ret.add((long) (inReader.ready() ? 0 : 1));
-                break;
-            }
-            // conv declarations
-            case "_IunparseInt_aii": {
-                String line = String.valueOf(args[0]);
-                int len = line.length();
-                long ptr = malloc((len + 1) * ws);
-                store(ptr, len);
-                for (int i = 0; i < len; ++i)
-                    store(ptr + (i + 1) * ws, line.charAt(i));
-                ret.add(ptr + ws);
-                break;
-            }
-            case "_IparseInt_t2ibai": {
-                StringBuilder buf = new StringBuilder();
-                long ptr = args[0], size = read(ptr - ws);
-                for (int i = 0; i < size; ++i)
-                    buf.append((char) read(ptr + i * ws));
-                long result = 0, success = 1;
-                try {
-                    result = Integer.parseInt(buf.toString());
-                }
-                catch (NumberFormatException e) {
-                    success = 0;
-                }
-                ret.add(result);
-                ret.add(success);
-                break;
-            }
-            // special declarations
-            case "_xi_alloc": {
-                ret.add(calloc(args[0]));
-                break;
-            }
-            case "_xi_out_of_bounds": {
-                throw new OutOfBoundTrap("Out of bounds!");
-            }
-            // other declarations
-            case "_Iassert_pb": {
-                if (args[0] != 1) throw new Trap("Assertion error!");
-                break;
-            }
-            default:
-                throw new InternalCompilerError("Unsupported library function: "
-                        + name);
-            }
-
-            return ret;
-        }
-        catch (IOException e) {
-            throw new InternalCompilerError("I/O Exception in simulator");
-        }
     }
 
     protected void leave(ExecutionFrame frame) {
@@ -454,7 +259,7 @@ public class IRSimulator {
         }
         else if (insn instanceof IRMem) {
             long addr = exprStack.popValue();
-            exprStack.pushAddr(read(addr), addr);
+            exprStack.pushAddr(heap.read(addr), addr);
         }
         else if (insn instanceof IRCall) {
             int argsCount = ((IRCall) insn).args().size();
@@ -495,7 +300,7 @@ public class IRSimulator {
             case MEM:
                 if (debugLevel > 0)
                     System.out.println("mem[" + stackItem.addr + "]=" + r);
-                store(stackItem.addr, r);
+                heap.store(stackItem.addr, r);
                 break;
             case TEMP:
                 if (debugLevel > 0)
