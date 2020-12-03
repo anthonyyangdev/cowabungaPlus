@@ -123,8 +123,10 @@ public class IRSimulator {
      */
     public long call(ExecutionFrame parent, String name, long... args) {
         // Catch standard library calls.
-        final List<Long> ret = libraryFunctions.call(name, args);
-        if (ret != null) {
+        IRFuncDecl fDecl = compUnit.getFunction(name);
+        LibraryFunction libFun = libraryFunctions.get(name);
+        if (fDecl == null && libFun != null) {
+            final List<Long> ret = libFun.execute(args);
             for (int i = 0; i < ret.size(); i++) {
                 parent.put(Configuration.ABSTRACT_RET_PREFIX + i, ret.get(i));
             }
@@ -132,11 +134,9 @@ public class IRSimulator {
                 return ret.get(0);
             }
         } else {
-            IRFuncDecl fDecl = compUnit.getFunction(name);
             if (fDecl == null)
                 throw new InternalCompilerError("Tried to call an unknown function: '"
                         + name + "'");
-
             // Create a new stack frame.
             long ip = findLabel(name);
             ExecutionFrame frame = new ExecutionFrame(ip);

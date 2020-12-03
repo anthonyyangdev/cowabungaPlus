@@ -28,7 +28,6 @@ import cyr7.cfg.ir.nodes.CFGStartNode;
 import cyr7.ir.IRUtil;
 import cyr7.lexer.LexerUtil;
 import cyr7.parser.ParserUtil;
-import cyr7.typecheck.IxiFileOpener;
 import cyr7.typecheck.TypeCheckUtil;
 import cyr7.x86.ASMUtil;
 import cyr7.x86.ASMUtil.TilerConf;
@@ -866,7 +865,6 @@ public class CLI {
             destPath = Paths.get(absolutePath, relativePath).getParent().resolve(outputDirectory);
         }
         File dest = new File(destPath.toFile(), String.format("%s.%s", filename, fileExtension));
-        System.out.println(dest);
         if (!dest.exists()) {
             // Create directories if they don't exist
             dest.getParentFile().mkdirs();

@@ -2,6 +2,12 @@ package cyr7.ir.interpret
 
 import cyr7.ir.interpret.IRSimulator.OutOfBoundTrap
 import cyr7.ir.interpret.IRSimulator.Trap
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.Locale
+
+
+
 
 abstract class LibraryFunction(settings: SimulatorSettings) {
     protected val heap = settings.heap
@@ -13,6 +19,15 @@ abstract class LibraryFunction(settings: SimulatorSettings) {
 }
 
 const val ws = Configuration.WORD_SIZE
+fun addStringToHeap(str: String, heap: XiHeap): Long {
+    val len = str.length
+    val ptr = heap.malloc(((len + 1) * ws).toLong())
+    heap.store(ptr, len.toLong())
+    for (i in 0 until len)
+        heap.store(ptr + (i + 1) * ws, str[i].toLong())
+    return ptr + ws
+}
+
 class Print(settings: SimulatorSettings): LibraryFunction(settings) {
     override fun callName() = "_Iprint_pai"
     override fun moduleName() = "io"
@@ -43,12 +58,7 @@ class ReadLn(settings: SimulatorSettings): LibraryFunction(settings) {
     override fun moduleName() = "io"
     override fun execute(args: LongArray): List<Long> {
         val line = inReader.readLine()
-        val len = line.length
-        val ptr = heap.malloc(((len + 1) * ws).toLong())
-        heap.store(ptr, len.toLong())
-        for (i in 0 until len)
-            heap.store(ptr + (i + 1) * ws, line[i].toLong())
-        return listOf(ptr + ws)
+        return listOf(addStringToHeap(line, heap))
     }
 }
 
@@ -57,12 +67,7 @@ class UnparseInt(settings: SimulatorSettings): LibraryFunction(settings) {
     override fun moduleName() = "conv"
     override fun execute(args: LongArray): List<Long> {
         val line = args[0].toString()
-        val len = line.length
-        val ptr = heap.malloc(((len + 1) * ws).toLong())
-        heap.store(ptr, len.toLong())
-        for (i in 0 until len)
-            heap.store(ptr + (i + 1) * ws, line[i].toLong())
-        return listOf(ptr + ws)
+        return listOf(addStringToHeap(line, heap))
     }
 }
 
@@ -110,17 +115,51 @@ class OutOfBounds(settings: SimulatorSettings): LibraryFunction(settings) {
 
 class Assert(settings: SimulatorSettings): LibraryFunction(settings) {
     override fun callName() = "_Iassert_pb"
-    override fun moduleName() = "internal"
+    override fun moduleName() = "assert"
     override fun execute(args: LongArray): List<Long> {
         if (args[0] != 1L) throw Trap("Assertion error!")
         else return emptyList()
     }
 }
 
+class GetTimestamp(settings: SimulatorSettings): LibraryFunction(settings) {
+    override fun callName() = "_IgetTimestamp_ai"
+    override fun moduleName() = "timer"
+    override fun execute(args: LongArray): List<Long> {
+        val formatter = SimpleDateFormat("M/dd/yyyy hh:mm:ss", Locale.getDefault())
+        val currentDate = formatter.format(Calendar.getInstance().time)
+        return listOf(addStringToHeap(currentDate, heap))
+    }
+}
+
+class TimestampDifference(settings: SimulatorSettings): LibraryFunction(settings) {
+    override fun callName() = "_ItimestampDifference_iaiai"
+    override fun moduleName() = "timer"
+    override fun execute(args: LongArray): List<Long> {
+        val ptr1 = args[0]
+        val size1 = heap.read(ptr1 - ws)
+        val stamp1 = LongRange(0, size1).map { i ->
+            heap.read(ptr1 + i * ws).toChar()
+        }.joinToString("")
+
+        val ptr2 = args[1]
+        val size2 = heap.read(ptr2 - ws)
+        val stamp2 = LongRange(0, size2).map { i ->
+            heap.read(ptr2 + i * ws).toChar()
+        }.joinToString("")
+
+        val sdf = SimpleDateFormat("M/dd/yyyy hh:mm:ss", Locale.getDefault())
+        val date1 = sdf.parse(stamp1)
+        val date2 = sdf.parse(stamp2)
+        return listOf(date2.time - date1.time)
+    }
+}
+
 class BuiltInLibrary(settings: SimulatorSettings) {
     private val libraryFunction = listOf(Print(settings), PrintLn(settings), Eof(settings),
             ReadLn(settings), GetChar(settings), UnparseInt(settings), ParseInt(settings),
-            Alloc(settings), OutOfBounds(settings), Assert(settings))
+            Alloc(settings), OutOfBounds(settings), Assert(settings), GetTimestamp(settings),
+            TimestampDifference(settings))
             .map { it.callName() to it }.toMap()
     fun contains(name: String) = libraryFunction.containsKey(name)
 
@@ -132,5 +171,9 @@ class BuiltInLibrary(settings: SimulatorSettings) {
      */
     fun call(name: String, args: LongArray): List<Long>? {
         return libraryFunction[name]?.execute(args)
+    }
+
+    fun get(name: String): LibraryFunction? {
+        return libraryFunction[name]
     }
 }
