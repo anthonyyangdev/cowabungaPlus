@@ -512,7 +512,22 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
 
     @Override
     public Result visit(ForLoopStmtNode n) {
-        return null;
+        context.push();
+        n.getVarDecl().accept(this).assertSecond();
+        var guardType = n.getCondition().accept(this).assertFirst();
+        if (!guardType.isSubtypeOfBool()) {
+            throw new TypeMismatchException(guardType, ExpandedType.boolType,
+                    n.getCondition().getLocation());
+        } else {
+            var bodyResult = n.getBody().accept(this).assertSecond();
+            var epilogueResult = n.getEpilogue().accept(this).assertSecond();
+            if (bodyResult.isVoid() || epilogueResult.isVoid()) {
+                context.pop();
+                return Result.ofResult(ResultType.VOID);
+            }
+        }
+        context.pop();
+        return Result.ofResult(ResultType.UNIT);
     }
 
     /**

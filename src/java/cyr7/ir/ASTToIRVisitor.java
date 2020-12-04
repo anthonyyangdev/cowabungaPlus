@@ -389,7 +389,23 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
 
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(ForLoopStmtNode n) {
-        return null;
+        IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
+
+        String end = generator.newLabel();
+        String loopGuard = generator.newLabel();
+        String loopBody = generator.newLabel();
+
+        List<IRStmt> stmts = new ArrayList<>();
+        stmts.add(n.getVarDecl().accept(this).assertSecond());
+        stmts.add(make.IRLabel(loopGuard));
+        stmts.add(n.getCondition().accept(new CTranslationVisitor(generator, loopBody, end)));
+        stmts.add(make.IRLabel(loopBody));
+        stmts.add(n.getBody().accept(this).assertSecond());
+        stmts.add(n.getEpilogue().accept(this).assertSecond());
+        stmts.add(make.IRJump(make.IRName(loopGuard)));
+        stmts.add(make.IRLabel(end));
+
+        return OneOfTwo.ofSecond(make.IRSeq(stmts));
     }
 
     @Override

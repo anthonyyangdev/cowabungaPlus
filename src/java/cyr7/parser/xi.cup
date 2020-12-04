@@ -312,7 +312,8 @@ WhileStatement ::=
     ;
 
 ForLoopStatement ::=
-    FOR:f L_PAREN VarDeclStatement:varDecl SEMICOLON Expr:e SEMICOLON XiStatement:stmt R_PAREN XiStatement:body {:
+    FOR:f L_PAREN VarDecl:v ASSIGN Expr:initial SEMICOLON Expr:e SEMICOLON SingleXiStatement:stmt R_PAREN XiStatement:body {:
+        VarInitStmtNode varDecl = new VarInitStmtNode(vxleft, v, initial);
         RESULT = new ForLoopStmtNode(fxleft, varDecl, e, stmt, body);
     :}
     ;

@@ -18,4 +18,8 @@ public enum ResultType {
         }
     }
 
+    public boolean isVoid() {
+        return this == ResultType.VOID;
+    }
+
 }

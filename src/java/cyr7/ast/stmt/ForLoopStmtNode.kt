@@ -8,7 +8,7 @@ import java_cup.runtime.ComplexSymbolFactory
 
 class ForLoopStmtNode(
         location: ComplexSymbolFactory.Location,
-        val varDecl: StmtNode,
+        val varDecl: VarInitStmtNode,
         val condition: ExprNode,
         val epilogue: StmtNode,
         val body: StmtNode
