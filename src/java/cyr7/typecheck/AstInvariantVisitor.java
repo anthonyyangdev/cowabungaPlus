@@ -26,17 +26,7 @@ import cyr7.ast.expr.literalexpr.LiteralStringExprNode;
 import cyr7.ast.expr.unaryexpr.BoolNegExprNode;
 import cyr7.ast.expr.unaryexpr.IntNegExprNode;
 import cyr7.ast.expr.unaryexpr.LengthExprNode;
-import cyr7.ast.stmt.ArrayDeclStmtNode;
-import cyr7.ast.stmt.AssignmentStmtNode;
-import cyr7.ast.stmt.BlockStmtNode;
-import cyr7.ast.stmt.ExprStmtNode;
-import cyr7.ast.stmt.IfElseStmtNode;
-import cyr7.ast.stmt.MultiAssignStmtNode;
-import cyr7.ast.stmt.ProcedureStmtNode;
-import cyr7.ast.stmt.ReturnStmtNode;
-import cyr7.ast.stmt.VarDeclStmtNode;
-import cyr7.ast.stmt.VarInitStmtNode;
-import cyr7.ast.stmt.WhileStmtNode;
+import cyr7.ast.stmt.*;
 import cyr7.ast.toplevel.FunctionDeclNode;
 import cyr7.ast.toplevel.FunctionHeaderDeclNode;
 import cyr7.ast.toplevel.IxiProgramNode;
@@ -134,6 +124,9 @@ class AstInvariantVisitor extends AbstractVisitor<Boolean>
     public Boolean visit(ProcedureStmtNode n) {
         return true;
     }
+
+    @Override
+    public Boolean visit(FreeStmtNode n) { return true; }
 
     @Override
     public Boolean visit(ReturnStmtNode n) {

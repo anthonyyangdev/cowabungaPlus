@@ -12,7 +12,6 @@ import cyr7.ast.toplevel.FunctionDeclNode;
 import cyr7.ast.toplevel.FunctionHeaderDeclNode;
 import cyr7.ast.toplevel.UseNode;
 import cyr7.ast.toplevel.XiProgramNode;
-import cyr7.parser.XiParser;
 import cyr7.parser.util.ParserFactory;
 import cyr7.ast.stmt.BlockStmtNode;
 

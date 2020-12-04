@@ -130,6 +130,7 @@ Integer = [1-9]{Digit}*
 Hex = \\x(([(a-f|A-F)0-9]){1,4})
 
 %state STRING
+%state DOCBLOCK
 %state COMMENT
 %state CHARACTER
 %state CHAR_END
@@ -139,6 +140,7 @@ Hex = \\x(([(a-f|A-F)0-9]){1,4})
 <YYINITIAL> {
     {Whitespace}        { /* IGNORE */ }
     "//"            { yybegin(COMMENT); }
+    "/*"            { yybegin(DOCBLOCK);}
 
     "use"               { return symbol(sym.USE); }
     "if"                { return symbol(sym.IF); }
@@ -238,6 +240,12 @@ Hex = \\x(([(a-f|A-F)0-9]){1,4})
 <COMMENT> {
    {LineEnd}         { yybegin(YYINITIAL); }
    .               { /* IGNORE */ }
+}
+
+<DOCBLOCK> {
+    "*/"            { yybegin(YYINITIAL); }
+    {Whitespace}    { /* IGNORE */ }
+    .               { /* IGNORE */ }
 }
 
 <CHARACTER> {

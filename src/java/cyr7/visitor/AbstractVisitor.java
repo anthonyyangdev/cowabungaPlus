@@ -36,6 +36,7 @@ public abstract class AbstractVisitor<T> {
     abstract public T visit(IfElseStmtNode n);
     abstract public T visit(MultiAssignStmtNode n);
     abstract public T visit(ProcedureStmtNode n);
+    abstract public T visit(FreeStmtNode n);
     abstract public T visit(ReturnStmtNode n);
     abstract public T visit(VarDeclStmtNode n);
     abstract public T visit(VarInitStmtNode n);

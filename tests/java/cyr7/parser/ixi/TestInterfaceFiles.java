@@ -19,7 +19,6 @@ import cyr7.ast.type.PrimitiveTypeNode;
 import cyr7.ast.type.TypeExprArrayNode;
 import cyr7.exceptions.parser.ParserException;
 import cyr7.lexer.MultiFileLexer;
-import cyr7.parser.XiParser;
 import cyr7.parser.util.ParserFactory;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +36,7 @@ class TestInterfaceFiles {
         }
         return l;
     }
-    
+
     @Test
     void testEmptyProgram() throws Exception {
         // Section 8 of Xi Spec:
@@ -136,10 +135,10 @@ class TestInterfaceFiles {
         assertEquals(tree, expected);
     }
 
-    
+
     @Test
     void testNoArgsFunction() throws Exception {
-        
+
         LinkedList<VarDeclNode> args;
         LinkedList<TypeExprNode> returnTypes;
         LinkedList<FunctionHeaderDeclNode> functions;
@@ -148,7 +147,7 @@ class TestInterfaceFiles {
         XiParser parser;
         Object tree;
         FunctionHeaderDeclNode function;
-        
+
         args = new LinkedList<>();
         returnTypes = new LinkedList<>();
         returnTypes.add(new PrimitiveTypeNode(LOC, PrimitiveEnum.INT));
@@ -162,7 +161,7 @@ class TestInterfaceFiles {
                 new ComplexSymbolFactory());
         tree = parser.parse().value;
         assertEquals(tree, expected);
-        
+
         args.clear();
         returnTypes.clear();
         TypeExprNode[] types = new TypeExprNode[]{
@@ -183,7 +182,7 @@ class TestInterfaceFiles {
                 new ComplexSymbolFactory());
         tree = parser.parse().value;
         assertEquals(tree, expected);
-    
+
         args.clear();
         returnTypes.clear();
         Integer[] arrayDimensions = new Integer[]{
@@ -213,9 +212,9 @@ class TestInterfaceFiles {
         tree = parser.parse().value;
         assertEquals(tree, expected);
     }
-    
-    
-    
+
+
+
     @Test
     void testFunctionWithArguments() throws Exception {
         LinkedList<VarDeclNode> args;
@@ -245,7 +244,7 @@ class TestInterfaceFiles {
                     new PrimitiveTypeNode(LOC, PrimitiveEnum.BOOL)),
         };
         Collections.addAll(args, d);
-        
+
         returnTypes = new LinkedList<>();
         TypeExprNode[] types = new TypeExprNode[]{
                 TypeExprNode.fromDimensionList(
@@ -265,19 +264,19 @@ class TestInterfaceFiles {
                         )
         };
         Collections.addAll(returnTypes, types);
-        
-        
+
+
         function = new FunctionHeaderDeclNode(LOC, "main", args, returnTypes);
         functions = new LinkedList<>();
         functions.add(function);
         expected = new IxiProgramNode(LOC, functions);
         prgm = new StringReader("\nmain(b: int[], c: int[][][], d: bool): "
                 + "int[], bool, int[][][][][], bool, bool, bool[][][]\n");
-        parser = new XiParser(new MultiFileLexer(prgm, "", true), 
+        parser = new XiParser(new MultiFileLexer(prgm, "", true),
                     new ComplexSymbolFactory());
         tree = parser.parse().value;
         assertEquals(tree, expected);
     }
-    
+
 
 }

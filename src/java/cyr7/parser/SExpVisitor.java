@@ -249,6 +249,19 @@ public final class SExpVisitor extends AbstractVisitor<Optional<Void>> {
     }
 
     @Override
+    public Optional<Void> visit(FreeStmtNode n) {
+        printer.startList();
+
+        printer.printAtom("free");
+
+        n.getExpr().accept(this);
+
+        printer.endList();
+
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<Void> visit(ReturnStmtNode n) {
         printer.startList();
         printer.printAtom("return");

@@ -1,5 +1,5 @@
 /*
-   Simple +/-/* expression language; 
+   Simple +/-/* expression language;
    parser evaluates constant expressions on the fly
 */
 
@@ -50,9 +50,9 @@ action code {:
 init with {:
 :};
 
-scan with {: 
+scan with {:
     Symbol sym = getScanner().next_token();
-    return (sym != null) ? sym : 
+    return (sym != null) ? sym :
                        getSymbolFactory().newSymbol("END_OF_FILE",EOF_sym());
 :};
 
@@ -61,7 +61,7 @@ scan with {:
 
 terminal IXI_FILE, XI_FILE;
 // Punctuation
-terminal IF, ELSE, RETURN, USE, WHILE, LENGTH;
+terminal IF, ELSE, RETURN, USE, WHILE, LENGTH, FREE;
 
 // Identifier
 terminal String ID;
@@ -132,6 +132,7 @@ nonterminal LinkedList<StmtNode> XiStatementList;
 nonterminal StmtNode SingleXiStatement;
 nonterminal ReturnStmtNode ReturnStatement;
 nonterminal BlockStmtNode BlockStatement;
+nonterminal FreeStmtNode FreeStatement;
 nonterminal ProcedureStmtNode ProcedureStatement;
 nonterminal IfElseStmtNode IfElseStatement;
 nonterminal WhileStmtNode WhileStatement;
@@ -195,8 +196,8 @@ FunctionHeaderDeclList ::=
             lst.addLast(decl);
             RESULT = lst;
         :}
-    | FunctionHeaderDecl:decl {: 
-            RESULT = new LinkedList<>(List.of(decl)); 
+    | FunctionHeaderDecl:decl {:
+            RESULT = new LinkedList<>(List.of(decl));
         :}
     ;
 
@@ -244,6 +245,7 @@ UseList ::=
 XiStatement ::=
     BlockStatement:s {: RESULT = s; :}
     | ProcedureStatement:s {: RESULT = s; :}
+    | FreeStatement:s {: RESULT = s; :}
     | IfElseStatement:s {: RESULT = s; :}
     | WhileStatement:s {: RESULT = s; :}
     | AssignmentStatement:s {: RESULT = s; :}
@@ -263,7 +265,7 @@ SingleXiStatement ::=
 
 FunctionDeclList ::=
     FunctionDecl:fd FunctionDeclList:l {: l.addFirst(fd); RESULT = l; :}
-    | FunctionDecl: fd {: 
+    | FunctionDecl: fd {:
         RESULT = new LinkedList<>(List.of(fd));
     :}
     ;
@@ -284,13 +286,17 @@ ReturnStatement ::=
     RETURN:r ExprList:l {: RESULT = new ReturnStmtNode(rxleft, l); :}
     ;
 
+FreeStatement ::=
+    FREE:free L_PAREN Expr:e R_PAREN {: RESULT = new FreeStmtNode(freexleft, e); :}
+    ;
+
 ProcedureStatement ::=
     ProcedureCall:c {: RESULT = new ProcedureStmtNode(cxleft, c); :}
     ;
 
 IfElseStatement ::=
-    IF:i Expr:e SingleXiStatement:s {: 
-        RESULT = new IfElseStmtNode(ixleft, e, s, Optional.empty()); 
+    IF:i Expr:e SingleXiStatement:s {:
+        RESULT = new IfElseStmtNode(ixleft, e, s, Optional.empty());
     :}
     | IF:i Expr:e SingleXiStatement:s ELSE SingleXiStatement:b {:
             RESULT = new IfElseStmtNode(ixleft, e, s, Optional.of(b));
@@ -302,8 +308,8 @@ WhileStatement ::=
     ;
 
 AssignmentStatement ::=
-    AssignmentLHS:a ASSIGN Expr:e {: 
-        RESULT = new AssignmentStmtNode(axleft, a, e); 
+    AssignmentLHS:a ASSIGN Expr:e {:
+        RESULT = new AssignmentStmtNode(axleft, a, e);
     :}
     ;
 
@@ -314,7 +320,7 @@ AssignmentLHS ::=
     | FunctionCall:f L_SQ_BRKT Expr:e R_SQ_BRKT {:
         RESULT = new ArrayAccessExprNode(exleft, f, e);
     :}
-    | ID:id {: 
+    | ID:id {:
         RESULT = new VariableAccessExprNode(idxleft, id);
     :}
     ;
@@ -364,7 +370,7 @@ MultiVarDeclList ::=
     ;
 
 VarDeclArrayInit ::=
-    ID:id COLON Primitive:p L_SQ_BRKT Expr:v R_SQ_BRKT 
+    ID:id COLON Primitive:p L_SQ_BRKT Expr:v R_SQ_BRKT
     VarDeclDimensionedBracket:l {:
             l.addFirst(Optional.of(v));
             TypeExprArrayNode t = TypeExprNode.fromDimensionList(p, l);
@@ -380,7 +386,7 @@ VarDeclDimensionedBracket ::=
     | VarDeclDimensionlessBracket:l {: RESULT = l; :}
     ;
 
-VarDeclDimensionlessBracket ::= 
+VarDeclDimensionlessBracket ::=
     L_SQ_BRKT R_SQ_BRKT VarDeclDimensionlessBracket:l {:
             l.addFirst(Optional.empty());
             RESULT = l;

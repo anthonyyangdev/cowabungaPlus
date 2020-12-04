@@ -36,17 +36,7 @@ import cyr7.ast.expr.literalexpr.LiteralStringExprNode;
 import cyr7.ast.expr.unaryexpr.BoolNegExprNode;
 import cyr7.ast.expr.unaryexpr.IntNegExprNode;
 import cyr7.ast.expr.unaryexpr.LengthExprNode;
-import cyr7.ast.stmt.ArrayDeclStmtNode;
-import cyr7.ast.stmt.AssignmentStmtNode;
-import cyr7.ast.stmt.BlockStmtNode;
-import cyr7.ast.stmt.ExprStmtNode;
-import cyr7.ast.stmt.IfElseStmtNode;
-import cyr7.ast.stmt.MultiAssignStmtNode;
-import cyr7.ast.stmt.ProcedureStmtNode;
-import cyr7.ast.stmt.ReturnStmtNode;
-import cyr7.ast.stmt.VarDeclStmtNode;
-import cyr7.ast.stmt.VarInitStmtNode;
-import cyr7.ast.stmt.WhileStmtNode;
+import cyr7.ast.stmt.*;
 import cyr7.ast.toplevel.FunctionDeclNode;
 import cyr7.ast.toplevel.FunctionHeaderDeclNode;
 import cyr7.ast.toplevel.IxiProgramNode;
@@ -419,6 +409,15 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
         var fType = n.procedureCall.getFunctionType().get();
         String encodedName = assemblyFunctionName(n.procedureCall.identifier, fType);
         return OneOfTwo.ofSecond(make.IRCallStmt(List.of(), make.IRName(encodedName), params));
+    }
+
+    @Override
+    public OneOfTwo<IRExpr, IRStmt> visit(FreeStmtNode n) {
+        IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
+        IRExpr e = n.getExpr().accept(this)
+                .assertFirst();
+        return OneOfTwo.ofSecond(
+                make.IRExp(make.IRCall(make.IRName("_free_memory_"), List.of(e), 0)));
     }
 
     @Override

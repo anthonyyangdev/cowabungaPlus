@@ -7,7 +7,6 @@ import cyr7.parser.util.ParserFactory;
 import org.junit.jupiter.api.Test;
 
 import cyr7.exceptions.lexer.LexerIntegerOverflowException;
-import cyr7.parser.XiParser;
 
 class TestIntegerOverflow {
 

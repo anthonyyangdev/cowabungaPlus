@@ -38,18 +38,7 @@ import cyr7.ast.expr.literalexpr.LiteralStringExprNode;
 import cyr7.ast.expr.unaryexpr.BoolNegExprNode;
 import cyr7.ast.expr.unaryexpr.IntNegExprNode;
 import cyr7.ast.expr.unaryexpr.LengthExprNode;
-import cyr7.ast.stmt.ArrayDeclStmtNode;
-import cyr7.ast.stmt.AssignmentStmtNode;
-import cyr7.ast.stmt.BlockStmtNode;
-import cyr7.ast.stmt.ExprStmtNode;
-import cyr7.ast.stmt.IfElseStmtNode;
-import cyr7.ast.stmt.MultiAssignStmtNode;
-import cyr7.ast.stmt.ProcedureStmtNode;
-import cyr7.ast.stmt.ReturnStmtNode;
-import cyr7.ast.stmt.StmtNode;
-import cyr7.ast.stmt.VarDeclStmtNode;
-import cyr7.ast.stmt.VarInitStmtNode;
-import cyr7.ast.stmt.WhileStmtNode;
+import cyr7.ast.stmt.*;
 import cyr7.ast.toplevel.FunctionDeclNode;
 import cyr7.ast.toplevel.FunctionHeaderDeclNode;
 import cyr7.ast.toplevel.IxiProgramNode;
@@ -547,6 +536,17 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
         } else {
             throw new TypeMismatchException(type, ExpandedType.unitExpandedType,
                     n.procedureCall.getLocation());
+        }
+    }
+
+    @Override
+    public Result visit(FreeStmtNode n) {
+        ExpandedType type = n.getExpr().accept(this).assertFirst();
+        if (type.isSubtypeOfArray()) {
+            return Result.ofResult(ResultType.UNIT);
+        } else {
+            throw new TypeMismatchException(type,
+                    ExpandedType.unitExpandedType, n.getExpr().getLocation());
         }
     }
 
