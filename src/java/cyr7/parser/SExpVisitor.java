@@ -220,6 +220,29 @@ public final class SExpVisitor extends AbstractVisitor<Optional<Void>> {
     }
 
     @Override
+    public Optional<Void> visit(DoWhileStmtNode n) {
+        printer.startList();
+        printer.printAtom("do");
+        n.getBody().accept(this);
+        printer.printAtom("while");
+        n.getCondition().accept(this);
+        printer.endList();
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Void> visit(ForLoopStmtNode n) {
+        printer.startList();
+        printer.printAtom("for");
+        n.getVarDecl().accept(this);
+        n.getCondition().accept(this);
+        n.getEpilogue().accept(this);
+        n.getBody().accept(this);
+        printer.endList();
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<Void> visit(MultiAssignStmtNode n) {
         printer.startList();
 

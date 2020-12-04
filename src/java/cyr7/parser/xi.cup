@@ -61,7 +61,7 @@ scan with {:
 
 terminal IXI_FILE, XI_FILE;
 // Punctuation
-terminal IF, ELSE, RETURN, USE, WHILE, LENGTH, FREE;
+terminal IF, ELSE, RETURN, USE, WHILE, LENGTH, FREE, FOR, DO;
 
 // Identifier
 terminal String ID;
@@ -132,6 +132,8 @@ nonterminal LinkedList<StmtNode> XiStatementList;
 nonterminal StmtNode SingleXiStatement;
 nonterminal ReturnStmtNode ReturnStatement;
 nonterminal BlockStmtNode BlockStatement;
+nonterminal ForLoopStmtNode ForLoopStatement;
+nonterminal DoWhileStmtNode DoWhileStatement;
 nonterminal FreeStmtNode FreeStatement;
 nonterminal ProcedureStmtNode ProcedureStatement;
 nonterminal IfElseStmtNode IfElseStatement;
@@ -248,6 +250,8 @@ XiStatement ::=
     | FreeStatement:s {: RESULT = s; :}
     | IfElseStatement:s {: RESULT = s; :}
     | WhileStatement:s {: RESULT = s; :}
+    | ForLoopStatement:s {: RESULT = s; :}
+    | DoWhileStatement:s {: RESULT = s; :}
     | AssignmentStatement:s {: RESULT = s; :}
     | VarDeclStatement:s {: RESULT = s; :}
     ;
@@ -305,6 +309,18 @@ IfElseStatement ::=
 
 WhileStatement ::=
     WHILE:w Expr:e XiStatement:s {: RESULT = new WhileStmtNode(wxleft, e, s); :}
+    ;
+
+ForLoopStatement ::=
+    FOR:f L_PAREN VarDeclStatement:varDecl SEMICOLON Expr:e SEMICOLON XiStatement:stmt R_PAREN XiStatement:body {:
+        RESULT = new ForLoopStmtNode(fxleft, varDecl, e, stmt, body);
+    :}
+    ;
+
+DoWhileStatement ::=
+    DO:d XiStatement:s WHILE Expr:e {:
+        RESULT = new DoWhileStmtNode(dxleft, s, e);
+    :}
     ;
 
 AssignmentStatement ::=

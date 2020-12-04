@@ -34,6 +34,8 @@ public abstract class AbstractVisitor<T> {
     abstract public T visit(BlockStmtNode n);
     abstract public T visit(ExprStmtNode n);
     abstract public T visit(IfElseStmtNode n);
+    abstract public T visit(DoWhileStmtNode n);
+    abstract public T visit(ForLoopStmtNode n);
     abstract public T visit(MultiAssignStmtNode n);
     abstract public T visit(ProcedureStmtNode n);
     abstract public T visit(FreeStmtNode n);

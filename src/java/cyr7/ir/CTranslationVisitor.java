@@ -269,6 +269,12 @@ public final class CTranslationVisitor extends AbstractVisitor<IRStmt> {
     }
 
     @Override
+    public IRStmt visit(DoWhileStmtNode n) { throw new UnsupportedOperationException(); }
+
+    @Override
+    public IRStmt visit(ForLoopStmtNode n) { throw new UnsupportedOperationException(); }
+
+    @Override
     public IRStmt visit(MultiAssignStmtNode n) {
         throw new UnsupportedOperationException();
     }

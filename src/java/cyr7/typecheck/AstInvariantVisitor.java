@@ -116,6 +116,12 @@ class AstInvariantVisitor extends AbstractVisitor<Boolean>
     }
 
     @Override
+    public Boolean visit(DoWhileStmtNode n) { return true; }
+
+    @Override
+    public Boolean visit(ForLoopStmtNode n) { return true; }
+
+    @Override
     public Boolean visit(MultiAssignStmtNode n) {
         return true;
     }

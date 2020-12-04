@@ -491,6 +491,30 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
         }
     }
 
+    @Override
+    public Result visit(DoWhileStmtNode n) {
+        context.push();
+        ResultType resultType = n.getBody().accept(this).assertSecond();
+        if (resultType == ResultType.VOID) {
+            context.pop();
+            return Result.ofResult(ResultType.VOID);
+        } else {
+            ExpandedType conditionType = n.getCondition().accept(this).assertFirst();
+            if (!conditionType.isSubtypeOfBool()) {
+                throw new TypeMismatchException(conditionType, ExpandedType.boolType,
+                        n.getCondition().getLocation());
+            } else {
+                context.pop();
+                return Result.ofResult(ResultType.UNIT);
+            }
+        }
+    }
+
+    @Override
+    public Result visit(ForLoopStmtNode n) {
+        return null;
+    }
+
     /**
      * Side effects: This method adds [n.identifier -> typeOf(n)] to the context
      * for each variable declared.
