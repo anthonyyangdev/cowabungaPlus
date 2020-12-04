@@ -130,6 +130,20 @@ class DynamicXiHeap(maxSize: Int): IXiHeap {
         throw IRSimulator.Trap("Out of heap!")
     }
 
+    private fun mergeListPointers(idx: Int) {
+        val next = getNext(idx)
+        val prev = getPrev(idx)
+        if (next != null && prev != null) {
+            setNext(prev, next); setPrev(next, prev)
+        } else if (next != null) {
+            setPrev(next, null); setHeadIdx(next)
+        } else if (prev != null) {
+            setNext(prev, null)
+        } else {
+            setHeadIdx(null)
+        }
+    }
+
     override fun free(addr: Long) {
         val idx = getMemoryIndex(addr) - 1
         var idxToAdd = idx
@@ -137,20 +151,12 @@ class DynamicXiHeap(maxSize: Int): IXiHeap {
         if (forwardIsFree(idx)) {
             val size = sizeof(idx); val forwardIdx = idx + size
             setSizeAndStatus(idx, sizeof(idx) + sizeof(forwardIdx), true)
-            getNext(forwardIdx)?.let { next ->
-                getPrev(forwardIdx)?.let { prev ->
-                    setNext(prev, next); setPrev(next, prev)
-                }
-            }
+            mergeListPointers(forwardIdx)
         }
         if (behindIsFree(idx)) {
             val size = sizeof(idx); val behindIdx = idx - heap[idx - 1].sizeVal()
             setSizeAndStatus(behindIdx, size + sizeof(behindIdx), true)
-            getNext(behindIdx)?.let { next ->
-                getPrev(behindIdx)?.let { prev ->
-                    setNext(prev, next); setPrev(next, prev)
-                }
-            }
+            mergeListPointers(behindIdx)
             idxToAdd = behindIdx
         }
         setSizeAndStatus(idxToAdd, sizeof(idxToAdd), true)
