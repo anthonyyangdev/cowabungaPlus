@@ -147,6 +147,7 @@ Hex = \\x(([(a-f|A-F)0-9]){1,4})
     "while"             { return symbol(sym.WHILE); }
     "else"              { return symbol(sym.ELSE); }
     "return"            { return symbol(sym.RETURN); }
+    "free"              { return symbol(sym.FREE); }
     "length"            { return symbol(sym.LENGTH); }
 
     "int"               { return symbol(sym.TYPE_INT); }

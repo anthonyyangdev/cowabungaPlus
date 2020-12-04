@@ -5,6 +5,7 @@ import cyr7.ir.interpret.builtin.assert.Assert
 import cyr7.ir.interpret.builtin.conv.ParseInt
 import cyr7.ir.interpret.builtin.conv.UnparseInt
 import cyr7.ir.interpret.builtin.internal.Alloc
+import cyr7.ir.interpret.builtin.internal.Free
 import cyr7.ir.interpret.builtin.internal.OutOfBounds
 import cyr7.ir.interpret.builtin.io.*
 import cyr7.ir.interpret.builtin.string.*
@@ -21,7 +22,7 @@ class BuiltInLibrary(settings: SimulatorSettings) {
             UnparseInt(settings), ParseInt(settings)
     )
     private val internalFunctions = listOf(
-            Alloc(settings), OutOfBounds(settings)
+            Alloc(settings), OutOfBounds(settings), Free(settings)
     )
     private val assertFunctions = listOf(Assert(settings))
     private val timerFunctions = listOf(GetTimestamp(settings), TimestampDifference(settings))
