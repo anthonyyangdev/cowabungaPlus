@@ -5,7 +5,7 @@ import cyr7.ir.interpret.IRSimulator
 import kotlin.math.ceil
 import kotlin.math.roundToLong
 
-class DynamicXiHeap(maxSize: Int): IXiHeap {
+class DynamicXiHeap(maxSize: Long): IXiHeap {
     private fun Long.asInts(): Pair<Int, Int> {
         val first = shr(32).toInt()
         val second = toInt()
@@ -63,27 +63,27 @@ class DynamicXiHeap(maxSize: Int): IXiHeap {
     private fun sizeof(idx: Int) = heap[idx].sizeVal()
 
     private fun repOk() {
-        assert(heap[1] == 0L)
-        var prevIdx: Int? = null
-        var idx = getHeadIdx()
-        while (idx != null) {
-            assert(heap[idx].and(1) == 1L)
-            assert(prevIdx == getPrev(idx)) {"At index ${idx!!}, $prevIdx vs ${getPrev(idx!!)}"}
-            assert(getPrev(idx) == heap[idx + 1].shr(32).toInt().takeIf { it != nullPoint })
-            prevIdx = idx
-            idx = getNext(idx)
-        }
+//        assert(heap[1] == 0L)
+//        var prevIdx: Int? = null
+//        var idx = getHeadIdx()
+//        while (idx != null) {
+//            assert(heap[idx].and(1) == 1L)
+//            assert(prevIdx == getPrev(idx)) {"At index ${idx!!}, $prevIdx vs ${getPrev(idx!!)}"}
+//            assert(getPrev(idx) == heap[idx + 1].shr(32).toInt().takeIf { it != nullPoint })
+//            prevIdx = idx
+//            idx = getNext(idx)
+//        }
     }
     private val nullPoint = Int.MIN_VALUE
     private val ws = Configuration.WORD_SIZE
 
     private fun getHeadIdx() = heap[0].toInt().takeIf { it != nullPoint }
     private fun setHeadIdx(idx: Int?) { heap[0] = idx?.toLong() ?: nullPoint.toLong() }
-    private val heap: LongArray = LongArray(maxSize)
+    private val heap: LongArray = LongArray(maxSize.toInt() / ws)
 
     init {
         heap[1] = 0
-        setSizeAndStatus(2, maxSize - 2, true)
+        setSizeAndStatus(2, heap.size - 2, true)
         setPrev(2, nullPoint); setNext(2, nullPoint)
         setHeadIdx(2)
     }

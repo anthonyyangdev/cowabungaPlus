@@ -6,7 +6,7 @@ class XiHeapFactory {
          * Creates the heap instance.
          */
         fun createInstance(heapSize: Int): IXiHeap {
-            return XiHeap(heapSize.toLong())
+            return DynamicXiHeap(heapSize.toLong())
         }
     }
 }

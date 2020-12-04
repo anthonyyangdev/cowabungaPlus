@@ -9,7 +9,7 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DynamicXiHeapTest {
 
-    private val maxSize = 128 * 10240
+    private val maxSize = 128L * 10240L
     private val heap = DynamicXiHeap(maxSize)
     private val ws = Configuration.WORD_SIZE
 
