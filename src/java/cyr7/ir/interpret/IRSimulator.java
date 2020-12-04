@@ -2,6 +2,7 @@ package cyr7.ir.interpret;
 
 import cyr7.cli.CLI;
 import cyr7.ir.interpret.builtin.LibraryFunction;
+import cyr7.ir.interpret.exception.Trap;
 import cyr7.ir.interpret.heap.IXiHeap;
 import cyr7.ir.interpret.heap.XiHeapFactory;
 import cyr7.ir.nodes.IRBinOp;
@@ -526,24 +527,6 @@ public class IRSimulator {
             if (type == Kind.TEMP)
                 temp = string;
             else name = string;
-        }
-    }
-
-    public static class Trap extends RuntimeException {
-        private static final long serialVersionUID =
-                SerialVersionUID.generate();
-
-        public Trap(String message) {
-            super(message);
-        }
-    }
-
-    public static class OutOfBoundTrap extends Trap {
-        private static final long serialVersionUID =
-                SerialVersionUID.generate();
-
-        public OutOfBoundTrap(String message) {
-            super(message);
         }
     }
 }

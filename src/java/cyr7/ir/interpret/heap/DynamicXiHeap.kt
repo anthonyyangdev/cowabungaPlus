@@ -2,6 +2,7 @@ package cyr7.ir.interpret.heap
 
 import cyr7.ir.interpret.Configuration
 import cyr7.ir.interpret.IRSimulator
+import cyr7.ir.interpret.exception.Trap
 import kotlin.math.ceil
 import kotlin.math.roundToLong
 
@@ -150,7 +151,7 @@ class DynamicXiHeap(maxSize: Long): IXiHeap {
                 headIdx = metadata.next
             }
         }
-        throw IRSimulator.Trap("Out of heap!")
+        throw Trap("Out of heap!")
     }
 
     private fun mergeListPointers(idx: Int) {
@@ -245,7 +246,7 @@ class DynamicXiHeap(maxSize: Long): IXiHeap {
 
     private fun getMemoryIndex(addr: Long): Int {
         if (addr % Configuration.WORD_SIZE != 0L)
-            throw IRSimulator.Trap("Unaligned memory access: $addr (word size=${Configuration.WORD_SIZE})")
+            throw Trap("Unaligned memory access: $addr (word size=${Configuration.WORD_SIZE})")
         return (addr / Configuration.WORD_SIZE).toInt()
     }
 }

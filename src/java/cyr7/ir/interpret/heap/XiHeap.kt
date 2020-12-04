@@ -1,7 +1,7 @@
 package cyr7.ir.interpret.heap
 
 import cyr7.ir.interpret.Configuration
-import cyr7.ir.interpret.IRSimulator.Trap
+import cyr7.ir.interpret.exception.Trap
 import kotlin.math.ceil
 import kotlin.math.roundToLong
 import kotlin.random.Random
