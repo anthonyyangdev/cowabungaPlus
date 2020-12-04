@@ -79,6 +79,29 @@ class DynamicXiHeap(maxSize: Long): IXiHeap {
 
     private fun getHeadIdx() = heap[0].toInt().takeIf { it != nullPoint }
     private fun setHeadIdx(idx: Int?) { heap[0] = idx?.toLong() ?: nullPoint.toLong() }
+
+    /**
+     * `heap` holds all of the data in the program execution.
+     * The free blocks are laid out as the following, where each line is an entry:
+     *
+     * ------------------------ Size (63 bit) | isFree (1 bit) ------------------- (header)
+     *
+     * ----- index of previous block (32 bit) | index of next block (32 bit) ----- (navigation)
+     *
+     * ----- ............................................................... -----
+     *
+     * ----- ............................................................... -----
+     *
+     * ------------------------ Size (63 bit) | isFree (1 bit) ------------------- (footer)
+     *
+     * where size is the number of entries from the current entry to the next
+     * adjacent free block header. When allocating blocks, the implementation
+     * finds the requested number of contiguous blocks, (+2 for metadata).
+     * The allocator returns the pointer representing the entry after the one
+     * which holds the (size | isFree) metadata.
+     * When blocks are freed, they are coalesced if there are adjacent free blocks.
+     *
+     */
     private val heap: LongArray = LongArray(maxSize.toInt() / ws)
 
     init {
