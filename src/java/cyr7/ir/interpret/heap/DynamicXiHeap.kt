@@ -68,7 +68,7 @@ class DynamicXiHeap(maxSize: Int): IXiHeap {
         var idx = getHeadIdx()
         while (idx != null) {
             assert(heap[idx].and(1) == 1L)
-            assert(prevIdx == getPrev(idx))
+            assert(prevIdx == getPrev(idx)) {"At index ${idx!!}, $prevIdx vs ${getPrev(idx!!)}"}
             assert(getPrev(idx) == heap[idx + 1].shr(32).toInt().takeIf { it != nullPoint })
             prevIdx = idx
             idx = getNext(idx)
@@ -134,7 +134,6 @@ class DynamicXiHeap(maxSize: Int): IXiHeap {
         val idx = getMemoryIndex(addr) - 1
         var idxToAdd = idx
 
-        // Check if block after is free
         if (forwardIsFree(idx)) {
             val size = sizeof(idx); val forwardIdx = idx + size
             setSizeAndStatus(idx, sizeof(idx) + sizeof(forwardIdx), true)
@@ -154,6 +153,7 @@ class DynamicXiHeap(maxSize: Int): IXiHeap {
             }
             idxToAdd = behindIdx
         }
+        setSizeAndStatus(idxToAdd, sizeof(idxToAdd), true)
         val headIdx = getHeadIdx()
         setPrev(idxToAdd, null); setNext(idxToAdd, headIdx)
         if (headIdx != null) setPrev(headIdx, idxToAdd)
