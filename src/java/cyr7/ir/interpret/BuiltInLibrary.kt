@@ -2,7 +2,9 @@ package cyr7.ir.interpret
 
 import cyr7.ir.interpret.builtin.LibraryFunction
 import cyr7.ir.interpret.builtin.assert.Assert
+import cyr7.ir.interpret.builtin.conv.ParseFloat
 import cyr7.ir.interpret.builtin.conv.ParseInt
+import cyr7.ir.interpret.builtin.conv.UnparseFloat
 import cyr7.ir.interpret.builtin.conv.UnparseInt
 import cyr7.ir.interpret.builtin.internal.Alloc
 import cyr7.ir.interpret.builtin.internal.Free
@@ -19,7 +21,8 @@ class BuiltInLibrary(settings: SimulatorSettings) {
             AppendFile(settings), ReadFileLines(settings), WriteFile(settings)
     )
     private val convFunctions = listOf(
-            UnparseInt(settings), ParseInt(settings)
+            UnparseInt(settings), ParseInt(settings),
+            UnparseFloat(settings), ParseFloat(settings)
     )
     private val internalFunctions = listOf(
             Alloc(settings), OutOfBounds(settings), Free(settings)

@@ -767,20 +767,16 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
     }
 
     /**
-     * Typechecks an integer binary operation expression, e.g. 9 + 10.
+     * Type-checks an integer binary operation expression, e.g. 9 + 10.
      */
     private Result typecheckIntegerBinExpr(BinExprNode n) {
         ExpandedType left = n.left.accept(this).assertFirst();
         ExpandedType right = n.right.accept(this).assertFirst();
 
-        if (!left.isSubtypeOfInt() || !right.isSubtypeOfFloat()) {
-            throw new TypeMismatchException(left, ExpandedType.intType,
-                    n.left.getLocation());
-        }
-        if (!right.isSubtypeOfInt() || !right.isSubtypeOfFloat()) {
-            throw new TypeMismatchException(right, ExpandedType.intType,
-                    n.right.getLocation());
-        }
+        if (!(left.isSubtypeOfInt() || left.isSubtypeOfFloat()
+                || right.isSubtypeOfInt() || right.isSubtypeOfFloat()))
+            throw new TypeMismatchException(left, ExpandedType.intType, n.left.getLocation());
+
         if (left.isSubtypeOfFloat() || right.isSubtypeOfFloat())
             return assignType(n, ExpandedType.floatType);
         else

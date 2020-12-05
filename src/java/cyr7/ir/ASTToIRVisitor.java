@@ -79,6 +79,8 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
             return "i";
         } else if (t.isSubtypeOfBool()) {
             return "b";
+        } else if (t.isSubtypeOfFloat()) {
+            return "f";
         } else if (t.isUnit()) {
             return isInput ? "" : "p";
         } else if (t.isSubtypeOfArray()) {
@@ -962,13 +964,15 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                 return OneOfTwo.ofFirst(make.IRInteger(Long.MIN_VALUE));
             }
         }
-
-        IRExpr e = n.expr.accept(this)
-                         .assertFirst();
-
-        return OneOfTwo.ofFirst(make.IRBinOp(IRBinOp.OpType.SUB_INT,
-                make.IRInteger(0),
-                e));
+        IRExpr e = n.expr.accept(this).assertFirst();
+        if (n.getType().isSubtypeOfInt()) {
+            return OneOfTwo.ofFirst(make.IRBinOp(OpType.SUB_INT,
+                    make.IRInteger(0), e));
+        } else if (n.getType().isSubtypeOfFloat()) {
+            return OneOfTwo.ofFirst(make.IRBinOp(OpType.SUB_FLOAT,
+                    make.IRFloat(0), e));
+        }
+        throw new UnsupportedOperationException("Cannot negate value");
     }
 
     @Override

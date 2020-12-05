@@ -8,3 +8,6 @@ parseInt(str: int[]): int, bool
 // Return a sequence of ASCII characters representing the
 // integer n.
 unparseInt(n: int): int[]
+
+unparseFloat(n: float): int[]
+parseFloat(str: int[]): float

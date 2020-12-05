@@ -109,6 +109,8 @@ public enum MangledNameParser {
         switch (encodedType.charAt(cursor)) {
             case 'i':
                 return new Pair<>(cursor + 1, PrimitiveType.intDefault);
+            case 'f':
+                return new Pair<>(cursor + 1, PrimitiveType.floatDefault);
             case 'b':
                 return new Pair<>(cursor + 1, PrimitiveType.boolDefault);
             case 'a':
