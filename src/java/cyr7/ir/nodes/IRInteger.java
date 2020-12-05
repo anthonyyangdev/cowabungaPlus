@@ -8,7 +8,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 
 /**
  * An intermediate representation for a 64-bit integer constant.
- * CONST(n)
+ * INTEGER(n)
  */
 public class IRInteger extends IRExpr_c {
     private long value;
@@ -28,7 +28,7 @@ public class IRInteger extends IRExpr_c {
 
     @Override
     public String label() {
-        return "CONST(" + value + ")";
+        return "INT(" + value + ")";
     }
 
     @Override
@@ -44,7 +44,7 @@ public class IRInteger extends IRExpr_c {
     @Override
     public void printSExp(SExpPrinter p) {
         p.startList();
-        p.printAtom("CONST");
+        p.printAtom("INT");
         p.printAtom(String.valueOf(value));
         p.endList();
     }
