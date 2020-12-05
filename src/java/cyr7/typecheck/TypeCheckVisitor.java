@@ -326,9 +326,10 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
             return Result.ofExpanded(ExpandedType.boolType);
         case INT:
             return Result.ofExpanded(ExpandedType.intType);
+        case FLOAT:
+            return Result.ofExpanded(ExpandedType.floatType);
         default:
-            // fallback
-            return Result.ofExpanded(ExpandedType.intType);
+            throw new UnsupportedOperationException("No valid type");
         }
     }
 

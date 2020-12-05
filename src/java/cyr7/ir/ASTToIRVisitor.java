@@ -899,7 +899,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(LiteralFloatExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
-        throw new NotImplementedError();
+        return OneOfTwo.ofFirst(make.IRFloat(n.getValue()));
     }
 
     /**

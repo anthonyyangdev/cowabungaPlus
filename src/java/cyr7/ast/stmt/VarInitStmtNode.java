@@ -22,7 +22,6 @@ public final class VarInitStmtNode extends AbstractNode implements StmtNode {
     public VarInitStmtNode(Location location, VarDeclNode varDecl,
                            ExprNode expr) {
         super(location);
-
         this.varDecl = varDecl;
         this.initializer = expr;
     }

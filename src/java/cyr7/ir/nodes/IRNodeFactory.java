@@ -58,6 +58,8 @@ public interface IRNodeFactory {
      */
     IRInteger IRInteger(long value);
 
+    IRFloat IRFloat(double value);
+
     /**
      *
      * @param stmt IR statement to be evaluated for side effects

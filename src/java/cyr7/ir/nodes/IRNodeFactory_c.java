@@ -68,6 +68,9 @@ public class IRNodeFactory_c implements IRNodeFactory {
     }
 
     @Override
+    public IRFloat IRFloat(double value) { return new IRFloat(location, value); }
+
+    @Override
     public IRESeq IRESeq(IRStmt stmt, IRExpr expr) {
         return new IRESeq(location, stmt, expr);
     }

@@ -419,6 +419,7 @@ VarDecl ::=
 Primitive ::=
     TYPE_INT:i {: RESULT = new PrimitiveTypeNode(ixleft, PrimitiveEnum.INT); :}
     | TYPE_BOOL:b {: RESULT = new PrimitiveTypeNode(bxleft, PrimitiveEnum.BOOL); :}
+    | TYPE_FLOAT:f {: RESULT = new PrimitiveTypeNode(fxleft, PrimitiveEnum.FLOAT); :}
     ;
 
 TypeExpr ::=
@@ -483,7 +484,7 @@ ArgParamList ::=
 
 LiteralExpr ::=
     INT_LITERAL:l {: RESULT = new LiteralIntExprNode(lxleft, l); :}
-    | FLOAT_LITERAL:l {: RESULT = new LiteralFloatExprNode(xleft, l); :}
+    | FLOAT_LITERAL:l {: RESULT = new LiteralFloatExprNode(lxleft, l); :}
     | CHAR_LITERAL:l {: RESULT = new LiteralCharExprNode(lxleft, l); :}
     | STRING_LITERAL:l {: RESULT = new LiteralStringExprNode(lxleft, l); :}
     | BOOL_LITERAL:l {: RESULT = new LiteralBoolExprNode(lxleft, l); :}
