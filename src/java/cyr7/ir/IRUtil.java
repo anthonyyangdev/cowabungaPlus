@@ -14,7 +14,7 @@ import cyr7.cfg.ir.opt.LoopUnrollingOptimization;
 import cyr7.cli.CLI;
 import cyr7.cli.OptConfig;
 import cyr7.ir.block.TraceOptimizer;
-import cyr7.ir.interpret.IRSimulator;
+import cyr7.ir.interpret.MyIRSimulator;
 import cyr7.ir.lowering.LoweringVisitor;
 import cyr7.ir.nodes.IRCompUnit;
 import cyr7.ir.nodes.IRNode;
@@ -103,9 +103,9 @@ public class IRUtil {
                 });
             }
         }
-        
+
         compUnit = CFGFlattener.flatten(secondPhase, compUnit);
-        
+
         if (optConfig.lu()) {
             final var loopUnrollCFG = CFGConstructor.constructCFG(compUnit);
             loopUnrollCFG.keySet().stream().forEach(functionName -> {
@@ -117,7 +117,7 @@ public class IRUtil {
             });
             compUnit = CFGFlattener.flatten(loopUnrollCFG, compUnit);
         }
-        
+
         if (optConfig.cf()) {
             compUnit = (IRCompUnit)compUnit.accept(new IRConstFoldVisitor()).assertSecond();
         }
@@ -143,7 +143,7 @@ public class IRUtil {
         IRCompUnit compUnit = (IRCompUnit)
             result.accept(new ASTToIRVisitor(generator)).assertSecond();
 
-        IRSimulator sim = new IRSimulator(compUnit);
+        MyIRSimulator sim = new MyIRSimulator(compUnit);
         long retVal = sim.call("_Imain_paai");
         writer.append(String.valueOf(retVal)).append(System.lineSeparator());
     }
@@ -200,7 +200,7 @@ public class IRUtil {
             optConfig,
             new DefaultIdGenerator());
 
-        IRSimulator sim = new IRSimulator(lowered);
+        MyIRSimulator sim = new MyIRSimulator(lowered);
         long retVal = sim.call("_Imain_paai", 0);
         writer.append(String.valueOf(retVal)).append(System.lineSeparator());
     }

@@ -19,11 +19,7 @@ import cyr7.ast.expr.binexpr.NotEqualsExprNode;
 import cyr7.ast.expr.binexpr.OrExprNode;
 import cyr7.ast.expr.binexpr.RemExprNode;
 import cyr7.ast.expr.binexpr.SubExprNode;
-import cyr7.ast.expr.literalexpr.LiteralArrayExprNode;
-import cyr7.ast.expr.literalexpr.LiteralBoolExprNode;
-import cyr7.ast.expr.literalexpr.LiteralCharExprNode;
-import cyr7.ast.expr.literalexpr.LiteralIntExprNode;
-import cyr7.ast.expr.literalexpr.LiteralStringExprNode;
+import cyr7.ast.expr.literalexpr.*;
 import cyr7.ast.expr.unaryexpr.BoolNegExprNode;
 import cyr7.ast.expr.unaryexpr.IntNegExprNode;
 import cyr7.ast.expr.unaryexpr.LengthExprNode;
@@ -185,6 +181,9 @@ public final class CTranslationVisitor extends AbstractVisitor<IRStmt> {
     public IRStmt visit(LiteralIntExprNode n) {
         return cjump(n);
     }
+
+    @Override
+    public IRStmt visit(LiteralFloatExprNode n) { return cjump(n); }
 
     @Override
     public IRStmt visit(LiteralStringExprNode n) {

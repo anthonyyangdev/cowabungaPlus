@@ -30,11 +30,7 @@ import cyr7.ast.expr.binexpr.NotEqualsExprNode;
 import cyr7.ast.expr.binexpr.OrExprNode;
 import cyr7.ast.expr.binexpr.RemExprNode;
 import cyr7.ast.expr.binexpr.SubExprNode;
-import cyr7.ast.expr.literalexpr.LiteralArrayExprNode;
-import cyr7.ast.expr.literalexpr.LiteralBoolExprNode;
-import cyr7.ast.expr.literalexpr.LiteralCharExprNode;
-import cyr7.ast.expr.literalexpr.LiteralIntExprNode;
-import cyr7.ast.expr.literalexpr.LiteralStringExprNode;
+import cyr7.ast.expr.literalexpr.*;
 import cyr7.ast.expr.unaryexpr.BoolNegExprNode;
 import cyr7.ast.expr.unaryexpr.IntNegExprNode;
 import cyr7.ast.expr.unaryexpr.LengthExprNode;
@@ -76,6 +72,7 @@ import cyr7.semantics.types.ResultType;
 import cyr7.semantics.types.UnitType;
 import cyr7.util.OneOfThree;
 import cyr7.visitor.AbstractVisitor;
+import kotlin.NotImplementedError;
 
 final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
 
@@ -946,6 +943,11 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
     @Override
     public Result visit(LiteralIntExprNode n) {
         return assignType(n, ExpandedType.intType);
+    }
+
+    @Override
+    public Result visit(LiteralFloatExprNode n) {
+        throw new NotImplementedError();
     }
 
     @Override

@@ -12,7 +12,7 @@ import cyr7.ast.Node;
 import cyr7.ast.toplevel.XiProgramNode;
 import cyr7.ir.ASTToIRVisitor;
 import cyr7.ir.IdGenerator;
-import cyr7.ir.interpret.IRSimulator;
+import cyr7.ir.interpret.MyIRSimulator;
 import cyr7.ir.nodes.IRCompUnit;
 import cyr7.ir.nodes.IRFuncDecl;
 import cyr7.ir.nodes.IRNode;
@@ -47,7 +47,7 @@ class TestXiProgram {
         IRCompUnit compUnit = new IRCompUnit(C.LOC, "test");
         compUnit.appendFunc(downcasted);
 
-        IRSimulator sim = new IRSimulator(compUnit);
+        MyIRSimulator sim = new MyIRSimulator(compUnit);
         return sim.call("main");
     }
 

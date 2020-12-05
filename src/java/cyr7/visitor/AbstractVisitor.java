@@ -72,6 +72,7 @@ public abstract class AbstractVisitor<T> {
     abstract public T visit(LiteralBoolExprNode n);
     abstract public T visit(LiteralCharExprNode n);
     abstract public T visit(LiteralIntExprNode n);
+    abstract public T visit(LiteralFloatExprNode n);
     abstract public T visit(LiteralStringExprNode n);
 
     // unary expr

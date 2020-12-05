@@ -454,6 +454,12 @@ public final class SExpVisitor extends AbstractVisitor<Optional<Void>> {
     }
 
     @Override
+    public Optional<Void> visit(LiteralFloatExprNode n) {
+        printer.printAtom(String.valueOf(n.getValue()));
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<Void> visit(LiteralStringExprNode n) {
         printer.printAtom("\"" + Util.unescapeString(n.contents) + "\"");
         return Optional.empty();

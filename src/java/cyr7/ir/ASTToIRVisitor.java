@@ -28,11 +28,7 @@ import cyr7.ast.expr.binexpr.NotEqualsExprNode;
 import cyr7.ast.expr.binexpr.OrExprNode;
 import cyr7.ast.expr.binexpr.RemExprNode;
 import cyr7.ast.expr.binexpr.SubExprNode;
-import cyr7.ast.expr.literalexpr.LiteralArrayExprNode;
-import cyr7.ast.expr.literalexpr.LiteralBoolExprNode;
-import cyr7.ast.expr.literalexpr.LiteralCharExprNode;
-import cyr7.ast.expr.literalexpr.LiteralIntExprNode;
-import cyr7.ast.expr.literalexpr.LiteralStringExprNode;
+import cyr7.ast.expr.literalexpr.*;
 import cyr7.ast.expr.unaryexpr.BoolNegExprNode;
 import cyr7.ast.expr.unaryexpr.IntNegExprNode;
 import cyr7.ast.expr.unaryexpr.LengthExprNode;
@@ -45,20 +41,15 @@ import cyr7.ast.toplevel.XiProgramNode;
 import cyr7.ast.type.PrimitiveTypeNode;
 import cyr7.ast.type.TypeExprArrayNode;
 import cyr7.ir.interpret.Configuration;
-import cyr7.ir.nodes.IRBinOp;
+import cyr7.ir.nodes.*;
 import cyr7.ir.nodes.IRBinOp.OpType;
-import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRExpr;
-import cyr7.ir.nodes.IRNodeFactory;
-import cyr7.ir.nodes.IRNodeFactory_c;
-import cyr7.ir.nodes.IRStmt;
-import cyr7.ir.nodes.IRTemp;
 import cyr7.semantics.types.ExpandedType;
 import cyr7.semantics.types.FunctionType;
 import cyr7.semantics.types.ResultType;
 import cyr7.util.OneOfTwo;
 import cyr7.visitor.AbstractVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
+import kotlin.NotImplementedError;
 
 /**
  * Assumption: All CJUMPs have both labels set
@@ -529,10 +520,8 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
             BinExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
 
-        IRExpr left = n.left.accept(this)
-                            .assertFirst();
-        IRExpr right = n.right.accept(this)
-                              .assertFirst();
+        IRExpr left = n.left.accept(this).assertFirst();
+        IRExpr right = n.right.accept(this).assertFirst();
         return OneOfTwo.ofFirst(make.IRBinOp(opType, left, right));
     }
 
@@ -904,8 +893,13 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(LiteralIntExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
-
         return OneOfTwo.ofFirst(make.IRInteger(Long.parseLong(n.contents)));
+    }
+
+    @Override
+    public OneOfTwo<IRExpr, IRStmt> visit(LiteralFloatExprNode n) {
+        IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
+        throw new NotImplementedError();
     }
 
     /**
