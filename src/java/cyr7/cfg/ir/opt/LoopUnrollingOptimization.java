@@ -161,8 +161,8 @@ public class LoopUnrollingOptimization {
                     ComplexSymbolFactory.Location l = ifNode.cond.location();
 
                     // i + c(n-1)
-                    IRExpr newLHS = new IRBinOp(l, OpType.ADD, new IRTemp(l, potentialIV),
-                            new IRBinOp(l, OpType.MUL, new IRInteger(l, ivStrideMap.get(potentialIV)),
+                    IRExpr newLHS = new IRBinOp(l, OpType.ADD_INT, new IRTemp(l, potentialIV),
+                            new IRBinOp(l, OpType.MUL_INT, new IRInteger(l, ivStrideMap.get(potentialIV)),
                                     new IRInteger(l, loop_unroll_factor - 1)));
                     // i + c(n-1) < u
                     IRExpr newCond = new IRBinOp(l, op, newLHS, rhs);

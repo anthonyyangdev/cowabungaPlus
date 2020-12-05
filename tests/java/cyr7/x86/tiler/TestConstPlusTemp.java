@@ -13,7 +13,7 @@ public class TestConstPlusTemp {
     void testConstPlusTemp() {
         IRBinOp constTemp = makeIR(make ->
             make.IRBinOp(
-                OpType.ADD,
+                OpType.ADD_INT,
                 make.IRInteger(50),
                 make.IRTemp("bleh")
             ));
@@ -25,7 +25,7 @@ public class TestConstPlusTemp {
     void testTempPlusConst() {
         IRBinOp constTemp = makeIR(make ->
             make.IRBinOp(
-                OpType.ADD,
+                OpType.ADD_INT,
                 make.IRTemp("bleh"),
                 make.IRInteger(50)
             ));
@@ -37,7 +37,7 @@ public class TestConstPlusTemp {
     void testTempPlusConstOver32Bits() {
         IRBinOp constTemp = makeIR(make ->
             make.IRBinOp(
-                OpType.ADD,
+                OpType.ADD_INT,
                 make.IRTemp("bleh"),
                 make.IRInteger(1099511627776L)
             ));

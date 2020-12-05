@@ -59,7 +59,7 @@ class TestBinop {
 
     @Test
     void testAdd() {
-        OpType type = OpType.ADD;
+        OpType type = OpType.ADD_INT;
         test(pairOf(constant(2), binop(type, 1, 1)));
         test(pairOf(constant(-1),
                 binop(type, -9223372036854775808L, 9223372036854775807L)));
@@ -74,7 +74,7 @@ class TestBinop {
 
     @Test
     void testSub() {
-        OpType type = OpType.SUB;
+        OpType type = OpType.SUB_INT;
         test(pairOf(constant(0), binop(type, 0, 0)));
         test(pairOf(constant(0), binop(type, 1, 1)));
         test(pairOf(constant(1),
@@ -92,7 +92,7 @@ class TestBinop {
     void testMulti() {
         // Numbers crunched via an online calculator
         // https://www.calculator.net/big-number-calculator.html
-        OpType type = OpType.MUL;
+        OpType type = OpType.MUL_INT;
         test(pairOf(constant(0), binop(type, 0, 0)));
         test(pairOf(constant(1), binop(type, 1, 1)));
 
@@ -113,7 +113,7 @@ class TestBinop {
 
     @Test
     void testDiv() {
-        OpType type = OpType.DIV;
+        OpType type = OpType.DIV_INT;
         test(pairOf(binop(type, 0, 0), binop(type, 0, 0)));
         test(pairOf(constant(1), binop(type, 1, 1)));
 
@@ -141,7 +141,7 @@ class TestBinop {
     @Test
     void testMod() {
         // When mod,
-        OpType type = OpType.MOD;
+        OpType type = OpType.MOD_INT;
         test(pairOf(binop(type, 0, 0), binop(type, 0, 0)));
         test(pairOf(constant(0), binop(type, 1, 1)));
 
@@ -167,7 +167,7 @@ class TestBinop {
 
     @Test
     void testHighMulti() {
-        OpType type = OpType.HMUL;
+        OpType type = OpType.HMUL_INT;
         test(pairOf(constant(0), binop(type, 0, 0)));
         test(pairOf(constant(0), binop(type, 1, 1)));
 

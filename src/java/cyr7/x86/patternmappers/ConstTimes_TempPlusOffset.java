@@ -31,7 +31,7 @@ public class ConstTimes_TempPlusOffset extends MemoryAddrPattern {
         ComplexTiler tiler,
         ASMLineFactory make,
         List<ASMLine> insns) {
-        if (n.opType() != OpType.MUL) {
+        if (n.opType() != OpType.MUL_INT) {
             return Optional.empty();
         }
 
@@ -49,7 +49,7 @@ public class ConstTimes_TempPlusOffset extends MemoryAddrPattern {
         var constTempOffset = BiPatternBuilder
             .left()
             .instOf(IRBinOp.class)
-            .and(x -> x.opType() == OpType.ADD)
+            .and(x -> x.opType() == OpType.ADD_INT)
             .and(x -> tempPlusOffset.matches(new Object[] { x.left(), x.right() }))
             .right()
             .instOf(IRInteger.class)

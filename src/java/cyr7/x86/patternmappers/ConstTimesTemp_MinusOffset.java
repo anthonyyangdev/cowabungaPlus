@@ -30,7 +30,7 @@ public class ConstTimesTemp_MinusOffset extends MemoryAddrPattern {
         ComplexTiler tiler,
         ASMLineFactory make,
         List<ASMLine> insns) {
-        if (n.opType() != OpType.SUB) {
+        if (n.opType() != OpType.SUB_INT) {
             return Optional.empty();
         }
 
@@ -48,7 +48,7 @@ public class ConstTimesTemp_MinusOffset extends MemoryAddrPattern {
 
         var constTempMinusN = BiPatternBuilder.left()
                                              .instOf(IRBinOp.class)
-                                             .and(x -> x.opType() == OpType.MUL)
+                                             .and(x -> x.opType() == OpType.MUL_INT)
                                              .and(x -> constTemp.matches(
                                                      new Object[]
                                                      { x.left(), x.right() }))

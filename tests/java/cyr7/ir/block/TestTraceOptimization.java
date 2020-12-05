@@ -72,7 +72,7 @@ class TestTraceOptimization {
             make.IRJump(make.IRName(l0)),
             make.IRLabel(l1),
             make.IRMove(make.IRTemp(t0),
-                make.IRBinOp(OpType.ADD, make.IRInteger(1),
+                make.IRBinOp(OpType.ADD_INT, make.IRInteger(1),
                     make.IRInteger(32))),
             make.IRLabel(l0),
             make.IRJump(make.IRName(l1))
@@ -82,7 +82,7 @@ class TestTraceOptimization {
         BasicBlock b3 = block(
             make.IRLabel(l1),
             make.IRMove(make.IRTemp(t0),
-                make.IRBinOp(OpType.ADD, make.IRInteger(1),
+                make.IRBinOp(OpType.ADD_INT, make.IRInteger(1),
                     make.IRInteger(32))),
             make.IRJump(make.IRName(l0))
         );

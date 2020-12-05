@@ -103,10 +103,10 @@ public class BasicInductionVariableUtil {
 
             if (n.value instanceof IRBinOp) {
                 IRBinOp binOp = (IRBinOp) n.value;
-                if (binOp.opType() == OpType.ADD &&
+                if (binOp.opType() == OpType.ADD_INT &&
                         tempPlusConst.matches(new Object[]{binOp.left(), binOp.right()})) {
                     ivStrideMap.put(n.variable, tempPlusConst.rightObj().value());
-                } else if (binOp.opType() == OpType.SUB &&
+                } else if (binOp.opType() == OpType.SUB_INT &&
                         tempMinusConst.matches(new Object[]{binOp.left(), binOp.right()})) {
                     ivStrideMap.put(n.variable, -tempMinusConst.rightObj().value());
                 } else {

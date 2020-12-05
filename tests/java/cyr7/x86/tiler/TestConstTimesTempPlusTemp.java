@@ -10,9 +10,9 @@ public class TestConstTimesTempPlusTemp {
     @Test
     void testTempAndConstTimesTemp() {
         IRBinOp tempConstTemp = makeIR(make ->
-                make.IRBinOp(IRBinOp.OpType.ADD,
+                make.IRBinOp(IRBinOp.OpType.ADD_INT,
                         make.IRTemp("bleh1"),
-                        make.IRBinOp(IRBinOp.OpType.MUL,
+                        make.IRBinOp(IRBinOp.OpType.MUL_INT,
                                 make.IRInteger(4),
                                 make.IRTemp("bleh2"))
                 )
@@ -25,8 +25,8 @@ public class TestConstTimesTempPlusTemp {
     @Test
     void testConstTimesTempAndTemp() {
         IRBinOp tempConstTemp = makeIR(make ->
-                make.IRBinOp(IRBinOp.OpType.ADD,
-                        make.IRBinOp(IRBinOp.OpType.MUL,
+                make.IRBinOp(IRBinOp.OpType.ADD_INT,
+                        make.IRBinOp(IRBinOp.OpType.MUL_INT,
                                 make.IRInteger(4),
                                 make.IRTemp("bleh2")),
                         make.IRTemp("bleh1")

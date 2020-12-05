@@ -29,7 +29,7 @@ public class BinOpInstructionGenerator {
         ASMArg ret = arg.temp(generator.newTemp(), ASMRegSize.QWORD);
 
         switch (n.opType()) {
-        case ADD:
+        case ADD_INT:
             insns.add(make.Mov(ret, leftArg));
             insns.add(make.Add(ret, rightArg));
             break;
@@ -37,7 +37,7 @@ public class BinOpInstructionGenerator {
             insns.add(make.Mov(ret, leftArg));
             insns.add(make.And(ret, rightArg));
             break;
-        case DIV: {
+        case DIV_INT: {
             String raxTemp = generator.newTemp();
             String rdxTemp = generator.newTemp();
 
@@ -94,7 +94,7 @@ public class BinOpInstructionGenerator {
             insns.add(make.MovZX(ret, byteReg));
             break;
         }
-        case HMUL: {
+        case HMUL_INT: {
             String raxTemp = generator.newTemp();
             String rdxTemp = generator.newTemp();
 
@@ -162,7 +162,7 @@ public class BinOpInstructionGenerator {
             insns.add(make.MovZX(ret, byteReg));
             break;
         }
-        case MOD:
+        case MOD_INT:
             String raxTemp = generator.newTemp();
             String rdxTemp = generator.newTemp();
 
@@ -182,7 +182,7 @@ public class BinOpInstructionGenerator {
             insns.add(make.Mov(ASMReg.RAX, arg.temp(raxTemp, ASMRegSize.QWORD)));
             insns.add(make.Mov(ASMReg.RDX, arg.temp(rdxTemp, ASMRegSize.QWORD)));
             break;
-        case MUL:
+        case MUL_INT:
             insns.add(make.Mov(ret, leftArg));
             insns.add(make.Mul(ret, rightArg));
             break;
@@ -202,7 +202,7 @@ public class BinOpInstructionGenerator {
             insns.add(make.Mov(ret, leftArg));
             insns.add(make.Or(ret, rightArg));
             break;
-        case SUB:
+        case SUB_INT:
             insns.add(make.Mov(ret, leftArg));
             insns.add(make.Sub(ret, rightArg));
             break;

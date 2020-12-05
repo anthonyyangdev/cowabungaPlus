@@ -450,7 +450,7 @@ public enum CCPAnalysis implements ForwardDataflowAnalysis<LatticeElement> {
                 return VLatticeElement.bot;
             } else {
                 // they're both values
-                if ((n.opType() == OpType.MOD || n.opType() == OpType.DIV)
+                if ((n.opType() == OpType.MOD_INT || n.opType() == OpType.DIV_INT)
                         && right.value() == 0) {
                     return VLatticeElement.bot;
                 } else {

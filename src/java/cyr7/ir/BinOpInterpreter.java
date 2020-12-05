@@ -14,23 +14,23 @@ public enum BinOpInterpreter {
 
         // Copied from staff-given interpreter code.
         switch (type) {
-            case ADD:
+            case ADD_INT:
                 value = l + r;
                 break;
-            case SUB:
+            case SUB_INT:
                 value = l - r;
                 break;
-            case MUL:
+            case MUL_INT:
                 value = l * r;
                 break;
-            case HMUL:
+            case HMUL_INT:
                 value = BigInteger.valueOf(l).multiply(BigInteger.valueOf(r))
                     .shiftRight(64).longValue();
                 break;
-            case DIV:
+            case DIV_INT:
                 value = l / r;
                 break;
-            case MOD:
+            case MOD_INT:
                 value = l % r;
                 break;
             case AND:

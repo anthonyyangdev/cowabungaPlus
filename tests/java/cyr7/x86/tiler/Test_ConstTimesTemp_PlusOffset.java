@@ -12,8 +12,8 @@ public class Test_ConstTimesTemp_PlusOffset {
     @Test
     void testConstTimesTempAndOffset() {
         IRBinOp constTempOffset = makeIR(make ->
-                make.IRBinOp(OpType.ADD,
-                        make.IRBinOp(OpType.MUL,
+                make.IRBinOp(OpType.ADD_INT,
+                        make.IRBinOp(OpType.MUL_INT,
                                 make.IRInteger(4),
                                 make.IRTemp("bleh")),
                         make.IRInteger(8))
@@ -25,8 +25,8 @@ public class Test_ConstTimesTemp_PlusOffset {
     @Test
     void testConstTimesOffsetAndTemp() {
         IRBinOp constTempOffset = makeIR(make ->
-                make.IRBinOp(OpType.ADD,
-                        make.IRBinOp(OpType.MUL,
+                make.IRBinOp(OpType.ADD_INT,
+                        make.IRBinOp(OpType.MUL_INT,
                                 make.IRTemp("bleh"),
                                 make.IRInteger(4)),
                         make.IRInteger(8))
@@ -38,9 +38,9 @@ public class Test_ConstTimesTemp_PlusOffset {
     @Test
     void testOffsetAndConstTimesTemp() {
         IRBinOp constTempOffset = makeIR(make ->
-                make.IRBinOp(OpType.ADD,
+                make.IRBinOp(OpType.ADD_INT,
                         make.IRInteger(8),
-                        make.IRBinOp(OpType.MUL,
+                        make.IRBinOp(OpType.MUL_INT,
                                 make.IRInteger(4),
                                 make.IRTemp("bleh"))
                 )
@@ -52,9 +52,9 @@ public class Test_ConstTimesTemp_PlusOffset {
     @Test
     void testOffsetAndTempTimesConstant() {
         IRBinOp constTempOffset = makeIR(make ->
-                make.IRBinOp(OpType.ADD,
+                make.IRBinOp(OpType.ADD_INT,
                         make.IRInteger(8),
-                        make.IRBinOp(OpType.MUL,
+                        make.IRBinOp(OpType.MUL_INT,
                                 make.IRTemp("bleh"),
                                 make.IRInteger(4))
                 )
@@ -66,8 +66,8 @@ public class Test_ConstTimesTemp_PlusOffset {
     @Test
     void testConstOver32Bits_TimesTempAndOffset() {
         IRBinOp constTempOffset = makeIR(make ->
-            make.IRBinOp(OpType.ADD,
-                make.IRBinOp(OpType.MUL,
+            make.IRBinOp(OpType.ADD_INT,
+                make.IRBinOp(OpType.MUL_INT,
                     make.IRInteger(4),
                     make.IRTemp("bleh")),
                 make.IRInteger(1099511627776L))

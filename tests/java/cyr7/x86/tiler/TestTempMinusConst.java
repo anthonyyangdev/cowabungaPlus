@@ -14,7 +14,7 @@ class TestTempMinusConst {
     void test() {
         IRBinOp tempTemp = makeIR(make ->
         make.IRBinOp(
-                IRBinOp.OpType.SUB,
+                IRBinOp.OpType.SUB_INT,
                 make.IRTemp("bleh1"),
                 make.IRInteger(16)));
 
@@ -24,7 +24,7 @@ class TestTempMinusConst {
     @Test
     void testTempMinusOver32Constant() {
         IRBinOp constTempOffset = makeIR(make ->
-            make.IRBinOp(OpType.SUB,
+            make.IRBinOp(OpType.SUB_INT,
                 make.IRTemp("bleh1"),
                 make.IRInteger(1099511627776L)) // 2 ^ 40
             );

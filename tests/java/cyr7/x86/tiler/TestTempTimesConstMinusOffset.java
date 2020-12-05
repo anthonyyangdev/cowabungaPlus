@@ -13,8 +13,8 @@ class TestTempTimesConstMinusOffset {
     @Test
     void testConstTimesTempAndOffset() {
         IRBinOp constTempOffset = makeIR(make ->
-        make.IRBinOp(OpType.SUB,
-            make.IRBinOp(OpType.MUL,
+        make.IRBinOp(OpType.SUB_INT,
+            make.IRBinOp(OpType.MUL_INT,
                     make.IRInteger(4),
                     make.IRTemp("bleh")),
             make.IRInteger(8))
@@ -26,8 +26,8 @@ class TestTempTimesConstMinusOffset {
     @Test
     void testConstTimesOffsetAndTemp() {
         IRBinOp constTempOffset = makeIR(make ->
-        make.IRBinOp(OpType.SUB,
-            make.IRBinOp(OpType.MUL,
+        make.IRBinOp(OpType.SUB_INT,
+            make.IRBinOp(OpType.MUL_INT,
                     make.IRTemp("bleh"),
                     make.IRInteger(4)),
             make.IRInteger(8))
@@ -39,8 +39,8 @@ class TestTempTimesConstMinusOffset {
     @Test
     void testTempTimesConstMinusOver32Constant() {
         IRBinOp constTempOffset = makeIR(make ->
-            make.IRBinOp(OpType.SUB,
-                make.IRBinOp(OpType.MUL,
+            make.IRBinOp(OpType.SUB_INT,
+                make.IRBinOp(OpType.MUL_INT,
                         make.IRTemp("bleh"),
                         make.IRInteger(4)),
                 make.IRInteger(1099511627776L)) // 2 ^ 40

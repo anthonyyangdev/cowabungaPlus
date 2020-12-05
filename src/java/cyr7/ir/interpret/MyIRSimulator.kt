@@ -129,18 +129,18 @@ class MyIRSimulator(private val cu: IRCompUnit, val heapSize: Int, private val s
             val l: Long = exprStack.popValue()
             val result: Long
             result = when (insn.opType()) {
-                IRBinOp.OpType.ADD -> l + r
-                IRBinOp.OpType.SUB -> l - r
-                IRBinOp.OpType.MUL -> l * r
-                IRBinOp.OpType.HMUL -> BigInteger.valueOf(l)
+                IRBinOp.OpType.ADD_INT -> l + r
+                IRBinOp.OpType.SUB_INT -> l - r
+                IRBinOp.OpType.MUL_INT -> l * r
+                IRBinOp.OpType.HMUL_INT -> BigInteger.valueOf(l)
                         .multiply(BigInteger.valueOf(r))
                         .shiftRight(64)
                         .toLong()
-                IRBinOp.OpType.DIV -> {
+                IRBinOp.OpType.DIV_INT -> {
                     if (r == 0L) throw Trap("Division by zero!")
                     l / r
                 }
-                IRBinOp.OpType.MOD -> {
+                IRBinOp.OpType.MOD_INT -> {
                     if (r == 0L) throw Trap("Division by zero!")
                     l % r
                 }
@@ -156,7 +156,6 @@ class MyIRSimulator(private val cu: IRCompUnit, val heapSize: Int, private val s
                 IRBinOp.OpType.GT -> if (l > r) 1 else 0.toLong()
                 IRBinOp.OpType.LEQ -> if (l <= r) 1 else 0.toLong()
                 IRBinOp.OpType.GEQ -> if (l >= r) 1 else 0.toLong()
-                else -> throw InternalCompilerError("Invalid binary operation")
             }
             exprStack.pushValue(result)
         } else if (insn is IRMem) {

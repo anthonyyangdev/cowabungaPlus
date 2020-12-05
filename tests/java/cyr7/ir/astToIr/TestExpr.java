@@ -118,7 +118,7 @@ class TestExpr {
     void testRem() {
         Node node = new RemExprNode(C.LOC, new LiteralIntExprNode(C.LOC, "5"),
                 new LiteralIntExprNode(C.LOC, "10"));
-        IRExpr expected = make.IRBinOp(OpType.MOD, make.IRInteger(5),
+        IRExpr expected = make.IRBinOp(OpType.MOD_INT, make.IRInteger(5),
                 make.IRInteger(10));
         assertEq(expected, node);
     }
@@ -127,7 +127,7 @@ class TestExpr {
     void testSub() {
         Node node = new SubExprNode(C.LOC, new LiteralIntExprNode(C.LOC, "5"),
                 new LiteralIntExprNode(C.LOC, "10"));
-        IRExpr expected = make.IRBinOp(OpType.SUB, make.IRInteger(5),
+        IRExpr expected = make.IRBinOp(OpType.SUB_INT, make.IRInteger(5),
                 make.IRInteger(10));
         assertEq(expected, node);
     }
@@ -145,7 +145,7 @@ class TestExpr {
     void testIntNegExpr() {
         Node node = new IntNegExprNode(C.LOC,
                 new LiteralIntExprNode(C.LOC, "5"));
-        IRExpr expected = make.IRBinOp(OpType.SUB, make.IRInteger(0),
+        IRExpr expected = make.IRBinOp(OpType.SUB_INT, make.IRInteger(0),
                 make.IRInteger(5));
         assertEq(expected, node);
     }

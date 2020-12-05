@@ -11,7 +11,7 @@ public class TestTempPlusTemp {
     @Test
     void testTempAndTemp(){
         IRBinOp tempTemp = makeIR(make ->
-                make.IRBinOp(IRBinOp.OpType.ADD,
+                make.IRBinOp(IRBinOp.OpType.ADD_INT,
                         make.IRTemp("bleh1"),
                         make.IRTemp("bleh2"))
         );

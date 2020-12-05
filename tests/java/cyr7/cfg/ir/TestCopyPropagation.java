@@ -43,7 +43,7 @@ class TestCopyPropagation {
         CFGNode returnNode = new CFGReturnNode(loc);
 
         CFGNode zIsDoubleX = cfg.VarAssign("z",
-                            ir.IRBinOp(OpType.ADD, ir.IRTemp("x"), ir.IRTemp("x")),
+                            ir.IRBinOp(OpType.ADD_INT, ir.IRTemp("x"), ir.IRTemp("x")),
                             returnNode);
         CFGNode deadAssign = new CFGVarAssignNode(loc, "x",
                                     new IRTemp(loc, "y"), zIsDoubleX);
@@ -52,7 +52,7 @@ class TestCopyPropagation {
         CFGNode root = new CFGStartNode(loc, firstAssign);
 
         CFGNode zIsDoubleY = cfg.VarAssign("z",
-                ir.IRBinOp(OpType.ADD, ir.IRTemp("y"), ir.IRTemp("y")),
+                ir.IRBinOp(OpType.ADD_INT, ir.IRTemp("y"), ir.IRTemp("y")),
                 new CFGStubNode());
 
         Set<CFGNode> expectedNodes = IrCfgTestUtil.nodeSet(root, firstAssign,
@@ -180,7 +180,7 @@ class TestCopyPropagation {
         CFGNode stub = new CFGStubNode();
 
         CFGNode xIncrement = cfg.VarAssign("x",
-                ir.IRBinOp(OpType.ADD, ir.IRTemp("y"), ir.IRInteger(1)), stub);
+                ir.IRBinOp(OpType.ADD_INT, ir.IRTemp("y"), ir.IRInteger(1)), stub);
 
         CFGNode yIsX = cfg.VarAssign("y", ir.IRTemp("x"), xIncrement);
 
@@ -196,7 +196,7 @@ class TestCopyPropagation {
         CFGNode root = cfg.Start(setX);
 
         CFGNode altXIncrement = cfg.VarAssign("x",
-                ir.IRBinOp(OpType.ADD, ir.IRTemp("x"), ir.IRInteger(1)),
+                ir.IRBinOp(OpType.ADD_INT, ir.IRTemp("x"), ir.IRInteger(1)),
                 new CFGStubNode());
 
         Set<CFGNode> expectedNodes = IrCfgTestUtil.nodeSet(root, setX, setY,
@@ -250,7 +250,7 @@ class TestCopyPropagation {
                                     returnNode);
 
         CFGNode cIsAPlusB = cfg.VarAssign("c",
-                ir.IRBinOp(OpType.ADD, ir.IRTemp("a"), ir.IRTemp("b")), printlnC);
+                ir.IRBinOp(OpType.ADD_INT, ir.IRTemp("a"), ir.IRTemp("b")), printlnC);
 
         CFGNode yIsFoo = cfg.Call(ir.IRCallStmt(List.of("y"),
                 ir.IRName("foo"), List.of()), cIsAPlusB);

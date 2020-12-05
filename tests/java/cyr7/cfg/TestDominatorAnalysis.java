@@ -44,7 +44,7 @@ public class TestDominatorAnalysis {
         CFGNode line7 = make.Return();
         CFGNode line6 = make.VarAssign(
             "z",
-            makeIR.IRBinOp(OpType.MUL,
+            makeIR.IRBinOp(OpType.MUL_INT,
                 makeIR.IRTemp("y"),
                 makeIR.IRTemp("y")),
             line7);
@@ -54,7 +54,7 @@ public class TestDominatorAnalysis {
             line6);
         CFGNode line3 = make.VarAssign(
             "y",
-            makeIR.IRBinOp(OpType.ADD,
+            makeIR.IRBinOp(OpType.ADD_INT,
                 makeIR.IRInteger(5),
                 makeIR.IRTemp("x")),
             line6);
@@ -102,15 +102,15 @@ public class TestDominatorAnalysis {
     void testMultipleStatementIfBlock() {
         CFGNode line6 = make.Return();
         CFGNode line5 = make.VarAssign("y",
-            makeIR.IRBinOp(OpType.ADD,
+            makeIR.IRBinOp(OpType.ADD_INT,
                 makeIR.IRTemp("y"),
-                makeIR.IRBinOp(OpType.MUL,
+                makeIR.IRBinOp(OpType.MUL_INT,
                     makeIR.IRInteger(3),
                     makeIR.IRInteger(4))),
             line6);
         CFGNode line4 = make.VarAssign(
             "y",
-            makeIR.IRBinOp(OpType.ADD,
+            makeIR.IRBinOp(OpType.ADD_INT,
                 makeIR.IRTemp("y"),
                 makeIR.IRTemp("z")
             ),
@@ -128,7 +128,7 @@ public class TestDominatorAnalysis {
             line2);
         CFGNode line1Point1 = make.VarAssign(
             "y",
-            makeIR.IRBinOp(OpType.SUB,
+            makeIR.IRBinOp(OpType.SUB_INT,
                 makeIR.IRInteger(0),
                 makeIR.IRTemp("x")),
             line1Point2);

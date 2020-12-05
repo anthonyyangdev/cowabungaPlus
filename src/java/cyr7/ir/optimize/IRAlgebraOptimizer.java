@@ -257,17 +257,17 @@ public class IRAlgebraOptimizer {
 
             // // Copied from staff-given interpreter code.
             switch (n.opType()) {
-            case ADD:
+            case ADD_INT:
                 return this.simplifyAdd(foldedValue);
-            case SUB:
+            case SUB_INT:
                 return this.simplifySub(foldedValue);
-            case MUL:
+            case MUL_INT:
                 return this.simplifyMul(foldedValue, make);
-            case HMUL:
+            case HMUL_INT:
                 return this.simplifyHighMul(foldedValue);
-            case DIV:
+            case DIV_INT:
                 return this.simplifyDivision(foldedValue, make);
-            case MOD:
+            case MOD_INT:
                 return this.simplifyMod(foldedValue);
             case AND:
                 return this.simplifyAnd(foldedValue);

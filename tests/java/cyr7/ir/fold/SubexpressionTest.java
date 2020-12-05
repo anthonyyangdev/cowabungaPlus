@@ -45,7 +45,7 @@ class SubexpressionTest {
     @Test
     void testMem() {
         var actual = make.IRMem(
-                make.IRBinOp(OpType.ADD, make.IRInteger(0), make.IRInteger(1)));
+                make.IRBinOp(OpType.ADD_INT, make.IRInteger(0), make.IRInteger(1)));
         var expected = make.IRMem(make.IRInteger(1));
 
         test(pairOf(expected, actual));
@@ -55,7 +55,7 @@ class SubexpressionTest {
     @Test
     void testCall() {
         var actual = make.IRCall(make.IRName("main"), make.IRTemp("arg0"),
-                make.IRBinOp(OpType.ADD, make.IRInteger(0), make.IRInteger(1)));
+                make.IRBinOp(OpType.ADD_INT, make.IRInteger(0), make.IRInteger(1)));
         var expected = make.IRCall(make.IRName("main"), make.IRTemp("arg0"),
                 make.IRInteger(1));
         test(pairOf(expected, actual));
@@ -95,9 +95,9 @@ class SubexpressionTest {
     @Test
     void testSeq() {
         var actual = make.IRSeq(
-                make.IRExp(make.IRBinOp(OpType.ADD, make.IRInteger(1),
+                make.IRExp(make.IRBinOp(OpType.ADD_INT, make.IRInteger(1),
                         make.IRInteger(0))),
-                make.IRExp(make.IRBinOp(OpType.ADD, make.IRInteger(1),
+                make.IRExp(make.IRBinOp(OpType.ADD_INT, make.IRInteger(1),
                         make.IRInteger(0))));
         var expected = make.IRSeq(
                 make.IRExp(make.IRInteger(1)), make.IRExp(make.IRInteger(1)));
@@ -110,24 +110,24 @@ class SubexpressionTest {
 
         List<IRStmt> stmtsOfMain = List.of(
                 make.IRMove(make.IRTemp("t1"),
-                        make.IRBinOp(OpType.ADD, make.IRInteger(0),
+                        make.IRBinOp(OpType.ADD_INT, make.IRInteger(0),
                                 make.IRInteger(1))),
                 make.IRLabel("here"),
                 make.IRExp(
                         make.IRCall(make.IRName("helper"),
-                                List.of(make.IRBinOp(OpType.ADD,
+                                List.of(make.IRBinOp(OpType.ADD_INT,
                                         make.IRInteger(0), make.IRInteger(1))))),
                 make.IRReturn());
         List<IRStmt> stmtsOfHelper = List.of(
                 make.IRMove(
-                        make.IRMem(make.IRBinOp(OpType.MUL, make.IRInteger(2),
+                        make.IRMem(make.IRBinOp(OpType.MUL_INT, make.IRInteger(2),
                                 make.IRInteger(4))),
                         make.IRBinOp(
-                                OpType.ADD, make.IRInteger(0), make.IRInteger(1))),
+                                OpType.ADD_INT, make.IRInteger(0), make.IRInteger(1))),
                 make.IRLabel("nope"),
                 make.IRExp(
                         make.IRCall(make.IRName("helper"),
-                                List.of(make.IRBinOp(OpType.ADD,
+                                List.of(make.IRBinOp(OpType.ADD_INT,
                                         make.IRInteger(0), make.IRInteger(1))))),
                 make.IRReturn());
 

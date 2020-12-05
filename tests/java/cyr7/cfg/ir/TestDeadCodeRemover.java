@@ -156,7 +156,7 @@ class TestDeadCodeRemover {
         CFGNode stub = new CFGStubNode();
 
         CFGNode xIncrement = cfg.VarAssign("x",
-                ir.IRBinOp(OpType.ADD, ir.IRTemp("x"), ir.IRInteger(1)),
+                ir.IRBinOp(OpType.ADD_INT, ir.IRTemp("x"), ir.IRInteger(1)),
                 stub);
 
         CFGNode yIsX = cfg.VarAssign("y", ir.IRTemp("x"), xIncrement);

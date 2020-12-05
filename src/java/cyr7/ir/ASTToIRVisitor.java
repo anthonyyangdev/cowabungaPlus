@@ -49,7 +49,6 @@ import cyr7.semantics.types.ResultType;
 import cyr7.util.OneOfTwo;
 import cyr7.visitor.AbstractVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import kotlin.NotImplementedError;
 
 /**
  * Assumption: All CJUMPs have both labels set
@@ -213,9 +212,9 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
 
         commands.add(make.IRMove(make.IRTemp(arrSize), size));
 
-        IRExpr spaceNeeded = make.IRBinOp(OpType.MUL,
+        IRExpr spaceNeeded = make.IRBinOp(OpType.MUL_INT,
                 make.IRInteger(Configuration.WORD_SIZE),
-                make.IRBinOp(OpType.ADD,
+                make.IRBinOp(OpType.ADD_INT,
                         make.IRTemp(arrSize),
                         make.IRInteger(1)));
 
@@ -229,7 +228,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                         make.IRTemp(arrSize)));
 
         commands.add(make.IRMove(make.IRTemp(pointerStart),
-                make.IRBinOp(OpType.ADD,
+                make.IRBinOp(OpType.ADD_INT,
                         make.IRTemp(memBlockStart),
                         make.IRInteger(Configuration.WORD_SIZE))));
 
@@ -245,15 +244,15 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                 ? this.allocateArray((TypeExprArrayNode)(n.child), arraySizes)
                 : make.IRInteger(0);
 
-        IRExpr valueLoc = make.IRMem(make.IRBinOp(OpType.ADD,
+        IRExpr valueLoc = make.IRMem(make.IRBinOp(OpType.ADD_INT,
                 make.IRTemp(pointerStart),
-                make.IRBinOp(OpType.MUL,
+                make.IRBinOp(OpType.MUL_INT,
                         make.IRInteger(Configuration.WORD_SIZE),
                         make.IRTemp(arrSize))));
 
         IRStmt block = make.IRSeq(
                 make.IRMove(make.IRTemp(arrSize),
-                        make.IRBinOp(OpType.SUB,
+                        make.IRBinOp(OpType.SUB_INT,
                                 make.IRTemp(arrSize),
                                 make.IRInteger(1))),
                 make.IRMove(valueLoc, createArray));
@@ -563,7 +562,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
         commands.add(make.IRMove(make.IRTemp(arrTemp), arr));
         commands.add(make.IRMove(make.IRTemp(indexTemp), index));
 
-        IRExpr length = make.IRMem(make.IRBinOp(OpType.SUB,
+        IRExpr length = make.IRMem(make.IRBinOp(OpType.SUB_INT,
                 make.IRTemp(arrTemp),
                 make.IRInteger(Configuration.WORD_SIZE)));
         commands.add(make.IRMove(make.IRTemp(lengthTemp), length));
@@ -581,9 +580,9 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                 make.IRCall(make.IRName("_xi_out_of_bounds"), List.of(), 1)));
         commands.add(make.IRLabel(lt));
 
-        IRExpr val = make.IRMem(make.IRBinOp(OpType.ADD,
+        IRExpr val = make.IRMem(make.IRBinOp(OpType.ADD_INT,
                 make.IRTemp(arrTemp),
-                make.IRBinOp(OpType.MUL,
+                make.IRBinOp(OpType.MUL_INT,
                         make.IRTemp(indexTemp),
                         make.IRInteger(8))));
         return OneOfTwo.ofFirst(make.IRESeq(make.IRSeq(commands), val));
@@ -600,7 +599,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     public OneOfTwo<IRExpr, IRStmt> visit(AddExprNode n) {
         if (n.getType()
              .isSubtypeOfInt()) {
-            return binOp(IRBinOp.OpType.ADD, n);
+            return binOp(IRBinOp.OpType.ADD_INT, n);
         }
         assert n.getType()
                 .isSubtypeOfArray();
@@ -626,24 +625,24 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                        .assertFirst()));
 
         seq.add(make.IRMove(make.IRTemp(leftArrSize),
-                make.IRMem(make.IRBinOp(OpType.SUB,
+                make.IRMem(make.IRBinOp(OpType.SUB_INT,
                         make.IRTemp(leftArrAddr),
                         make.IRInteger(8)))));
         seq.add(make.IRMove(make.IRTemp(rightArrSize),
-                make.IRMem(make.IRBinOp(OpType.SUB,
+                make.IRMem(make.IRBinOp(OpType.SUB_INT,
                         make.IRTemp(rightArrAddr),
                         make.IRInteger(8)))));
         seq.add(make.IRMove(make.IRTemp(summedArrSize),
-                make.IRBinOp(OpType.ADD,
+                make.IRBinOp(OpType.ADD_INT,
                         make.IRTemp(leftArrSize),
                         make.IRTemp(rightArrSize))));
 
         // Space for concatenated array
         seq.add(make.IRMove(make.IRTemp(summedArrAddr),
                 make.IRCall(make.IRName("_xi_alloc"),
-                        List.of(make.IRBinOp(OpType.MUL,
+                        List.of(make.IRBinOp(OpType.MUL_INT,
                                 make.IRInteger(8),
-                                make.IRBinOp(OpType.ADD,
+                                make.IRBinOp(OpType.ADD_INT,
                                         make.IRTemp(summedArrSize),
                                         make.IRInteger(1)))),
                         1)));
@@ -652,7 +651,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                 make.IRTemp(summedArrSize)));
         // Move array address pointer to actual start of array
         seq.add(make.IRMove(make.IRTemp(summedArrAddr),
-                make.IRBinOp(OpType.ADD,
+                make.IRBinOp(OpType.ADD_INT,
                         make.IRTemp(summedArrAddr),
                         make.IRInteger(8))));
 
@@ -680,17 +679,17 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                 make.IRTemp(leftArrSize)), leftBody, rightSumming));
         seq.add(make.IRLabel(leftBody));
         // Move value at [leftArrAddr + 8 * i] into [summedArrAddr + 8 * i]
-        seq.add(make.IRMove(make.IRMem(make.IRBinOp(OpType.ADD,
+        seq.add(make.IRMove(make.IRMem(make.IRBinOp(OpType.ADD_INT,
                 make.IRTemp(summedArrAddr),
-                make.IRBinOp(OpType.MUL, make.IRTemp(i), make.IRInteger(8)))),
-                make.IRMem(make.IRBinOp(OpType.ADD,
+                make.IRBinOp(OpType.MUL_INT, make.IRTemp(i), make.IRInteger(8)))),
+                make.IRMem(make.IRBinOp(OpType.ADD_INT,
                         make.IRTemp(leftArrAddr),
-                        make.IRBinOp(OpType.MUL,
+                        make.IRBinOp(OpType.MUL_INT,
                                 make.IRTemp(i),
                                 make.IRInteger(8))))));
         // i++
         seq.add(make.IRMove(make.IRTemp(i),
-                make.IRBinOp(OpType.ADD, make.IRTemp(i), make.IRInteger(1))));
+                make.IRBinOp(OpType.ADD_INT, make.IRTemp(i), make.IRInteger(1))));
 
         seq.add(make.IRJump(make.IRName(leftSumming)));
 
@@ -699,20 +698,20 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                 make.IRTemp(j),
                 make.IRTemp(rightArrSize)), rightBody, exit));
         seq.add(make.IRLabel(rightBody));
-        seq.add(make.IRMove(make.IRMem(make.IRBinOp(OpType.ADD,
+        seq.add(make.IRMove(make.IRMem(make.IRBinOp(OpType.ADD_INT,
                 make.IRTemp(summedArrAddr),
-                make.IRBinOp(OpType.MUL,
-                        make.IRBinOp(OpType.ADD,
+                make.IRBinOp(OpType.MUL_INT,
+                        make.IRBinOp(OpType.ADD_INT,
                                 make.IRTemp(j),
                                 make.IRTemp(leftArrSize)),
                         make.IRInteger(8)))),
-                make.IRMem(make.IRBinOp(OpType.ADD,
+                make.IRMem(make.IRBinOp(OpType.ADD_INT,
                         make.IRTemp(rightArrAddr),
-                        make.IRBinOp(OpType.MUL,
+                        make.IRBinOp(OpType.MUL_INT,
                                 make.IRTemp(j),
                                 make.IRInteger(8))))));
         seq.add(make.IRMove(make.IRTemp(j),
-                make.IRBinOp(OpType.ADD, make.IRTemp(j), make.IRInteger(1))));
+                make.IRBinOp(OpType.ADD_INT, make.IRTemp(j), make.IRInteger(1))));
         seq.add(make.IRJump(make.IRName(leftSumming)));
 
         seq.add(make.IRLabel(exit));
@@ -743,7 +742,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
 
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(DivExprNode n) {
-        return binOp(IRBinOp.OpType.DIV, n);
+        return binOp(IRBinOp.OpType.DIV_INT, n);
     }
 
     @Override
@@ -763,7 +762,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
 
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(HighMultExprNode n) {
-        return binOp(IRBinOp.OpType.HMUL, n);
+        return binOp(IRBinOp.OpType.HMUL_INT, n);
     }
 
     @Override
@@ -778,7 +777,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
 
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(MultExprNode n) {
-        return binOp(IRBinOp.OpType.MUL, n);
+        return binOp(IRBinOp.OpType.MUL_INT, n);
     }
 
     @Override
@@ -809,12 +808,12 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
 
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(RemExprNode n) {
-        return binOp(IRBinOp.OpType.MOD, n);
+        return binOp(IRBinOp.OpType.MOD_INT, n);
     }
 
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(SubExprNode n) {
-        return binOp(IRBinOp.OpType.SUB, n);
+        return binOp(IRBinOp.OpType.SUB_INT, n);
     }
 
     /**
@@ -832,9 +831,9 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
         String pointerStart = generator.newTemp();
         int size = vals.size();
 
-        IRExpr spaceNeeded = make.IRBinOp(OpType.MUL,
+        IRExpr spaceNeeded = make.IRBinOp(OpType.MUL_INT,
                 make.IRInteger(Configuration.WORD_SIZE),
-                make.IRBinOp(OpType.ADD, make.IRInteger(size), make.IRInteger(1)));
+                make.IRBinOp(OpType.ADD_INT, make.IRInteger(size), make.IRInteger(1)));
 
         List<IRStmt> commands = new ArrayList<IRStmt>();
 
@@ -847,15 +846,15 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
         // Move size into the start of requested memory block.
 
         commands.add(make.IRMove(make.IRTemp(pointerStart),
-                make.IRBinOp(OpType.ADD,
+                make.IRBinOp(OpType.ADD_INT,
                         make.IRTemp(memBlockStart),
                         make.IRInteger(Configuration.WORD_SIZE))));
 
         // Setting the values of the indices in memory
         for (int i = 0; i < size; i++) {
-            IRExpr valueLoc = make.IRMem(make.IRBinOp(OpType.ADD,
+            IRExpr valueLoc = make.IRMem(make.IRBinOp(OpType.ADD_INT,
                     make.IRTemp(pointerStart),
-                    make.IRBinOp(OpType.MUL,
+                    make.IRBinOp(OpType.MUL_INT,
                             make.IRInteger(Configuration.WORD_SIZE),
                             make.IRInteger(i))));
             commands.add(make.IRMove(valueLoc, vals.get(i)));
@@ -950,7 +949,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
         IRExpr e = n.expr.accept(this)
                          .assertFirst();
 
-        return OneOfTwo.ofFirst(make.IRBinOp(IRBinOp.OpType.SUB,
+        return OneOfTwo.ofFirst(make.IRBinOp(IRBinOp.OpType.SUB_INT,
                 make.IRInteger(0),
                 e));
     }
@@ -960,7 +959,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
         IRExpr e = n.expr.accept(this)
                          .assertFirst();
-        return OneOfTwo.ofFirst(make.IRMem(make.IRBinOp(OpType.SUB,
+        return OneOfTwo.ofFirst(make.IRMem(make.IRBinOp(OpType.SUB_INT,
                 e,
                 make.IRInteger(Configuration.WORD_SIZE))));
     }

@@ -50,26 +50,26 @@ public class IRConstFoldVisitor
 
         // Copied from staff-given interpreter code.
         switch (n.opType()) {
-        case ADD:
+        case ADD_INT:
             value = l + r;
             break;
-        case SUB:
+        case SUB_INT:
             value = l - r;
             break;
-        case MUL:
+        case MUL_INT:
             value = l * r;
             break;
-        case HMUL:
+        case HMUL_INT:
             value = BigInteger.valueOf(l).multiply(BigInteger.valueOf(r))
                     .shiftRight(64).longValue();
             break;
-        case DIV:
+        case DIV_INT:
             if (r == 0) {
                 return n;
             }
             value = l / r;
             break;
-        case MOD:
+        case MOD_INT:
             if (r == 0) {
                 return n;
             }
@@ -139,7 +139,7 @@ public class IRConstFoldVisitor
                             .accept(this)
                             .assertFirst();
         n = make.IRBinOp(n.opType(), leftFold, rightFold);
-        if ((n.opType() == OpType.DIV || n.opType() == OpType.MOD)
+        if ((n.opType() == OpType.DIV_INT || n.opType() == OpType.MOD_INT)
                 && rightFold.isConstant() && rightFold.constant() == 0) {
             return OneOfThree.ofFirst(n);
         }

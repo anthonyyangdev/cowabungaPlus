@@ -71,7 +71,7 @@ class TestBlockGeneration {
             make.IRLabel(l2),
             make.IRMove(
                 make.IRTemp("_t1"),
-                make.IRBinOp(OpType.ADD,
+                make.IRBinOp(OpType.ADD_INT,
                     make.IRInteger(1),
                     make.IRInteger(32)
                 )
@@ -88,7 +88,7 @@ class TestBlockGeneration {
             block(
                 make.IRLabel(l2),
                 make.IRMove(make.IRTemp("_t1"),
-                    make.IRBinOp(OpType.ADD,
+                    make.IRBinOp(OpType.ADD_INT,
                         make.IRInteger(1),
                         make.IRInteger(32))
                 ),

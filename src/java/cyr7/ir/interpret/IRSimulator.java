@@ -194,26 +194,26 @@ public class IRSimulator {
             long l = exprStack.popValue();
             long result;
             switch (((IRBinOp) insn).opType()) {
-            case ADD:
+            case ADD_INT:
                 result = l + r;
                 break;
-            case SUB:
+            case SUB_INT:
                 result = l - r;
                 break;
-            case MUL:
+            case MUL_INT:
                 result = l * r;
                 break;
-            case HMUL:
+            case HMUL_INT:
                 result = BigInteger.valueOf(l)
                                    .multiply(BigInteger.valueOf(r))
                                    .shiftRight(64)
                                    .longValue();
                 break;
-            case DIV:
+            case DIV_INT:
                 if (r == 0) throw new Trap("Division by zero!");
                 result = l / r;
                 break;
-            case MOD:
+            case MOD_INT:
                 if (r == 0) throw new Trap("Division by zero!");
                 result = l % r;
                 break;

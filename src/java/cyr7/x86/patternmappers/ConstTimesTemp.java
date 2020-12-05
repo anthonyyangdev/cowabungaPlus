@@ -30,7 +30,7 @@ public class ConstTimesTemp extends MemoryAddrPattern {
         ComplexTiler tiler,
         ASMLineFactory make,
         List<ASMLine> insns) {
-        if (n.opType() != OpType.MUL) {
+        if (n.opType() != OpType.MUL_INT) {
             return Optional.empty();
         }
 
