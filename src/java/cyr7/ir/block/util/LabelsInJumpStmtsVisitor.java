@@ -116,4 +116,9 @@ public class LabelsInJumpStmtsVisitor implements MyIRVisitor<List<String>> {
     public List<String> visit(@NotNull IRFloat n) {
         throw new NotImplementedError();
     }
+
+    @Override
+    public List<String> visit(@NotNull IRCast n) {
+        throw new NotImplementedError();
+    }
 }

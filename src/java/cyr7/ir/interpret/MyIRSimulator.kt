@@ -5,12 +5,15 @@ import cyr7.ir.interpret.exception.Trap
 import cyr7.ir.interpret.heap.XiHeapFactory
 import cyr7.ir.nodes.*
 import cyr7.ir.visit.InsnMapsBuilder
+import cyr7.semantics.types.PrimitiveType
 import edu.cornell.cs.cs4120.util.InternalCompilerError
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintStream
+import java.lang.UnsupportedOperationException
 import java.math.BigInteger
 import java.util.*
+import kotlin.math.exp
 import kotlin.random.Random
 import kotlin.random.asJavaRandom
 
@@ -121,9 +124,36 @@ class MyIRSimulator(private val cu: IRCompUnit, val heapSize: Int, private val s
     }
 
     protected fun interpret(frame: ExecutionFrame, insn: IRNode) {
-        if (insn is IRInteger) exprStack.pushValue(insn.value()) else if (insn is IRTemp) {
+        if (insn is IRInteger) {
+            exprStack.pushValue(insn.value())
+        } else if (insn is IRFloat) {
+            exprStack.pushValue(insn.value.toRawBits())
+        } else if (insn is IRTemp) {
             val tempName = insn.name()
             exprStack.pushTemp(frame[tempName], tempName)
+        } else if (insn is IRCast) {
+            val top = exprStack.popValue()
+            val castValue = when (insn.fromType) {
+                PrimitiveType.intDefault -> when(insn.targetType) {
+                    PrimitiveType.floatDefault -> top.toDouble().toRawBits()
+                    PrimitiveType.intDefault -> top
+                    PrimitiveType.boolDefault -> if (top != 0L) 1L else 0L
+                    else -> throw UnsupportedOperationException("No case given")
+                }
+                PrimitiveType.floatDefault -> when(insn.targetType) {
+                    PrimitiveType.floatDefault -> top
+                    PrimitiveType.intDefault -> Double.fromBits(top).toLong()
+                    PrimitiveType.boolDefault -> if (top != 0L) 1L else 0L
+                    else -> throw UnsupportedOperationException("No case given")
+                }
+                PrimitiveType.boolDefault -> when(insn.targetType) {
+                    PrimitiveType.floatDefault, PrimitiveType.intDefault,
+                    PrimitiveType.boolDefault -> top
+                    else -> throw UnsupportedOperationException("No case given")
+                }
+                else -> throw UnsupportedOperationException("No case given")
+            }
+            exprStack.pushValue(castValue)
         } else if (insn is IRBinOp) {
             val r: Long = exprStack.popValue()
             val l: Long = exprStack.popValue()
@@ -156,6 +186,11 @@ class MyIRSimulator(private val cu: IRCompUnit, val heapSize: Int, private val s
                 IRBinOp.OpType.GT -> if (l > r) 1 else 0.toLong()
                 IRBinOp.OpType.LEQ -> if (l <= r) 1 else 0.toLong()
                 IRBinOp.OpType.GEQ -> if (l >= r) 1 else 0.toLong()
+                IRBinOp.OpType.ADD_FLOAT -> Double.fromBits(l).plus(Double.fromBits(r)).toRawBits()
+                IRBinOp.OpType.SUB_FLOAT -> Double.fromBits(l).minus(Double.fromBits(r)).toRawBits()
+                IRBinOp.OpType.MUL_FLOAT -> Double.fromBits(l).times(Double.fromBits(r)).toRawBits()
+                IRBinOp.OpType.DIV_FLOAT -> Double.fromBits(l).div(Double.fromBits(r)).toRawBits()
+                IRBinOp.OpType.MOD_FLOAT -> Double.fromBits(l).rem(Double.fromBits(r)).toRawBits()
             }
             exprStack.pushValue(result)
         } else if (insn is IRMem) {
@@ -291,8 +326,7 @@ class MyIRSimulator(private val cu: IRCompUnit, val heapSize: Int, private val s
         fun setIP(ip: Long) {
             this.ip = ip
             if (debugLevel > 1) {
-                if (ip == -1L) println("Returning") else println("Jumping to "
-                        + currentInsn.label())
+                if (ip == -1L) println("Returning") else println("Jumping to ${currentInsn.label()}")
             }
         }
 

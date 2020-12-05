@@ -22,6 +22,11 @@ public class LoweringVisitor implements MyIRVisitor<Result> {
         throw new NotImplementedError();
     }
 
+    @Override
+    public Result visit(@NotNull IRCast n) {
+        throw new NotImplementedError();
+    }
+
     public static class Result extends
             OneOfThree<List<IRStmt>, Pair<List<IRStmt>, IRExpr>, IRCompUnit> {
 

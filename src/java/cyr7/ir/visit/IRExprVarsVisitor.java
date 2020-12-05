@@ -99,4 +99,9 @@ public enum IRExprVarsVisitor implements MyIRVisitor<Set<String>> {
 
     @Override
     public Set<String> visit(@NotNull IRFloat n) { throw new NotImplementedError(); }
+
+    @Override
+    public Set<String> visit(@NotNull IRCast n) {
+        throw new NotImplementedError();
+    }
 }

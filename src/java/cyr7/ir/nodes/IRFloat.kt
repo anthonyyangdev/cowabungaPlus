@@ -12,6 +12,7 @@ class IRFloat(val loc: Location, val value: Double): IRExpr_c(loc) {
     override fun equals(other: Any?) = other is IRFloat && other.value == this.value
 
     override fun label(): String = "Float($value)"
+    override fun constant(): Long = this.value.toRawBits()
 
     override fun <T : Any?> accept(v: MyIRVisitor<T>): T {
         return v.visit(this)

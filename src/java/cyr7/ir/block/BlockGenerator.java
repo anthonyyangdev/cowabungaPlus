@@ -218,6 +218,11 @@ public final class BlockGenerator {
         public Boolean visit(@NotNull IRFloat n) {
             throw new NotImplementedError();
         }
+
+        @Override
+        public Boolean visit(@NotNull IRCast n) {
+            throw new NotImplementedError();
+        }
     }
 
     private BlockGenerator() {}

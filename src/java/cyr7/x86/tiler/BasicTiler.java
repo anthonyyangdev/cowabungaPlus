@@ -350,4 +350,9 @@ public class BasicTiler implements MyIRVisitor<TilerData> {
     public TilerData visit(@NotNull IRFloat n) {
         throw new NotImplementedError();
     }
+
+    @Override
+    public TilerData visit(@NotNull IRCast n) {
+        throw new NotImplementedError();
+    }
 }

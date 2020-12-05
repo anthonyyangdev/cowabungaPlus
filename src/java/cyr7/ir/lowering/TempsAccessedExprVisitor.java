@@ -104,4 +104,9 @@ class TempsAccessedExprVisitor implements MyIRVisitor<Set<IRExpr>> {
     public Set<IRExpr> visit(@NotNull IRFloat n) {
         throw new NotImplementedError();
     }
+
+    @Override
+    public Set<IRExpr> visit(@NotNull IRCast n) {
+        throw new NotImplementedError();
+    }
 }

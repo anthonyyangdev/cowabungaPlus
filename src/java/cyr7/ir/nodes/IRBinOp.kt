@@ -24,7 +24,8 @@ class IRBinOp(
      */
     enum class OpType {
         ADD_INT, SUB_INT, MUL_INT, HMUL_INT, DIV_INT, MOD_INT, AND, OR,
-        XOR, LSHIFT, RSHIFT, ARSHIFT, EQ, NEQ, LT, GT, LEQ, GEQ;
+        XOR, LSHIFT, RSHIFT, ARSHIFT, EQ, NEQ, LT, GT, LEQ, GEQ,
+        ADD_FLOAT, SUB_FLOAT, MUL_FLOAT, DIV_FLOAT, MOD_FLOAT;
 
         override fun toString(): String {
             return when (this) {
@@ -46,6 +47,11 @@ class IRBinOp(
                 GT -> "GT"
                 LEQ -> "LEQ"
                 GEQ -> "GEQ"
+                ADD_FLOAT -> "ADD_FLOAT"
+                SUB_FLOAT -> "SUB_FLOAT"
+                MUL_FLOAT -> "MUL_FLOAT"
+                DIV_FLOAT -> "DIV_FLOAT"
+                MOD_FLOAT -> "MOD_FLOAT"
             }
         }
 
@@ -126,10 +132,10 @@ class IRBinOp(
         val lhs = left.userFriendlyString()
         val rhs = right.userFriendlyString()
         val operation: String = when (type) {
-            OpType.ADD_INT -> " + "
+            OpType.ADD_INT, OpType.ADD_FLOAT -> " + "
             OpType.AND -> " & "
             OpType.ARSHIFT -> " >> "
-            OpType.DIV_INT -> " / "
+            OpType.DIV_INT, OpType.DIV_FLOAT -> " / "
             OpType.EQ -> " == "
             OpType.GEQ -> " >= "
             OpType.GT -> " > "
@@ -137,12 +143,12 @@ class IRBinOp(
             OpType.LEQ -> " <= "
             OpType.LSHIFT -> " << "
             OpType.LT -> " < "
-            OpType.MOD_INT -> " % "
-            OpType.MUL_INT -> " * "
+            OpType.MOD_INT, OpType.MOD_FLOAT -> " % "
+            OpType.MUL_INT, OpType.MUL_FLOAT -> " * "
             OpType.NEQ -> " != "
             OpType.OR -> " | "
             OpType.RSHIFT -> " >>> "
-            OpType.SUB_INT -> " - "
+            OpType.SUB_INT, OpType.SUB_FLOAT -> " - "
             OpType.XOR -> " ^ "
         }
         return lhs + operation + rhs

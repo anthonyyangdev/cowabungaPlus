@@ -19,20 +19,14 @@ interface MyIRVisitor<T> {
     // Expressions
 
     fun visit(n: IRBinOp): T
-
     fun visit(n: IRCall): T
-
     fun visit(n: IRInteger): T
-
     fun visit(n: IRFloat): T
-
     fun visit(n: IRESeq): T
-
     fun visit(n: IRMem): T
-
     fun visit(n: IRName): T
-
     fun visit(n: IRTemp): T
+    fun visit(n: IRCast): T
 
     // Statements
 

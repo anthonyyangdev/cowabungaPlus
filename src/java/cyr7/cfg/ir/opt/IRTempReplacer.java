@@ -138,6 +138,11 @@ public class IRTempReplacer {
         public IRExpr visit(@NotNull IRFloat n) {
             throw new NotImplementedError();
         }
+
+        @Override
+        public IRExpr visit(@NotNull IRCast n) {
+            throw new NotImplementedError();
+        }
     }
 
 }

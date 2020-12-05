@@ -334,4 +334,9 @@ public class IRConstFoldVisitor
     public OneOfThree<IRExpr, IRStmt, IRFuncDecl> visit(@NotNull IRFloat n) {
         throw new NotImplementedError();
     }
+
+    @Override
+    public OneOfThree<IRExpr, IRStmt, IRFuncDecl> visit(@NotNull IRCast n) {
+        throw new NotImplementedError();
+    }
 }

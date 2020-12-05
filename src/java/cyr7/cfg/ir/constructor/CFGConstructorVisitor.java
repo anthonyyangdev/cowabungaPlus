@@ -225,4 +225,9 @@ public class CFGConstructorVisitor implements MyIRVisitor<CFGNode> {
     public CFGNode visit(@NotNull IRFloat n) {
         throw new NotImplementedError();
     }
+
+    @Override
+    public CFGNode visit(@NotNull IRCast n) {
+        throw new NotImplementedError();
+    }
 }

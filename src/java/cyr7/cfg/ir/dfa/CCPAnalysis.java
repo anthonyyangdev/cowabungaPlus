@@ -550,6 +550,10 @@ public enum CCPAnalysis implements ForwardDataflowAnalysis<LatticeElement> {
             throw new AssertionError();
         }
 
+        @Override
+        public VLatticeElement visit(@NotNull IRCast n) {
+            throw new NotImplementedError();
+        }
     }
 
 }
