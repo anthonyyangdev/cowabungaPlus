@@ -483,6 +483,7 @@ ArgParamList ::=
 
 LiteralExpr ::=
     INT_LITERAL:l {: RESULT = new LiteralIntExprNode(lxleft, l); :}
+    | FLOAT_LITERAL:l {: RESULT = new LiteralFloatExprNode(xleft, l); :}
     | CHAR_LITERAL:l {: RESULT = new LiteralCharExprNode(lxleft, l); :}
     | STRING_LITERAL:l {: RESULT = new LiteralStringExprNode(lxleft, l); :}
     | BOOL_LITERAL:l {: RESULT = new LiteralBoolExprNode(lxleft, l); :}

@@ -14,6 +14,8 @@ public final class ExpandedType {
         new ExpandedType(PrimitiveType.boolDefault);
     final public static ExpandedType intType =
         new ExpandedType(PrimitiveType.intDefault);
+    final public static ExpandedType floatType =
+            new ExpandedType(PrimitiveType.floatDefault);
     final public static ExpandedType unitExpandedType =
         new ExpandedType();
     final public static ExpandedType unitOrdinaryType =
@@ -70,13 +72,11 @@ public final class ExpandedType {
                 return this.getOrdinaryType().toString();
             }
         } else {
-            final StringBuffer buffer = new StringBuffer("(");
-            buffer.append(
-                String.join(", ", this.types.stream()
-                    .map(t -> t.toString())
-                    .collect(Collectors.toList())));
-            buffer.append(")");
-            return buffer.toString();
+            return "(" +
+                    this.types.stream()
+                            .map(Object::toString)
+                            .collect(Collectors.joining(", ")) +
+                    ")";
         }
     }
 
@@ -106,7 +106,7 @@ public final class ExpandedType {
     }
 
     private enum Type {
-        ORDINARY, TUPLE, UNIT;
+        ORDINARY, TUPLE, UNIT
     }
 
     public List<OrdinaryType> getTypes() {
@@ -140,17 +140,14 @@ public final class ExpandedType {
         }
 
         Iterator<OrdinaryType> expectedSubtype = this.types.iterator();
-        Iterator<OrdinaryType> expectedSupertype =
-            supertypeSet.types.iterator();
+        Iterator<OrdinaryType> expectedSupertype = supertypeSet.types.iterator();
 
         boolean isSubtype = true;
         while (expectedSubtype.hasNext() && expectedSupertype.hasNext()) {
             OrdinaryType subtype = expectedSubtype.next();
             OrdinaryType supertype = expectedSupertype.next();
-
             isSubtype &= subtype.isSubtypeOf(supertype);
         }
-
         return isSubtype;
     }
 
@@ -200,9 +197,9 @@ public final class ExpandedType {
         return this.types.isEmpty();
     }
 
-    public boolean isSubtypeOfInt() {
-        return this.isASubtypeOf(ExpandedType.intType);
-    }
+    public boolean isSubtypeOfInt() { return this.isASubtypeOf(ExpandedType.intType); }
+
+    public boolean isSubtypeOfFloat() { return this.isASubtypeOf(ExpandedType.floatType); }
 
     public boolean isVoid() {
         return this.isOrdinary() && this.getOrdinaryType().isVoid();

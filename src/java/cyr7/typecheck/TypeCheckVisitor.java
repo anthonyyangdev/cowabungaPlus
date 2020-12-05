@@ -772,16 +772,18 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
         ExpandedType left = n.left.accept(this).assertFirst();
         ExpandedType right = n.right.accept(this).assertFirst();
 
-        if (!left.isSubtypeOfInt()) {
+        if (!left.isSubtypeOfInt() || !right.isSubtypeOfFloat()) {
             throw new TypeMismatchException(left, ExpandedType.intType,
                     n.left.getLocation());
         }
-        if (!right.isSubtypeOfInt()) {
+        if (!right.isSubtypeOfInt() || !right.isSubtypeOfFloat()) {
             throw new TypeMismatchException(right, ExpandedType.intType,
                     n.right.getLocation());
         }
-
-        return assignType(n, ExpandedType.intType);
+        if (left.isSubtypeOfFloat() || right.isSubtypeOfFloat())
+            return assignType(n, ExpandedType.floatType);
+        else
+            return assignType(n, ExpandedType.intType);
     }
 
     /**
@@ -856,6 +858,12 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
                 return assignType(n, supertype.get());
             }
         }
+        if (left.isSubtypeOfFloat() && right.isSubtypeOfFloat()
+        || left.isSubtypeOfFloat() && right.isSubtypeOfInt()
+        || left.isSubtypeOfInt() && right.isSubtypeOfFloat()) {
+            return assignType(n, ExpandedType.floatType);
+        }
+
         if (left.isSubtypeOfArray() && right.isSubtypeOfArray()) {
             Optional<ExpandedType> supertype = supertypeOf(left, right);
             if (supertype.isPresent()) {
@@ -886,9 +894,7 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
     }
 
     @Override
-    public Result visit(RemExprNode n) {
-        return typecheckIntegerBinExpr(n);
-    }
+    public Result visit(RemExprNode n) { return typecheckIntegerBinExpr(n); }
 
     @Override
     public Result visit(SubExprNode n) {
@@ -947,7 +953,7 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
 
     @Override
     public Result visit(LiteralFloatExprNode n) {
-        throw new NotImplementedError();
+        return assignType(n, ExpandedType.floatType);
     }
 
     @Override
@@ -970,6 +976,8 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
         ExpandedType type = n.expr.accept(this).assertFirst();
         if (type.isSubtypeOfInt()) {
             return assignType(n, ExpandedType.intType);
+        } else if (type.isSubtypeOfFloat()) {
+            return assignType(n, ExpandedType.floatType);
         }
         throw new TypeMismatchException(type, ExpandedType.intType,
                 n.expr.getLocation());

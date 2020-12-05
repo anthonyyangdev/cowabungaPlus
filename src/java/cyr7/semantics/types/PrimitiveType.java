@@ -7,6 +7,8 @@ public final class PrimitiveType extends OrdinaryType {
         new PrimitiveType(Type.INT);
     public final static PrimitiveType boolDefault =
         new PrimitiveType(Type.BOOL);
+    public final static PrimitiveType floatDefault =
+            new PrimitiveType(Type.FLOAT);
 
     protected PrimitiveType(Type type) {
         assert type != Type.ARRAY;
@@ -33,7 +35,6 @@ public final class PrimitiveType extends OrdinaryType {
 
     @Override
     public boolean isSubtypeOf(OrdinaryType expectedSupertype) {
-        return expectedSupertype.isUnit() ||
-            this.type == expectedSupertype.getType();
+        return expectedSupertype.isUnit() || this.type == expectedSupertype.getType();
     }
 }
