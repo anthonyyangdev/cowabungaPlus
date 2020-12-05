@@ -17,26 +17,12 @@ import cyr7.cfg.ir.nodes.CFGStubNode;
 import cyr7.cfg.ir.nodes.CFGVarAssignNode;
 import cyr7.ir.BinOpInterpreter;
 import cyr7.ir.interpret.Configuration;
-import cyr7.ir.nodes.IRBinOp;
+import cyr7.ir.nodes.*;
 import cyr7.ir.nodes.IRBinOp.OpType;
-import cyr7.ir.nodes.IRCJump;
-import cyr7.ir.nodes.IRCall;
-import cyr7.ir.nodes.IRCallStmt;
-import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRInteger;
-import cyr7.ir.nodes.IRESeq;
-import cyr7.ir.nodes.IRExp;
-import cyr7.ir.nodes.IRFuncDecl;
-import cyr7.ir.nodes.IRJump;
-import cyr7.ir.nodes.IRLabel;
-import cyr7.ir.nodes.IRMem;
-import cyr7.ir.nodes.IRMove;
-import cyr7.ir.nodes.IRName;
-import cyr7.ir.nodes.IRReturn;
-import cyr7.ir.nodes.IRSeq;
-import cyr7.ir.nodes.IRTemp;
 import cyr7.util.Sets;
 import cyr7.visitor.MyIRVisitor;
+import kotlin.NotImplementedError;
+import org.jetbrains.annotations.NotNull;
 
 public enum CCPAnalysis implements ForwardDataflowAnalysis<LatticeElement> {
     INSTANCE;
@@ -486,6 +472,9 @@ public enum CCPAnalysis implements ForwardDataflowAnalysis<LatticeElement> {
         public VLatticeElement visit(IRInteger n) {
             return VLatticeElement.value(n.constant());
         }
+
+        @Override
+        public VLatticeElement visit(@NotNull IRFloat n) { throw new NotImplementedError(); }
 
         @Override
         public VLatticeElement visit(IRESeq n) {

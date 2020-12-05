@@ -4,24 +4,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import cyr7.ir.nodes.IRBinOp;
-import cyr7.ir.nodes.IRCJump;
-import cyr7.ir.nodes.IRCall;
-import cyr7.ir.nodes.IRCallStmt;
-import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRInteger;
-import cyr7.ir.nodes.IRESeq;
-import cyr7.ir.nodes.IRExp;
-import cyr7.ir.nodes.IRFuncDecl;
-import cyr7.ir.nodes.IRJump;
-import cyr7.ir.nodes.IRLabel;
-import cyr7.ir.nodes.IRMem;
-import cyr7.ir.nodes.IRMove;
-import cyr7.ir.nodes.IRName;
-import cyr7.ir.nodes.IRReturn;
-import cyr7.ir.nodes.IRSeq;
-import cyr7.ir.nodes.IRTemp;
+import cyr7.ir.nodes.*;
 import cyr7.visitor.MyIRVisitor;
+import kotlin.NotImplementedError;
+import org.jetbrains.annotations.NotNull;
 
 public class LabelsInJumpStmtsVisitor implements MyIRVisitor<List<String>> {
 
@@ -126,4 +112,8 @@ public class LabelsInJumpStmtsVisitor implements MyIRVisitor<List<String>> {
         return List.of();
     }
 
+    @Override
+    public List<String> visit(@NotNull IRFloat n) {
+        throw new NotImplementedError();
+    }
 }

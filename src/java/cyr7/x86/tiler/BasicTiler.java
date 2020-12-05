@@ -1,25 +1,7 @@
 package cyr7.x86.tiler;
 
 import cyr7.ir.IdGenerator;
-import cyr7.ir.nodes.IRBinOp;
-import cyr7.ir.nodes.IRCJump;
-import cyr7.ir.nodes.IRCall;
-import cyr7.ir.nodes.IRCallStmt;
-import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRInteger;
-import cyr7.ir.nodes.IRESeq;
-import cyr7.ir.nodes.IRExp;
-import cyr7.ir.nodes.IRFuncDecl;
-import cyr7.ir.nodes.IRJump;
-import cyr7.ir.nodes.IRLabel;
-import cyr7.ir.nodes.IRMem;
-import cyr7.ir.nodes.IRMove;
-import cyr7.ir.nodes.IRName;
-import cyr7.ir.nodes.IRNode_c;
-import cyr7.ir.nodes.IRReturn;
-import cyr7.ir.nodes.IRSeq;
-import cyr7.ir.nodes.IRStmt;
-import cyr7.ir.nodes.IRTemp;
+import cyr7.ir.nodes.*;
 import cyr7.visitor.MyIRVisitor;
 import cyr7.x86.asm.ASMArg;
 import cyr7.x86.asm.ASMArgFactory;
@@ -32,6 +14,8 @@ import cyr7.x86.asm.ASMMemArg;
 import cyr7.x86.asm.ASMRegSize;
 import cyr7.x86.asm.ASMTempArg;
 import cyr7.x86.asm.ASMTempRegArg;
+import kotlin.NotImplementedError;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -362,4 +346,8 @@ public class BasicTiler implements MyIRVisitor<TilerData> {
         shouldMemoizeResult = false;
     }
 
+    @Override
+    public TilerData visit(@NotNull IRFloat n) {
+        throw new NotImplementedError();
+    }
 }

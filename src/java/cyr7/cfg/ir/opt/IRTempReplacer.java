@@ -2,25 +2,10 @@ package cyr7.cfg.ir.opt;
 
 import java.util.Map;
 
-import cyr7.ir.nodes.IRBinOp;
-import cyr7.ir.nodes.IRCJump;
-import cyr7.ir.nodes.IRCall;
-import cyr7.ir.nodes.IRCallStmt;
-import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRInteger;
-import cyr7.ir.nodes.IRESeq;
-import cyr7.ir.nodes.IRExp;
-import cyr7.ir.nodes.IRExpr;
-import cyr7.ir.nodes.IRFuncDecl;
-import cyr7.ir.nodes.IRJump;
-import cyr7.ir.nodes.IRLabel;
-import cyr7.ir.nodes.IRMem;
-import cyr7.ir.nodes.IRMove;
-import cyr7.ir.nodes.IRName;
-import cyr7.ir.nodes.IRReturn;
-import cyr7.ir.nodes.IRSeq;
-import cyr7.ir.nodes.IRTemp;
+import cyr7.ir.nodes.*;
 import cyr7.visitor.MyIRVisitor;
+import kotlin.NotImplementedError;
+import org.jetbrains.annotations.NotNull;
 
 public class IRTempReplacer {
 
@@ -147,6 +132,11 @@ public class IRTempReplacer {
         @Override
         public IRExpr visit(IRSeq n) {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public IRExpr visit(@NotNull IRFloat n) {
+            throw new NotImplementedError();
         }
     }
 

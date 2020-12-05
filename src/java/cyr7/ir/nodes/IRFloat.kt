@@ -14,7 +14,7 @@ class IRFloat(val loc: Location, val value: Double): IRExpr_c(loc) {
     override fun label(): String = "Float($value)"
 
     override fun <T : Any?> accept(v: MyIRVisitor<T>): T {
-        throw UnsupportedOperationException()
+        return v.visit(this)
     }
 
     override fun printSExp(p: SExpPrinter) {

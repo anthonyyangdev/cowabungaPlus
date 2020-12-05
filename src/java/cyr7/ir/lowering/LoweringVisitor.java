@@ -7,33 +7,20 @@ import java.util.stream.Collectors;
 
 import cyr7.ir.IdGenerator;
 import cyr7.ir.lowering.LoweringVisitor.Result;
-import cyr7.ir.nodes.IRBinOp;
-import cyr7.ir.nodes.IRCJump;
-import cyr7.ir.nodes.IRCall;
-import cyr7.ir.nodes.IRCallStmt;
-import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRInteger;
-import cyr7.ir.nodes.IRESeq;
-import cyr7.ir.nodes.IRExp;
-import cyr7.ir.nodes.IRExpr;
-import cyr7.ir.nodes.IRFuncDecl;
-import cyr7.ir.nodes.IRJump;
-import cyr7.ir.nodes.IRLabel;
-import cyr7.ir.nodes.IRMem;
-import cyr7.ir.nodes.IRMove;
-import cyr7.ir.nodes.IRName;
-import cyr7.ir.nodes.IRNodeFactory;
-import cyr7.ir.nodes.IRNodeFactory_c;
-import cyr7.ir.nodes.IRReturn;
-import cyr7.ir.nodes.IRSeq;
-import cyr7.ir.nodes.IRStmt;
-import cyr7.ir.nodes.IRTemp;
+import cyr7.ir.nodes.*;
 import cyr7.ir.visit.CheckCanonicalIRVisitor;
 import cyr7.util.OneOfThree;
 import cyr7.visitor.MyIRVisitor;
+import kotlin.NotImplementedError;
+import org.jetbrains.annotations.NotNull;
 import polyglot.util.Pair;
 
 public class LoweringVisitor implements MyIRVisitor<Result> {
+
+    @Override
+    public Result visit(@NotNull IRFloat n) {
+        throw new NotImplementedError();
+    }
 
     public static class Result extends
             OneOfThree<List<IRStmt>, Pair<List<IRStmt>, IRExpr>, IRCompUnit> {
