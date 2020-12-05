@@ -51,16 +51,16 @@ class TestCondConstProp {
         CFGNode zIsX = cfg.VarAssign("z", ir.IRTemp("x"), printlnX);
 
         CFGNode ifNode = cfg.If(yIsX, zIsX,
-                    ir.IRBinOp(OpType.GT, ir.IRTemp("x"), ir.IRConst(30)));
+                    ir.IRBinOp(OpType.GT, ir.IRTemp("x"), ir.IRInteger(30)));
 
-        CFGNode xAssign = cfg.VarAssign("x", ir.IRConst(30), ifNode);
+        CFGNode xAssign = cfg.VarAssign("x", ir.IRInteger(30), ifNode);
         CFGNode root = cfg.Start(xAssign);
 
         CFGNode println30 = cfg.Call(
                 ir.IRCallStmt(List.of(), ir.IRName("println"),
-                        List.of(ir.IRConst(30))), new CFGStubNode());
+                        List.of(ir.IRInteger(30))), new CFGStubNode());
 
-        CFGNode zIs30 = cfg.VarAssign("z", ir.IRConst(30), new CFGStubNode());
+        CFGNode zIs30 = cfg.VarAssign("z", ir.IRInteger(30), new CFGStubNode());
 
         Set<CFGNode> expectedNodes = IrCfgTestUtil.nodeSet(
                                             root,
@@ -122,24 +122,24 @@ class TestCondConstProp {
                 ir.IRCallStmt(List.of(), ir.IRName("println"),
                         List.of(ir.IRTemp("z"))), stub);
 
-        CFGNode zIs20 = cfg.VarAssign("z", ir.IRConst(20), printlnZ);
-        CFGNode zIs15 = cfg.VarAssign("z", ir.IRConst(15), printlnZ);
+        CFGNode zIs20 = cfg.VarAssign("z", ir.IRInteger(20), printlnZ);
+        CFGNode zIs15 = cfg.VarAssign("z", ir.IRInteger(15), printlnZ);
 
         CFGNode ifZIs40 =  cfg.If(zIs15, zIs20,
-                ir.IRBinOp(OpType.EQ, ir.IRTemp("z"), ir.IRConst(40)));
+                ir.IRBinOp(OpType.EQ, ir.IRTemp("z"), ir.IRInteger(40)));
 
         printlnZ.replaceOutEdge(stub, ifZIs40);
 
         CFGNode zIsX = cfg.VarAssign("z", ir.IRTemp("x"), ifZIs40);
 
-        CFGNode whileFalse = cfg.If(zIsX, printlnX, ir.IRConst(0));
+        CFGNode whileFalse = cfg.If(zIsX, printlnX, ir.IRInteger(0));
 
-        CFGNode xAssign = cfg.VarAssign("x", ir.IRConst(30), whileFalse);
+        CFGNode xAssign = cfg.VarAssign("x", ir.IRInteger(30), whileFalse);
         CFGNode root = cfg.Start(xAssign);
 
         CFGNode println30 = cfg.Call(
                 ir.IRCallStmt(List.of(), ir.IRName("println"),
-                        List.of(ir.IRConst(30))), new CFGStubNode());
+                        List.of(ir.IRInteger(30))), new CFGStubNode());
 
         Set<CFGNode> expectedNodes = IrCfgTestUtil.nodeSet(
                                             root,

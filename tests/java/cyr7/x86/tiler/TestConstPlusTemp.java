@@ -14,7 +14,7 @@ public class TestConstPlusTemp {
         IRBinOp constTemp = makeIR(make ->
             make.IRBinOp(
                 OpType.ADD,
-                make.IRConst(50),
+                make.IRInteger(50),
                 make.IRTemp("bleh")
             ));
 
@@ -27,7 +27,7 @@ public class TestConstPlusTemp {
             make.IRBinOp(
                 OpType.ADD,
                 make.IRTemp("bleh"),
-                make.IRConst(50)
+                make.IRInteger(50)
             ));
 
         assertEqualsTiled(constTemp, "leaq _t0, [ bleh + 50 ]");
@@ -39,7 +39,7 @@ public class TestConstPlusTemp {
             make.IRBinOp(
                 OpType.ADD,
                 make.IRTemp("bleh"),
-                make.IRConst(1099511627776L)
+                make.IRInteger(1099511627776L)
             ));
 
         assertEqualsTiled(constTemp,

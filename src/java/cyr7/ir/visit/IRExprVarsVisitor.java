@@ -5,7 +5,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRFuncDecl;
@@ -37,7 +37,7 @@ public enum IRExprVarsVisitor implements MyIRVisitor<Set<String>> {
     }
 
     @Override
-    public Set<String> visit(IRConst n) {
+    public Set<String> visit(IRInteger n) {
         return Set.of();
     }
 

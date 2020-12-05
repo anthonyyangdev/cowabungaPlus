@@ -20,13 +20,13 @@ import cyr7.cfg.ir.nodes.CFGVarAssignNode;
 import cyr7.cfg.ir.visitor.IrCFGVisitor;
 import cyr7.ir.nodes.IRBinOp;
 import cyr7.ir.nodes.IRBinOp.OpType;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRTemp;
 import cyr7.x86.pattern.BiPatternBuilder;
 
 
 public class BasicInductionVariableUtil {
-    
+
     public static Map<String, Long> execute(CFGNode node, Set<CFGNode> reachable) {
         final Set<CFGNode> visited = new HashSet<>();
         final Queue<CFGNode> worklist = new ArrayDeque<>();
@@ -44,63 +44,63 @@ public class BasicInductionVariableUtil {
         }
         return bv.ivStrideMap();
     }
-    
-    private static class BasicInductionVariableVisitor 
+
+    private static class BasicInductionVariableVisitor
         implements IrCFGVisitor<Optional<Void>> {
-        
+
         // Keep track of basic induction variables mapped to stride
         Map<String, Long> ivStrideMap;
         Set<String> invalid;
-        
+
         // Pass in the set of nodes that form the loop.
         public BasicInductionVariableVisitor(Set<CFGNode> reachable) {
             this.invalid = new HashSet<>();
             this.ivStrideMap = new HashMap<>();
         }
-        
+
         public Map<String, Long> ivStrideMap() {
             return ivStrideMap;
         }
-        
+
         @Override
         public Optional<Void> visit(CFGCallNode n) {
             return Optional.empty();
         }
-        
+
         @Override
         public Optional<Void> visit(CFGIfNode n) {
             return Optional.empty();
         }
-        
+
         @Override
         public Optional<Void> visit(CFGVarAssignNode n) {
             if (invalid.contains(n.variable)) {
                 return Optional.empty();
             }
-            
+
             if(ivStrideMap.containsKey(n.variable)) {
                 ivStrideMap.remove(n.variable);
                 invalid.add(n.variable);
                 return Optional.empty();
             }
-            
+
             var tempPlusConst = BiPatternBuilder
                     .left()
                     .instOf(IRTemp.class)
                     .and(temp -> temp.name().equals(n.variable))
                     .right()
-                    .instOf(IRConst.class)
+                    .instOf(IRInteger.class)
                     .finish()
                     .enableCommutes();
-            
+
             var tempMinusConst = BiPatternBuilder
                     .left()
                     .instOf(IRTemp.class)
                     .and(temp -> temp.name().equals(n.variable))
                     .right()
-                    .instOf(IRConst.class)
+                    .instOf(IRInteger.class)
                     .finish();
-            
+
             if (n.value instanceof IRBinOp) {
                 IRBinOp binOp = (IRBinOp) n.value;
                 if (binOp.opType() == OpType.ADD &&
@@ -115,36 +115,36 @@ public class BasicInductionVariableUtil {
             } else {
                 invalid.add(n.variable);
             }
-            
+
             return Optional.empty();
         }
-        
+
         @Override
         public Optional<Void> visit(CFGMemAssignNode n) {
             return Optional.empty();
         }
-        
+
         @Override
         public Optional<Void> visit(CFGReturnNode n) {
             return Optional.empty();
         }
-        
+
         @Override
         public Optional<Void> visit(CFGStartNode n) {
             return Optional.empty();
         }
-        
+
         @Override
         public Optional<Void> visit(CFGSelfLoopNode n) {
             return Optional.empty();
         }
-        
+
         @Override
         public Optional<Void> visit(CFGBlockNode n) {
             throw new UnsupportedOperationException("Basic Induction Variable"
                     + " Visitor does not have support for basic blocks");
         }
     }
-    
+
 }
 

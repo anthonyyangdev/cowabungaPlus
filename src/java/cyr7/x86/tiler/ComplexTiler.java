@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 import cyr7.ir.IdGenerator;
 import cyr7.ir.nodes.IRBinOp;
@@ -12,7 +11,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRExpr;
@@ -27,11 +26,9 @@ import cyr7.ir.nodes.IRReturn;
 import cyr7.ir.nodes.IRSeq;
 import cyr7.ir.nodes.IRTemp;
 import cyr7.x86.asm.ASMArg;
-import cyr7.x86.asm.ASMConstArg;
 import cyr7.x86.asm.ASMLine;
 import cyr7.x86.asm.ASMLineFactory;
 import cyr7.x86.asm.ASMTempArg;
-import cyr7.x86.pattern.BiPatternBuilder;
 import cyr7.x86.patternmappers.Binop_ConstTempArgPattern;
 import cyr7.x86.patternmappers.Binop_TempArgConstPattern;
 import cyr7.x86.patternmappers.ConstPlusTemp;
@@ -133,7 +130,7 @@ public class ComplexTiler extends BasicTiler {
     }
 
     @Override
-    public TilerData visit(IRConst n) {
+    public TilerData visit(IRInteger n) {
         if (n.hasOptimalTiling()) {
             return n.getOptimalTiling();
         }
@@ -223,7 +220,7 @@ public class ComplexTiler extends BasicTiler {
         for (IRExpr a : n.args()) {
             TilerData argTile = a.accept(this);
             cost += argTile.tileCost;
-            if (a instanceof IRConst) {
+            if (a instanceof IRInteger) {
                 arguments.add(arg.constant(a.constant()));
             } else {
                 arguments.add(argTile.result.get());
@@ -304,7 +301,7 @@ public class ComplexTiler extends BasicTiler {
         ASMArg targetArg = target.result.get();
         TilerData source = n.source().accept(this);
         ASMArg sourceArg;
-        if (n.source() instanceof IRConst) {
+        if (n.source() instanceof IRInteger) {
             sourceArg = arg.constant(n.source().constant());
         } else {
             sourceArg = source.result.get();

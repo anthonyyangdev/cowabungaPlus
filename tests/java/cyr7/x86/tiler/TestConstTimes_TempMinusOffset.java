@@ -15,8 +15,8 @@ public class TestConstTimes_TempMinusOffset {
             make.IRBinOp(OpType.MUL,
                 make.IRBinOp(OpType.SUB,
                     make.IRTemp("bleh"),
-                    make.IRConst(2)),
-                make.IRConst(8))
+                    make.IRInteger(2)),
+                make.IRInteger(8))
         );
 
         assertEqualsTiled(constTempOffset, "leaq _t0, [ 8 * bleh + -16 ]");
@@ -26,10 +26,10 @@ public class TestConstTimes_TempMinusOffset {
     void testOffsetAndTempTimesConstant() {
         IRBinOp constTempOffset = makeIR(make ->
             make.IRBinOp(OpType.MUL,
-                make.IRConst(4),
+                make.IRInteger(4),
                 make.IRBinOp(OpType.SUB,
                     make.IRTemp("bleh"),
-                    make.IRConst(3))
+                    make.IRInteger(3))
             )
         );
         assertEqualsTiled(constTempOffset, "leaq _t0, [ 4 * bleh + -12 ]");
@@ -39,10 +39,10 @@ public class TestConstTimes_TempMinusOffset {
     void testOffsetAndTempTimesOver32Constant() {
         IRBinOp constTempOffset = makeIR(make ->
             make.IRBinOp(OpType.MUL,
-                make.IRConst(4),
+                make.IRInteger(4),
                 make.IRBinOp(OpType.SUB,
                     make.IRTemp("bleh"),
-                    make.IRConst(1099511627776L)) // 2 ^40
+                    make.IRInteger(1099511627776L)) // 2 ^40
             )
         );
         assertEqualsTiled(constTempOffset,

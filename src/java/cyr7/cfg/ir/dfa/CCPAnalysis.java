@@ -23,7 +23,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRFuncDecl;
@@ -483,7 +483,7 @@ public enum CCPAnalysis implements ForwardDataflowAnalysis<LatticeElement> {
         }
 
         @Override
-        public VLatticeElement visit(IRConst n) {
+        public VLatticeElement visit(IRInteger n) {
             return VLatticeElement.value(n.constant());
         }
 

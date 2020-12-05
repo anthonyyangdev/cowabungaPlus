@@ -1,14 +1,13 @@
 package cyr7.x86.patternmappers;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
 import cyr7.ir.IdGenerator;
 import cyr7.ir.nodes.IRBinOp;
 import cyr7.ir.nodes.IRBinOp.OpType;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRExpr;
 import cyr7.x86.asm.ASMArg;
 import cyr7.x86.asm.ASMConstArg;
@@ -42,7 +41,7 @@ public class Temp_LShiftConst extends PatternMapper<IRBinOp> {
         var tempLShiftConst = BiPatternBuilder.left()
                                               .instOf(ASMTempArg.class)
                                               .right()
-                                              .instOf(IRConst.class)
+                                              .instOf(IRInteger.class)
                                               .finish()
                                               .mappingLeft(IRExpr.class,
                                                       (Function<IRExpr, ASMArg>) node -> node.accept(
@@ -51,7 +50,7 @@ public class Temp_LShiftConst extends PatternMapper<IRBinOp> {
         if (tempLShiftConst.matches(new Object[]
             { n.left(), n.right() })) {
             ASMTempArg lhs = tempLShiftConst.leftObj();
-            IRConst rhs = tempLShiftConst.rightObj();
+            IRInteger rhs = tempLShiftConst.rightObj();
 
             insns.addAll(tempLShiftConst.preMapLeft()
                                         .getOptimalTiling().optimalInstructions);

@@ -9,7 +9,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRFuncDecl;
@@ -145,7 +145,7 @@ public final class BlockGenerator {
         }
 
         @Override
-        public Boolean visit(IRConst n) {
+        public Boolean visit(IRInteger n) {
             throw new UnsupportedOperationException();
         }
 

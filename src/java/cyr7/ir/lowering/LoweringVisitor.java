@@ -12,7 +12,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRExpr;
@@ -22,7 +22,6 @@ import cyr7.ir.nodes.IRLabel;
 import cyr7.ir.nodes.IRMem;
 import cyr7.ir.nodes.IRMove;
 import cyr7.ir.nodes.IRName;
-import cyr7.ir.nodes.IRNode;
 import cyr7.ir.nodes.IRNodeFactory;
 import cyr7.ir.nodes.IRNodeFactory_c;
 import cyr7.ir.nodes.IRReturn;
@@ -98,7 +97,7 @@ public class LoweringVisitor implements MyIRVisitor<Result> {
 
         stmts.addAll(leftResult.part1());
         IRExpr lhs = leftResult.part2();
-        
+
         CheckCanonicalIRVisitor cv = new CheckCanonicalIRVisitor();
         if (!cv.visit(n.right())){
             // if the RHS has side effects
@@ -138,7 +137,7 @@ public class LoweringVisitor implements MyIRVisitor<Result> {
     }
 
     @Override
-    public Result visit(IRConst n) {
+    public Result visit(IRInteger n) {
         return Result.expr(List.of(), n);
     }
 

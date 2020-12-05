@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import cyr7.ir.nodes.IRBinOp;
 import cyr7.ir.nodes.IRBinOp.OpType;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRExpr;
 import cyr7.x86.asm.ASMAddrExpr;
 import cyr7.x86.asm.ASMAddrExpr.ScaleValues;
@@ -37,7 +37,7 @@ public class Temp_PlusConstTimesTemp_PlusOffset extends MemoryAddrPattern {
 
         var constTimesTemp = BiPatternBuilder
             .left()
-            .instOf(IRConst.class)
+            .instOf(IRInteger.class)
             .and(x -> x.constant() == 1 || x.constant() == 2 || x.constant() == 4 || x.constant() == 8)
             .right()
             .instOf(ASMTempArg.class)
@@ -53,7 +53,7 @@ public class Temp_PlusConstTimesTemp_PlusOffset extends MemoryAddrPattern {
             .and(x -> x.opType() == OpType.MUL)
             .and(x -> constTimesTemp.matches(new Object[] { x.left(), x.right() }))
             .right()
-            .instOf(IRConst.class)
+            .instOf(IRInteger.class)
             .and(x -> Is32Bits.check(x.constant()))
             .finish()
             .enableCommutes();
@@ -66,16 +66,16 @@ public class Temp_PlusConstTimesTemp_PlusOffset extends MemoryAddrPattern {
             .and(x -> x.opType() == OpType.ADD)
             .and(x -> constTempPlusOffset.matches(new Object[] {x.left(), x.right()}))
             .finish()
-            .mappingLeft(IRExpr.class, 
+            .mappingLeft(IRExpr.class,
                 (Function<IRExpr, ASMArg>)
                     node -> node.accept(tiler).result.get())
             .enableCommutes();
 
         if (tempPlusRest.matches(new Object[]{ n.left(), n.right() })) {
             ASMTempArg baseArg = tempPlusRest.leftObj();
-            IRConst scaleArg = constTimesTemp.leftObj();
+            IRInteger scaleArg = constTimesTemp.leftObj();
             ASMTempArg indexArg = constTimesTemp.rightObj();
-            IRConst offsetArg = constTempPlusOffset.rightObj();
+            IRInteger offsetArg = constTempPlusOffset.rightObj();
 
             insns.addAll(tempPlusRest.preMapLeft().getOptimalTiling().optimalInstructions);
             insns.addAll(constTimesTemp.preMapRight().getOptimalTiling().optimalInstructions);

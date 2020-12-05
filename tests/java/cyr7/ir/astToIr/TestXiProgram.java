@@ -17,6 +17,7 @@ import cyr7.ir.nodes.IRCompUnit;
 import cyr7.ir.nodes.IRFuncDecl;
 import cyr7.ir.nodes.IRNode;
 import cyr7.lexer.MultiFileLexer;
+import cyr7.parser.XiParser;
 import cyr7.typecheck.TypeCheckUtil;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.ScannerBuffer;

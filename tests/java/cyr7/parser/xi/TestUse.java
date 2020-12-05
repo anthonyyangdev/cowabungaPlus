@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import cyr7.parser.XiParser;
 import org.junit.jupiter.api.Test;
 
 import cyr7.ast.toplevel.FunctionDeclNode;

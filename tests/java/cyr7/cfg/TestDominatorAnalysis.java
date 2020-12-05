@@ -55,7 +55,7 @@ public class TestDominatorAnalysis {
         CFGNode line3 = make.VarAssign(
             "y",
             makeIR.IRBinOp(OpType.ADD,
-                makeIR.IRConst(5),
+                makeIR.IRInteger(5),
                 makeIR.IRTemp("x")),
             line6);
         CFGNode line2 = make.If(
@@ -63,10 +63,10 @@ public class TestDominatorAnalysis {
             line5,
             makeIR.IRBinOp(OpType.LT,
                 makeIR.IRTemp("x"),
-                makeIR.IRConst(2)));
+                makeIR.IRInteger(2)));
         CFGNode line1 = make.VarAssign(
             "x",
-            makeIR.IRConst(1),
+            makeIR.IRInteger(1),
             line2);
         CFGStartNode line0 = make.Start(line1);
 
@@ -105,8 +105,8 @@ public class TestDominatorAnalysis {
             makeIR.IRBinOp(OpType.ADD,
                 makeIR.IRTemp("y"),
                 makeIR.IRBinOp(OpType.MUL,
-                    makeIR.IRConst(3),
-                    makeIR.IRConst(4))),
+                    makeIR.IRInteger(3),
+                    makeIR.IRInteger(4))),
             line6);
         CFGNode line4 = make.VarAssign(
             "y",
@@ -129,12 +129,12 @@ public class TestDominatorAnalysis {
         CFGNode line1Point1 = make.VarAssign(
             "y",
             makeIR.IRBinOp(OpType.SUB,
-                makeIR.IRConst(0),
+                makeIR.IRInteger(0),
                 makeIR.IRTemp("x")),
             line1Point2);
         CFGNode line1 = make.VarAssign(
             "x",
-            makeIR.IRConst(12),
+            makeIR.IRInteger(12),
             line1Point1);
         CFGStartNode line0 = make.Start(line1);
 
@@ -171,18 +171,18 @@ public class TestDominatorAnalysis {
     void testSimpleLoop() {
         CFGNode line6 = make.Return();
         CFGNode line5 = make.VarAssign("x",
-                makeIR.IRConst(2),
+                makeIR.IRInteger(2),
                 line6);
         CFGStubNode line3Stub = new CFGStubNode();
         CFGNode line2 = make.If(line3Stub, line5, makeIR.IRBinOp(OpType.LT,
-                makeIR.IRTemp("x"), makeIR.IRConst(12)));
+                makeIR.IRTemp("x"), makeIR.IRInteger(12)));
         CFGNode line4 = make.VarAssign("a",
-                makeIR.IRConst(3),
+                makeIR.IRInteger(3),
                 line2);
-        CFGNode line3 = make.VarAssign("x", makeIR.IRConst(5),
+        CFGNode line3 = make.VarAssign("x", makeIR.IRInteger(5),
                 line4);
         line2.replaceOutEdge(line3Stub, line3);
-        CFGNode line1 = make.VarAssign("x", makeIR.IRConst(12),
+        CFGNode line1 = make.VarAssign("x", makeIR.IRInteger(12),
                 line2);
         CFGStartNode line0 = make.Start(line1);
 

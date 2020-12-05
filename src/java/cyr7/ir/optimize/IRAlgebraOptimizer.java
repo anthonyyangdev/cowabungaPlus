@@ -11,7 +11,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRExpr;
@@ -161,12 +161,12 @@ public class IRAlgebraOptimizer {
 
             if (this.isPowerOfTwo(n.left())) {
                 long power = this.logBase2(left);
-                return make.IRBinOp(OpType.LSHIFT, right, make.IRConst(power));
+                return make.IRBinOp(OpType.LSHIFT, right, make.IRInteger(power));
             }
 
             if (this.isPowerOfTwo(n.right())) {
                 long power = this.logBase2(right);
-                return make.IRBinOp(OpType.LSHIFT, left, make.IRConst(power));
+                return make.IRBinOp(OpType.LSHIFT, left, make.IRInteger(power));
             }
 
             return n;
@@ -196,7 +196,7 @@ public class IRAlgebraOptimizer {
         private IRExpr simplifyXOR(IRBinOp binop, IRNodeFactory make) {
             if (binop.left()
                     .equals(binop.right())) {
-                return make.IRConst(0);
+                return make.IRInteger(0);
             }
 
             if (this.isOne(binop.left()) && binop.right() instanceof IRBinOp) {
@@ -225,8 +225,8 @@ public class IRAlgebraOptimizer {
         }
 
         private IRExpr simplifyComparison(IRBinOp n, IRNodeFactory make) {
-            IRExpr trueExpr = make.IRConst(1);
-            IRExpr falseExpr = make.IRConst(0);
+            IRExpr trueExpr = make.IRInteger(1);
+            IRExpr falseExpr = make.IRInteger(0);
 
             if (n.left()
                     .equals(n.right())) {
@@ -348,7 +348,7 @@ public class IRAlgebraOptimizer {
         }
 
         @Override
-        public OneOfThree<IRExpr, IRStmt, IRFuncDecl> visit(IRConst n) {
+        public OneOfThree<IRExpr, IRStmt, IRFuncDecl> visit(IRInteger n) {
             return OneOfThree.ofFirst(n);
         }
 

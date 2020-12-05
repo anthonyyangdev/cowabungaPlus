@@ -11,6 +11,7 @@ import cyr7.ast.stmt.StmtNode;
 import cyr7.ast.type.TypeExprNode;
 import cyr7.ast.type.PrimitiveEnum;
 import cyr7.ast.type.PrimitiveTypeNode;
+import cyr7.parser.XiParser;
 import cyr7.parser.util.ParserFactory;
 import org.junit.jupiter.api.Test;
 

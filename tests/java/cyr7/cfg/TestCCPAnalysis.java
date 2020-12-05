@@ -53,7 +53,7 @@ public class TestCCPAnalysis {
         CFGNode line3 = make.VarAssign(
             "y",
             makeIR.IRBinOp(OpType.ADD,
-                makeIR.IRConst(5),
+                makeIR.IRInteger(5),
                 makeIR.IRTemp("x")),
             line6);
         CFGNode line2 = make.If(
@@ -61,10 +61,10 @@ public class TestCCPAnalysis {
             line5,
             makeIR.IRBinOp(OpType.LT,
                 makeIR.IRTemp("x"),
-                makeIR.IRConst(2)));
+                makeIR.IRInteger(2)));
         CFGNode line1 = make.VarAssign(
             "x",
-            makeIR.IRConst(1),
+            makeIR.IRInteger(1),
             line2);
         CFGStartNode line0 = make.Start(line1);
 
@@ -124,8 +124,8 @@ public class TestCCPAnalysis {
             makeIR.IRBinOp(OpType.ADD,
                 makeIR.IRTemp("y"),
                 makeIR.IRBinOp(OpType.MUL,
-                    makeIR.IRConst(3),
-                    makeIR.IRConst(4))),
+                    makeIR.IRInteger(3),
+                    makeIR.IRInteger(4))),
             line6);
         CFGNode line4 = make.VarAssign(
             "y",
@@ -148,12 +148,12 @@ public class TestCCPAnalysis {
         CFGNode line1Point1 = make.VarAssign(
             "y",
             makeIR.IRBinOp(OpType.SUB,
-                makeIR.IRConst(0),
+                makeIR.IRInteger(0),
                 makeIR.IRTemp("x")),
             line1Point2);
         CFGNode line1 = make.VarAssign(
             "x",
-            makeIR.IRConst(12),
+            makeIR.IRInteger(12),
             line1Point1);
         CFGStartNode line0 = make.Start(line1);
 

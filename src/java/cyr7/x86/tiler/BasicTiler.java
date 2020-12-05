@@ -6,7 +6,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRFuncDecl;
@@ -119,7 +119,7 @@ public class BasicTiler implements MyIRVisitor<TilerData> {
     }
 
     @Override
-    public TilerData visit(IRConst n) {
+    public TilerData visit(IRInteger n) {
         ASMLineFactory make = new ASMLineFactory(n);
         if (n.hasOptimalTiling()) {
             return n.getOptimalTiling();

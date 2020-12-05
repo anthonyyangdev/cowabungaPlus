@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import cyr7.ir.nodes.IRBinOp;
 import cyr7.ir.nodes.IRBinOp.OpType;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRExpr;
 import cyr7.x86.asm.ASMAddrExpr;
 import cyr7.x86.asm.ASMAddrExpr.ScaleValues;
@@ -24,7 +24,7 @@ public class ConstTimesTemp_PlusOffset extends MemoryAddrPattern {
     public ConstTimesTemp_PlusOffset(boolean isMemPattern) {
         super(isMemPattern);
     }
-    
+
     @Override
     protected Optional<ASMAddrExpr> matchAddress(
         IRBinOp n,
@@ -37,7 +37,7 @@ public class ConstTimesTemp_PlusOffset extends MemoryAddrPattern {
 
         var constTemp = BiPatternBuilder
             .left()
-            .instOf(IRConst.class)
+            .instOf(IRInteger.class)
             .and(x -> x.constant() == 1 || x.constant() == 2 || x.constant() == 4 || x.constant() == 8)
             .right()
             .instOf(ASMTempArg.class)
@@ -53,15 +53,15 @@ public class ConstTimesTemp_PlusOffset extends MemoryAddrPattern {
             .and(x -> x.opType() == OpType.MUL)
             .and(x -> constTemp.matches(new Object[] { x.left(), x.right() }))
             .right()
-            .instOf(IRConst.class)
+            .instOf(IRInteger.class)
             .and(x -> Is32Bits.check(x.constant()))
             .finish()
             .enableCommutes();
 
         if (constTempPlusN.matches(new Object[]{ n.left(), n.right() })) {
-            IRConst constArg = constTemp.leftObj();
+            IRInteger constArg = constTemp.leftObj();
             ASMTempArg tempArg = constTemp.rightObj();
-            IRConst nArg = constTempPlusN.rightObj();
+            IRInteger nArg = constTempPlusN.rightObj();
 
             insns.addAll(constTemp.preMapRight().getOptimalTiling().optimalInstructions);
             this.setCost(1 + constTemp.preMapRight().getOptimalTiling().tileCost);

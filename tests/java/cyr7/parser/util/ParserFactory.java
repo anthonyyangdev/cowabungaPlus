@@ -6,6 +6,7 @@ import cyr7.ast.stmt.VarInitStmtNode;
 import cyr7.ast.toplevel.XiProgramNode;
 import cyr7.lexer.MultiFileLexer;
 import cyr7.lexer.MyLexer;
+import cyr7.parser.XiParser;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 

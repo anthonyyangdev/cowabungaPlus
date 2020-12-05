@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import cyr7.ir.nodes.IRBinOp;
 import cyr7.ir.nodes.IRBinOp.OpType;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRExpr;
 import cyr7.x86.asm.ASMAddrExpr;
 import cyr7.x86.asm.ASMAddrExpr.ScaleValues;
@@ -39,7 +39,7 @@ public class ConstTimes_TempPlusOffset extends MemoryAddrPattern {
             .left()
                 .instOf(ASMTempArg.class)
                 .right()
-                .instOf(IRConst.class)
+                .instOf(IRInteger.class)
                 .finish()
                 .mappingLeft(IRExpr.class,
                     (Function<IRExpr, ASMArg>)
@@ -52,15 +52,15 @@ public class ConstTimes_TempPlusOffset extends MemoryAddrPattern {
             .and(x -> x.opType() == OpType.ADD)
             .and(x -> tempPlusOffset.matches(new Object[] { x.left(), x.right() }))
             .right()
-            .instOf(IRConst.class)
+            .instOf(IRInteger.class)
             .and(x -> x.constant() == 1 || x.constant() == 2 || x.constant() == 4 || x.constant() == 8)
             .finish()
             .enableCommutes();
 
         if (constTempOffset.matches(new Object[]{ n.left(), n.right() })) {
             ASMTempArg tempArg = tempPlusOffset.leftObj();
-            IRConst offset = tempPlusOffset.rightObj();
-            IRConst cArg = constTempOffset.rightObj();
+            IRInteger offset = tempPlusOffset.rightObj();
+            IRInteger cArg = constTempOffset.rightObj();
 
             insns.addAll(tempPlusOffset.preMapLeft().getOptimalTiling().optimalInstructions);
 

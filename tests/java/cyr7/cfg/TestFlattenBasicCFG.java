@@ -17,7 +17,7 @@ import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.IRUtil;
 import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRFuncDecl;
 import cyr7.ir.nodes.IRLabel;
 import cyr7.ir.nodes.IRMem;
@@ -39,8 +39,8 @@ class TestFlattenBasicCFG {
     void testAssignmentsFunction() {
         Location loc = new Location(-1, -1);
         var func = new IRFuncDecl(loc, "assign", new IRSeq(loc,
-                new IRMove(loc, new IRTemp(loc, "target"), new IRConst(loc, 0)),
-                new IRMove(loc, new IRMem(loc, new IRConst(loc, 0)), new IRConst(loc, 0)),
+                new IRMove(loc, new IRTemp(loc, "target"), new IRInteger(loc, 0)),
+                new IRMove(loc, new IRMem(loc, new IRInteger(loc, 0)), new IRInteger(loc, 0)),
                 new IRReturn(loc)));
 
         var map = new HashMap<String, IRFuncDecl>();
@@ -55,8 +55,8 @@ class TestFlattenBasicCFG {
     void testIFElseFunction() {
         Location loc = new Location(-1, -1);
         var func = new IRFuncDecl(loc, "if", new IRSeq(loc,
-                new IRCJump(loc, new IRConst(loc, 0), "Hello_World"),
-                new IRMove(loc, new IRTemp(loc, "target"), new IRConst(loc, 0)),
+                new IRCJump(loc, new IRInteger(loc, 0), "Hello_World"),
+                new IRMove(loc, new IRTemp(loc, "target"), new IRInteger(loc, 0)),
                 new IRLabel(loc, "Hello_World"),
                 new IRReturn(loc)));
 

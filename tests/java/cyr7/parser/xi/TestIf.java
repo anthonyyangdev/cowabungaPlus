@@ -1,5 +1,6 @@
 package cyr7.parser.xi;
 
+import cyr7.parser.XiParser;
 import cyr7.parser.util.ParserFactory;
 import org.junit.jupiter.api.Test;
 

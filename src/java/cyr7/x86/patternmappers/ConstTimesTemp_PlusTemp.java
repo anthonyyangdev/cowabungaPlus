@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import cyr7.ir.nodes.IRBinOp;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRExpr;
 import cyr7.x86.asm.ASMAddrExpr;
 import cyr7.x86.asm.ASMArg;
@@ -34,7 +34,7 @@ public class ConstTimesTemp_PlusTemp extends MemoryAddrPattern {
 
         var constTemp = BiPatternBuilder
                 .left()
-                .instOf(IRConst.class)
+                .instOf(IRInteger.class)
                 .and(x -> x.constant() == 1 || x.constant() == 2 || x.constant() == 4 || x.constant() == 8)
                 .right()
                 .instOf(ASMTempArg.class)
@@ -58,7 +58,7 @@ public class ConstTimesTemp_PlusTemp extends MemoryAddrPattern {
                 .enableCommutes();
 
         if (constTempPlusTemp.matches(new Object[]{n.left(), n.right()})) {
-            IRConst constArg = constTemp.leftObj();
+            IRInteger constArg = constTemp.leftObj();
             ASMTempArg tempArg1 = constTemp.rightObj();
             ASMTempArg tempArg2 = constTempPlusTemp.rightObj();
 

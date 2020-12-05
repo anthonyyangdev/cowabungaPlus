@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 import cyr7.ir.IdGenerator;
 import cyr7.ir.nodes.IRBinOp;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRExpr;
 import cyr7.x86.asm.ASMArg;
 import cyr7.x86.asm.ASMArgFactory;
@@ -26,7 +26,7 @@ public class Binop_ConstTempArgPattern {
     public static Optional<TilerData> match(IRBinOp n, ComplexTiler tiler, IdGenerator generator) {
         var pattern2 = BiPatternBuilder
                 .left()
-                .instOf(IRConst.class)
+                .instOf(IRInteger.class)
                 .and(x -> Is32Bits.check(x.constant()))
                 .right()
                 .instOf(ASMTempArg.class)

@@ -16,17 +16,17 @@ class TestTempMinusConst {
         make.IRBinOp(
                 IRBinOp.OpType.SUB,
                 make.IRTemp("bleh1"),
-                make.IRConst(16)));
+                make.IRInteger(16)));
 
         assertEqualsTiled(tempTemp, "leaq _t0, [ bleh1 + -16 ]");
     }
-    
+
     @Test
     void testTempMinusOver32Constant() {
         IRBinOp constTempOffset = makeIR(make ->
             make.IRBinOp(OpType.SUB,
                 make.IRTemp("bleh1"),
-                make.IRConst(1099511627776L)) // 2 ^ 40
+                make.IRInteger(1099511627776L)) // 2 ^ 40
             );
         assertEqualsTiled(constTempOffset,
             "movq _t0, 1099511627776",

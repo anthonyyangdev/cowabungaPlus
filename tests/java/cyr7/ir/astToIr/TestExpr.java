@@ -118,8 +118,8 @@ class TestExpr {
     void testRem() {
         Node node = new RemExprNode(C.LOC, new LiteralIntExprNode(C.LOC, "5"),
                 new LiteralIntExprNode(C.LOC, "10"));
-        IRExpr expected = make.IRBinOp(OpType.MOD, make.IRConst(5),
-                make.IRConst(10));
+        IRExpr expected = make.IRBinOp(OpType.MOD, make.IRInteger(5),
+                make.IRInteger(10));
         assertEq(expected, node);
     }
 
@@ -127,8 +127,8 @@ class TestExpr {
     void testSub() {
         Node node = new SubExprNode(C.LOC, new LiteralIntExprNode(C.LOC, "5"),
                 new LiteralIntExprNode(C.LOC, "10"));
-        IRExpr expected = make.IRBinOp(OpType.SUB, make.IRConst(5),
-                make.IRConst(10));
+        IRExpr expected = make.IRBinOp(OpType.SUB, make.IRInteger(5),
+                make.IRInteger(10));
         assertEq(expected, node);
     }
 
@@ -136,8 +136,8 @@ class TestExpr {
     void testBoolNegExpr() {
         Node node = new BoolNegExprNode(C.LOC,
                 new LiteralBoolExprNode(C.LOC, false));
-        IRExpr expected = make.IRBinOp(OpType.XOR, make.IRConst(1),
-                make.IRConst(0));
+        IRExpr expected = make.IRBinOp(OpType.XOR, make.IRInteger(1),
+                make.IRInteger(0));
         assertEq(expected, node);
     }
 
@@ -145,29 +145,29 @@ class TestExpr {
     void testIntNegExpr() {
         Node node = new IntNegExprNode(C.LOC,
                 new LiteralIntExprNode(C.LOC, "5"));
-        IRExpr expected = make.IRBinOp(OpType.SUB, make.IRConst(0),
-                make.IRConst(5));
+        IRExpr expected = make.IRBinOp(OpType.SUB, make.IRInteger(0),
+                make.IRInteger(5));
         assertEq(expected, node);
     }
 
     @Test
     void testLiteralInt() {
         Node node = new LiteralIntExprNode(C.LOC, "5");
-        IRExpr expected = make.IRConst(5);
+        IRExpr expected = make.IRInteger(5);
         assertEq(expected, node);
     }
 
     @Test
     void testLiteralBool() {
         Node node = new LiteralBoolExprNode(C.LOC, true);
-        IRExpr expected = make.IRConst(1);
+        IRExpr expected = make.IRInteger(1);
         assertEq(expected, node);
     }
 
     @Test
     void testLiteralChar() {
         Node node = new LiteralCharExprNode(C.LOC, "x");
-        IRExpr expected = make.IRConst('x');
+        IRExpr expected = make.IRInteger('x');
         assertEq(expected, node);
     }
 }

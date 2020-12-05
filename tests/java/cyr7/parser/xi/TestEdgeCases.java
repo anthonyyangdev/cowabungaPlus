@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.StringReader;
 
+import cyr7.parser.XiParser;
 import org.junit.jupiter.api.Test;
 
 import cyr7.lexer.MultiFileLexer;

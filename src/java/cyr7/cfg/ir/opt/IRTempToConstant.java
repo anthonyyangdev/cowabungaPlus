@@ -6,7 +6,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRExpr;
@@ -60,7 +60,7 @@ public class IRTempToConstant {
         }
 
         @Override
-        public IRExpr visit(IRConst n) {
+        public IRExpr visit(IRInteger n) {
             return n;
         }
 
@@ -86,7 +86,7 @@ public class IRTempToConstant {
                     && !this.lattice.getValue(variable).isBot()
                     && !this.lattice.getValue(variable).isTop()) {
                 long constant = this.lattice.getValue(variable).value();
-                return new IRConst(n.location(), constant);
+                return new IRInteger(n.location(), constant);
             }
             return n;
         }

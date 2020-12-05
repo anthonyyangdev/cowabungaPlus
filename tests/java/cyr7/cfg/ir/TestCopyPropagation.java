@@ -18,7 +18,7 @@ import cyr7.cfg.ir.opt.CopyPropagationOptimization;
 import cyr7.cfg.util.IrCfgTestUtil;
 import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.nodes.IRBinOp.OpType;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRNodeFactory_c;
 import cyr7.ir.nodes.IRStmt;
 import cyr7.ir.nodes.IRTemp;
@@ -48,7 +48,7 @@ class TestCopyPropagation {
         CFGNode deadAssign = new CFGVarAssignNode(loc, "x",
                                     new IRTemp(loc, "y"), zIsDoubleX);
         CFGNode firstAssign = new CFGVarAssignNode(loc, "y",
-                                    new IRConst(loc, 15), deadAssign);
+                                    new IRInteger(loc, 15), deadAssign);
         CFGNode root = new CFGStartNode(loc, firstAssign);
 
         CFGNode zIsDoubleY = cfg.VarAssign("z",
@@ -96,9 +96,9 @@ class TestCopyPropagation {
         CFGNode yIsX2 = cfg.VarAssign("y", ir.IRTemp("x"), printNode);
 
         CFGNode ifNode = cfg.If(yIsX2, yIsX1,
-                    ir.IRBinOp(OpType.GT, ir.IRTemp("x"), ir.IRConst(30)));
+                    ir.IRBinOp(OpType.GT, ir.IRTemp("x"), ir.IRInteger(30)));
 
-        CFGNode xAssign = cfg.VarAssign("x", ir.IRConst(30), ifNode);
+        CFGNode xAssign = cfg.VarAssign("x", ir.IRInteger(30), ifNode);
         CFGNode root = cfg.Start(xAssign);
 
         CFGNode printNodeOpt = cfg.Call(
@@ -139,7 +139,7 @@ class TestCopyPropagation {
         final var gen = new DefaultIdGenerator();
         CFGNode returnNode = cfg.Return();
 
-        CFGNode setRV = cfg.VarAssign(gen.retTemp(0), ir.IRConst(5), returnNode);
+        CFGNode setRV = cfg.VarAssign(gen.retTemp(0), ir.IRInteger(5), returnNode);
 
         CFGNode root = cfg.Start(setRV);
 
@@ -180,23 +180,23 @@ class TestCopyPropagation {
         CFGNode stub = new CFGStubNode();
 
         CFGNode xIncrement = cfg.VarAssign("x",
-                ir.IRBinOp(OpType.ADD, ir.IRTemp("y"), ir.IRConst(1)), stub);
+                ir.IRBinOp(OpType.ADD, ir.IRTemp("y"), ir.IRInteger(1)), stub);
 
         CFGNode yIsX = cfg.VarAssign("y", ir.IRTemp("x"), xIncrement);
 
         CFGNode whileIfNode = cfg.If(yIsX, setRV,
-                ir.IRBinOp(OpType.LT, ir.IRTemp("x"), ir.IRConst(12)));
+                ir.IRBinOp(OpType.LT, ir.IRTemp("x"), ir.IRInteger(12)));
 
         xIncrement.replaceOutEdge(stub, whileIfNode);
 
-        CFGNode setY = cfg.VarAssign("y", ir.IRConst(0), whileIfNode);
+        CFGNode setY = cfg.VarAssign("y", ir.IRInteger(0), whileIfNode);
 
-        CFGNode setX = cfg.VarAssign("x", ir.IRConst(0), setY);
+        CFGNode setX = cfg.VarAssign("x", ir.IRInteger(0), setY);
 
         CFGNode root = cfg.Start(setX);
 
         CFGNode altXIncrement = cfg.VarAssign("x",
-                ir.IRBinOp(OpType.ADD, ir.IRTemp("x"), ir.IRConst(1)),
+                ir.IRBinOp(OpType.ADD, ir.IRTemp("x"), ir.IRInteger(1)),
                 new CFGStubNode());
 
         Set<CFGNode> expectedNodes = IrCfgTestUtil.nodeSet(root, setX, setY,
@@ -273,9 +273,9 @@ class TestCopyPropagation {
 
         CFGNode aIsX = cfg.VarAssign("a", ir.IRTemp("x"), bIsY);
 
-        CFGNode setY = cfg.VarAssign("y", ir.IRConst(0), aIsX);
+        CFGNode setY = cfg.VarAssign("y", ir.IRInteger(0), aIsX);
 
-        CFGNode setX = cfg.VarAssign("x", ir.IRConst(0), setY);
+        CFGNode setX = cfg.VarAssign("x", ir.IRInteger(0), setY);
 
         CFGNode root = cfg.Start(setX);
 

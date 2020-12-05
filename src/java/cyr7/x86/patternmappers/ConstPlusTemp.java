@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import cyr7.ir.nodes.IRBinOp;
 import cyr7.ir.nodes.IRBinOp.OpType;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRTemp;
 import cyr7.x86.asm.ASMAddrExpr;
 import cyr7.x86.asm.ASMAddrExpr.ScaleValues;
@@ -36,7 +36,7 @@ public class ConstPlusTemp extends MemoryAddrPattern {
 
         var pattern = BiPatternBuilder
             .left()
-            .instOf(IRConst.class)
+            .instOf(IRInteger.class)
             .and(x -> Is32Bits.check(x.constant()))
             .right()
             .instOf(IRTemp.class)
@@ -44,7 +44,7 @@ public class ConstPlusTemp extends MemoryAddrPattern {
             .enableCommutes();
 
         if (pattern.matches(new Object[]{ n.left(), n.right() })) {
-            IRConst constArg = pattern.leftObj();
+            IRInteger constArg = pattern.leftObj();
             IRTemp tempArg = pattern.rightObj();
 
             this.setCost(1 + pattern.preMapRight().getOptimalTiling().tileCost);

@@ -45,8 +45,8 @@ class SubexpressionTest {
     @Test
     void testMem() {
         var actual = make.IRMem(
-                make.IRBinOp(OpType.ADD, make.IRConst(0), make.IRConst(1)));
-        var expected = make.IRMem(make.IRConst(1));
+                make.IRBinOp(OpType.ADD, make.IRInteger(0), make.IRInteger(1)));
+        var expected = make.IRMem(make.IRInteger(1));
 
         test(pairOf(expected, actual));
         test(pairOf(expected, expected));
@@ -55,9 +55,9 @@ class SubexpressionTest {
     @Test
     void testCall() {
         var actual = make.IRCall(make.IRName("main"), make.IRTemp("arg0"),
-                make.IRBinOp(OpType.ADD, make.IRConst(0), make.IRConst(1)));
+                make.IRBinOp(OpType.ADD, make.IRInteger(0), make.IRInteger(1)));
         var expected = make.IRCall(make.IRName("main"), make.IRTemp("arg0"),
-                make.IRConst(1));
+                make.IRInteger(1));
         test(pairOf(expected, actual));
         test(pairOf(expected, expected));
     }
@@ -78,8 +78,8 @@ class SubexpressionTest {
 
     @Test
     void testCJump() {
-        var actual = make.IRCJump(make.IRConst(1), "lt", "lf");
-        var expected = make.IRCJump(make.IRConst(1), "lt", "lf");
+        var actual = make.IRCJump(make.IRInteger(1), "lt", "lf");
+        var expected = make.IRCJump(make.IRInteger(1), "lt", "lf");
         assertEquals(expected, actual.accept(folder).assertSecond());
         assertEquals(expected, expected.accept(folder).assertSecond());
     }
@@ -95,12 +95,12 @@ class SubexpressionTest {
     @Test
     void testSeq() {
         var actual = make.IRSeq(
-                make.IRExp(make.IRBinOp(OpType.ADD, make.IRConst(1),
-                        make.IRConst(0))),
-                make.IRExp(make.IRBinOp(OpType.ADD, make.IRConst(1),
-                        make.IRConst(0))));
+                make.IRExp(make.IRBinOp(OpType.ADD, make.IRInteger(1),
+                        make.IRInteger(0))),
+                make.IRExp(make.IRBinOp(OpType.ADD, make.IRInteger(1),
+                        make.IRInteger(0))));
         var expected = make.IRSeq(
-                make.IRExp(make.IRConst(1)), make.IRExp(make.IRConst(1)));
+                make.IRExp(make.IRInteger(1)), make.IRExp(make.IRInteger(1)));
         assertEquals(expected, actual.accept(folder).assertSecond());
         assertEquals(expected, expected.accept(folder).assertSecond());
     }
@@ -110,41 +110,41 @@ class SubexpressionTest {
 
         List<IRStmt> stmtsOfMain = List.of(
                 make.IRMove(make.IRTemp("t1"),
-                        make.IRBinOp(OpType.ADD, make.IRConst(0),
-                                make.IRConst(1))),
+                        make.IRBinOp(OpType.ADD, make.IRInteger(0),
+                                make.IRInteger(1))),
                 make.IRLabel("here"),
                 make.IRExp(
                         make.IRCall(make.IRName("helper"),
                                 List.of(make.IRBinOp(OpType.ADD,
-                                        make.IRConst(0), make.IRConst(1))))),
+                                        make.IRInteger(0), make.IRInteger(1))))),
                 make.IRReturn());
         List<IRStmt> stmtsOfHelper = List.of(
                 make.IRMove(
-                        make.IRMem(make.IRBinOp(OpType.MUL, make.IRConst(2),
-                                make.IRConst(4))),
+                        make.IRMem(make.IRBinOp(OpType.MUL, make.IRInteger(2),
+                                make.IRInteger(4))),
                         make.IRBinOp(
-                                OpType.ADD, make.IRConst(0), make.IRConst(1))),
+                                OpType.ADD, make.IRInteger(0), make.IRInteger(1))),
                 make.IRLabel("nope"),
                 make.IRExp(
                         make.IRCall(make.IRName("helper"),
                                 List.of(make.IRBinOp(OpType.ADD,
-                                        make.IRConst(0), make.IRConst(1))))),
+                                        make.IRInteger(0), make.IRInteger(1))))),
                 make.IRReturn());
 
         List<IRStmt> stmtsOfMainFolded = List.of(
-                make.IRMove(make.IRTemp("t1"), make.IRConst(1)),
+                make.IRMove(make.IRTemp("t1"), make.IRInteger(1)),
                 make.IRLabel("here"),
                 make.IRExp(make.IRCall(make.IRName("helper"),
-                        List.of(make.IRConst(1)))),
+                        List.of(make.IRInteger(1)))),
                 make.IRReturn());
 
         List<IRStmt> stmtsOfHelperFolded = List.of(
                 make.IRMove(
-                        make.IRMem(make.IRConst(8)), make.IRConst(1)),
+                        make.IRMem(make.IRInteger(8)), make.IRInteger(1)),
                 make.IRLabel("nope"),
                 make.IRExp(
                         make.IRCall(make.IRName("helper"),
-                                List.of(make.IRConst(1)))),
+                                List.of(make.IRInteger(1)))),
                 make.IRReturn());
 
         Map<String, IRFuncDecl> funcs = new HashMap<>();

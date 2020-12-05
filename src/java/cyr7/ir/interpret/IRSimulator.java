@@ -10,7 +10,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRFuncDecl;
 import cyr7.ir.nodes.IRJump;
@@ -24,7 +24,6 @@ import cyr7.ir.nodes.IRReturn;
 import cyr7.ir.nodes.IRTemp;
 import cyr7.ir.visit.InsnMapsBuilder;
 import edu.cornell.cs.cs4120.util.InternalCompilerError;
-import polyglot.util.SerialVersionUID;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -184,8 +183,8 @@ public class IRSimulator {
     }
 
     protected void interpret(ExecutionFrame frame, IRNode insn) {
-        if (insn instanceof IRConst)
-            exprStack.pushValue(((IRConst) insn).value());
+        if (insn instanceof IRInteger)
+            exprStack.pushValue(((IRInteger) insn).value());
         else if (insn instanceof IRTemp) {
             String tempName = ((IRTemp) insn).name();
             exprStack.pushTemp(frame.get(tempName), tempName);

@@ -72,8 +72,8 @@ class TestBlockGeneration {
             make.IRMove(
                 make.IRTemp("_t1"),
                 make.IRBinOp(OpType.ADD,
-                    make.IRConst(1),
-                    make.IRConst(32)
+                    make.IRInteger(1),
+                    make.IRInteger(32)
                 )
             ),
             make.IRLabel(l1),
@@ -89,8 +89,8 @@ class TestBlockGeneration {
                 make.IRLabel(l2),
                 make.IRMove(make.IRTemp("_t1"),
                     make.IRBinOp(OpType.ADD,
-                        make.IRConst(1),
-                        make.IRConst(32))
+                        make.IRInteger(1),
+                        make.IRInteger(32))
                 ),
                 make.IRJump(make.IRName(l1))
             ),
@@ -139,13 +139,13 @@ class TestBlockGeneration {
             make.IRCallStmt(make.IRName("main")),
             make.IRMove(
                 make.IRTemp("t1"),
-                make.IRConst(1232)
+                make.IRInteger(1232)
             ),
 
             make.IRLabel("compilers"),
             make.IRMove(
                 make.IRTemp(generate.argTemp(0)),
-                make.IRConst(0)
+                make.IRInteger(0)
             ),
             make.IRCallStmt(make.IRName("print")),
             make.IRReturn()
@@ -159,7 +159,7 @@ class TestBlockGeneration {
                 make.IRCallStmt(make.IRName("main")),
                 make.IRMove(
                     make.IRTemp("t1"),
-                    make.IRConst(1232)
+                    make.IRInteger(1232)
                 ),
                 make.IRJump(make.IRName("compilers"))
             ),
@@ -167,7 +167,7 @@ class TestBlockGeneration {
                 make.IRLabel("compilers"),
                 make.IRMove(
                     make.IRTemp(generate.argTemp(0)),
-                    make.IRConst(0)),
+                    make.IRInteger(0)),
                 make.IRCallStmt(make.IRName("print")),
                 make.IRReturn()
             )
@@ -220,7 +220,7 @@ class TestBlockGeneration {
         String r = generate.newTemp();
         List<IRStmt> stmts = List.of(
             make.IRLabel("main"),
-            make.IRMove(make.IRTemp(t), make.IRConst(123)),
+            make.IRMove(make.IRTemp(t), make.IRInteger(123)),
             make.IRCallStmt(make.IRName("randomString")),
             make.IRMove(make.IRTemp(r), make.IRTemp(generate.retTemp(0))),
             make.IRMove(make.IRTemp(generate.argTemp(0)), make.IRTemp(r)),
@@ -230,7 +230,7 @@ class TestBlockGeneration {
 
         Set<BasicBlock> expectedBlocks = createExpectedSet(
             block(make.IRLabel("main"),
-                make.IRMove(make.IRTemp(t), make.IRConst(123)),
+                make.IRMove(make.IRTemp(t), make.IRInteger(123)),
                 make.IRCallStmt(make.IRName("randomString")),
                 make.IRMove(make.IRTemp(r), make.IRTemp(generate.retTemp(0))),
                 make.IRMove(make.IRTemp(generate.argTemp(0)), make.IRTemp(r)),
@@ -246,7 +246,7 @@ class TestBlockGeneration {
         String t = generate.peekTemp(0);
         String r = generate.peekTemp(1);
         List<IRStmt> stmts = List.of(
-            make.IRMove(make.IRTemp(t), make.IRConst(123)),
+            make.IRMove(make.IRTemp(t), make.IRInteger(123)),
             make.IRCallStmt(make.IRName("randomString")),
             make.IRMove(make.IRTemp(r), make.IRTemp(generate.retTemp(0))),
             make.IRMove(make.IRTemp(generate.argTemp(0)), make.IRTemp(r)),
@@ -254,7 +254,7 @@ class TestBlockGeneration {
 
         Set<BasicBlock> expectedBlocks = createExpectedSet(block(
             make.IRLabel(generate.peekLabel(0)),
-            make.IRMove(make.IRTemp(t), make.IRConst(123)),
+            make.IRMove(make.IRTemp(t), make.IRInteger(123)),
             make.IRCallStmt(make.IRName("randomString")),
             make.IRMove(make.IRTemp(r), make.IRTemp(generate.retTemp(0))),
             make.IRMove(make.IRTemp(generate.argTemp(0)), make.IRTemp(r)),
@@ -271,11 +271,11 @@ class TestBlockGeneration {
         String lf = generate.peekLabel(1);
         List<IRStmt> stmts = List.of(
             make.IRLabel("main"),
-            make.IRMove(make.IRTemp(t), make.IRConst(123)),
+            make.IRMove(make.IRTemp(t), make.IRInteger(123)),
             make.IRCallStmt(make.IRName("randomString")),
             make.IRMove(make.IRTemp(r), make.IRTemp(generate.retTemp(0))),
             make.IRMove(make.IRTemp(generate.argTemp(0)), make.IRTemp(r)),
-            make.IRCJump(make.IRConst(1), lt, lf),
+            make.IRCJump(make.IRInteger(1), lt, lf),
             make.IRLabel(lt),
             make.IRMove(make.IRTemp(r),
                 make.IRTemp(generate.retTemp(0))),
@@ -287,11 +287,11 @@ class TestBlockGeneration {
         Set<BasicBlock> expectedBlocks = createExpectedSet(
             block(
                 make.IRLabel("main"),
-                make.IRMove(make.IRTemp(t), make.IRConst(123)),
+                make.IRMove(make.IRTemp(t), make.IRInteger(123)),
                 make.IRCallStmt(make.IRName("randomString")),
                 make.IRMove(make.IRTemp(r), make.IRTemp(generate.retTemp(0))),
                 make.IRMove(make.IRTemp(generate.argTemp(0)), make.IRTemp(r)),
-                make.IRCJump(make.IRConst(1), lt, lf)
+                make.IRCJump(make.IRInteger(1), lt, lf)
             ),
             block(make.IRLabel(lt),
                 make.IRMove(make.IRTemp(r),
@@ -322,12 +322,12 @@ class TestBlockGeneration {
          *      _few = true
          */
         List<IRStmt> stmts = List.of(
-            make.IRCJump(make.IRConst(0), lt, lf),
+            make.IRCJump(make.IRInteger(0), lt, lf),
             make.IRLabel(lt),
             make.IRReturn(),
             make.IRJump(make.IRName("end")),
             make.IRLabel(lf),
-            make.IRMove(make.IRTemp("_few"), make.IRConst(1)),
+            make.IRMove(make.IRTemp("_few"), make.IRInteger(1)),
             make.IRLabel("end"),
             make.IRReturn()
         );
@@ -336,7 +336,7 @@ class TestBlockGeneration {
             block(
                 make.IRLabel(generate.peekLabel(0)),
                 make.IRCJump(
-                    make.IRConst(0), lt, lf
+                    make.IRInteger(0), lt, lf
                 )
             ),
             block(
@@ -350,7 +350,7 @@ class TestBlockGeneration {
                 make.IRLabel(lf),
                 make.IRMove(
                     make.IRTemp("_few"),
-                    make.IRConst(1)
+                    make.IRInteger(1)
                 ),
                 make.IRJump(make.IRName("end"))
             ),

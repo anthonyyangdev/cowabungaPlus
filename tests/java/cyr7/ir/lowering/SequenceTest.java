@@ -47,7 +47,7 @@ class SequenceTest {
         test(List.of(callMain), singletonSeq);
 
         IRStmt moveNum = make.IRExp(make.IRTemp("t1"));
-        IRStmt jump = make.IRCJump(make.IRConst(1), "__lt", "__lf");
+        IRStmt jump = make.IRCJump(make.IRInteger(1), "__lt", "__lf");
         IRSeq sequenceOfThree = seq(
                 seq(moveNum, seq(seq(callMain, seq())), jump));
         test(List.of(callMain, jump), sequenceOfThree);
@@ -55,7 +55,7 @@ class SequenceTest {
 
     @Test
     void alternatingSeq() {
-        IRSeq empty = seq(exp(make.IRConst(0)), exp(eseq(make.IRConst(1))));
+        IRSeq empty = seq(exp(make.IRInteger(0)), exp(eseq(make.IRInteger(1))));
         test(List.of(), empty);
     }
 

@@ -63,8 +63,8 @@ public class IRNodeFactory_c implements IRNodeFactory {
     }
 
     @Override
-    public IRConst IRConst(long value) {
-        return new IRConst(location, value);
+    public IRInteger IRInteger(long value) {
+        return new IRInteger(location, value);
     }
 
     @Override

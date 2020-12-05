@@ -56,7 +56,7 @@ public interface IRNodeFactory {
      *
      * @param value value of this constant
      */
-    IRConst IRConst(long value);
+    IRInteger IRInteger(long value);
 
     /**
      *

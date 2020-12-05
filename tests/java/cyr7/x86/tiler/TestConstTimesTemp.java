@@ -13,7 +13,7 @@ public class TestConstTimesTemp {
     void testConstAndTemp() {
         IRBinOp constTemp = makeIR(make ->
             make.IRBinOp(OpType.MUL,
-                make.IRConst(4),
+                make.IRInteger(4),
                 make.IRTemp("bleh"))
         );
 
@@ -25,7 +25,7 @@ public class TestConstTimesTemp {
         IRBinOp tempConst = makeIR(make ->
             make.IRBinOp(OpType.MUL,
                 make.IRTemp("bleh"),
-                make.IRConst(4))
+                make.IRInteger(4))
         );
 
         assertEqualsTiled(tempConst, "leaq _t0, [ 4 * bleh ]");

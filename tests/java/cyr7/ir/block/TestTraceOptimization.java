@@ -72,8 +72,8 @@ class TestTraceOptimization {
             make.IRJump(make.IRName(l0)),
             make.IRLabel(l1),
             make.IRMove(make.IRTemp(t0),
-                make.IRBinOp(OpType.ADD, make.IRConst(1),
-                    make.IRConst(32))),
+                make.IRBinOp(OpType.ADD, make.IRInteger(1),
+                    make.IRInteger(32))),
             make.IRLabel(l0),
             make.IRJump(make.IRName(l1))
         );
@@ -82,8 +82,8 @@ class TestTraceOptimization {
         BasicBlock b3 = block(
             make.IRLabel(l1),
             make.IRMove(make.IRTemp(t0),
-                make.IRBinOp(OpType.ADD, make.IRConst(1),
-                    make.IRConst(32))),
+                make.IRBinOp(OpType.ADD, make.IRInteger(1),
+                    make.IRInteger(32))),
             make.IRJump(make.IRName(l0))
         );
         List<List<BasicBlock>> expected =
@@ -104,13 +104,13 @@ class TestTraceOptimization {
             make.IRCallStmt(make.IRName("main")),
             make.IRMove(
                 make.IRTemp("t1"),
-                make.IRConst(1232)
+                make.IRInteger(1232)
             ),
 
             make.IRLabel("compilers"),
             make.IRMove(
                 make.IRTemp(generate.argTemp(0)),
-                make.IRConst(0)
+                make.IRInteger(0)
             ),
             make.IRCallStmt(
                 make.IRName("print")
@@ -124,14 +124,14 @@ class TestTraceOptimization {
         BasicBlock b3 = block(
             make.IRLabel("truth"),
             make.IRCallStmt(make.IRName("main")),
-            make.IRMove(make.IRTemp("t1"), make.IRConst(1232))
+            make.IRMove(make.IRTemp("t1"), make.IRInteger(1232))
         );
 
         BasicBlock b4 = block(
             make.IRLabel("compilers"),
             make.IRMove(
                 make.IRTemp(generate.argTemp(0)),
-                make.IRConst(0)),
+                make.IRInteger(0)),
             make.IRCallStmt(make.IRName("print")),
             make.IRReturn());
 
@@ -150,19 +150,19 @@ class TestTraceOptimization {
         String lt = generate.newLabel();
         String lf = generate.newLabel();
         List<IRStmt> stmts = List.of(
-            make.IRCJump(make.IRConst(0), lt, lf),
+            make.IRCJump(make.IRInteger(0), lt, lf),
             make.IRLabel(lt),
             make.IRReturn(),
             make.IRJump(make.IRName("end")),
             make.IRLabel(lf),
-            make.IRMove(make.IRTemp("_few"), make.IRConst(1)),
+            make.IRMove(make.IRTemp("_few"), make.IRInteger(1)),
             make.IRLabel("end"),
             make.IRReturn()
         );
 
         BasicBlock b1 = block(
             make.IRLabel(generate.peekLabel(0)),
-            make.IRCJump(make.IRConst(0), lt)
+            make.IRCJump(make.IRInteger(0), lt)
         );
         BasicBlock b2 = block(
             make.IRLabel(lt),
@@ -174,7 +174,7 @@ class TestTraceOptimization {
         );
         BasicBlock b4 = block(
             make.IRLabel(lf),
-            make.IRMove(make.IRTemp("_few"), make.IRConst(1))
+            make.IRMove(make.IRTemp("_few"), make.IRInteger(1))
         );
         BasicBlock b5 = block(
             make.IRLabel("end"),

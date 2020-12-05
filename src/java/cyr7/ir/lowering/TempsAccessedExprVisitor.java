@@ -7,7 +7,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRExpr;
@@ -40,7 +40,7 @@ class TempsAccessedExprVisitor implements MyIRVisitor<Set<IRExpr>> {
     }
 
     @Override
-    public Set<IRExpr> visit(IRConst n) {
+    public Set<IRExpr> visit(IRInteger n) {
         return Set.of();
     }
 

@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import cyr7.ir.nodes.IRBinOp;
 import cyr7.ir.nodes.IRBinOp.OpType;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRExpr;
 import cyr7.x86.asm.ASMAddrExpr;
 import cyr7.x86.asm.ASMAddrExpr.ScaleValues;
@@ -33,7 +33,7 @@ public class ConstTimesTemp_PlusTemp_PlusOffset extends MemoryAddrPattern {
         }
 
         var constTimesTemp = BiPatternBuilder.left()
-                                             .instOf(IRConst.class)
+                                             .instOf(IRInteger.class)
                                              .and(x -> x.constant() == 1 || x.constant() == 2 || x.constant() == 4 || x.constant() == 8)
                                              .right()
                                              .instOf(ASMTempArg.class)
@@ -46,7 +46,7 @@ public class ConstTimesTemp_PlusTemp_PlusOffset extends MemoryAddrPattern {
         var tempPlusOffset = BiPatternBuilder.left()
                                              .instOf(ASMTempArg.class)
                                              .right()
-                                             .instOf(IRConst.class)
+                                             .instOf(IRInteger.class)
                                              .and(x -> Is32Bits.check(x.constant()))
                                              .finish()
                                              .mappingLeft(IRExpr.class,
@@ -71,9 +71,9 @@ public class ConstTimesTemp_PlusTemp_PlusOffset extends MemoryAddrPattern {
         if (scaleTimesTempPlusRest.matches(new Object[]
             { n.left(), n.right() })) {
             ASMTempArg baseArg = tempPlusOffset.leftObj();
-            IRConst offsetArg = tempPlusOffset.rightObj();
+            IRInteger offsetArg = tempPlusOffset.rightObj();
 
-            IRConst scaleArg = constTimesTemp.leftObj();
+            IRInteger scaleArg = constTimesTemp.leftObj();
             ASMTempArg indexArg = constTimesTemp.rightObj();
 
             insns.addAll(tempPlusOffset.preMapLeft()

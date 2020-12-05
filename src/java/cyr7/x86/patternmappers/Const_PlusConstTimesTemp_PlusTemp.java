@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import cyr7.ir.nodes.IRBinOp;
 import cyr7.ir.nodes.IRBinOp.OpType;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRExpr;
 import cyr7.x86.asm.ASMAddrExpr;
 import cyr7.x86.asm.ASMAddrExpr.ScaleValues;
@@ -37,7 +37,7 @@ public class Const_PlusConstTimesTemp_PlusTemp extends MemoryAddrPattern {
 
         var constTimesTemp = BiPatternBuilder
             .left()
-            .instOf(IRConst.class)
+            .instOf(IRInteger.class)
             .and(x -> x.constant() == 1 || x.constant() == 2 || x.constant() == 4 || x.constant() == 8)
             .right()
             .instOf(ASMTempArg.class)
@@ -55,14 +55,14 @@ public class Const_PlusConstTimesTemp_PlusTemp extends MemoryAddrPattern {
             .right()
             .instOf(ASMTempArg.class)
             .finish()
-            .mappingRight(IRExpr.class, 
+            .mappingRight(IRExpr.class,
             (Function<IRExpr, ASMArg>)
                 node -> node.accept(tiler).result.get())
             .enableCommutes();
 
         var constPlusRest = BiPatternBuilder
             .left()
-            .instOf(IRConst.class)
+            .instOf(IRInteger.class)
             .and(x -> Is32Bits.check(x.constant()))
             .right()
             .instOf(IRBinOp.class)
@@ -73,9 +73,9 @@ public class Const_PlusConstTimesTemp_PlusTemp extends MemoryAddrPattern {
 
         if (constPlusRest.matches(new Object[]{ n.left(), n.right() })) {
             ASMTempArg baseArg = scaleTimesTempPlusTemp.rightObj();
-            IRConst scaleArg = constTimesTemp.leftObj();
+            IRInteger scaleArg = constTimesTemp.leftObj();
             ASMTempArg indexArg = constTimesTemp.rightObj();
-            IRConst offsetArg = constPlusRest.leftObj();
+            IRInteger offsetArg = constPlusRest.leftObj();
 
             insns.addAll(scaleTimesTempPlusTemp.preMapRight().getOptimalTiling().optimalInstructions);
             insns.addAll(constTimesTemp.preMapRight().getOptimalTiling().optimalInstructions);

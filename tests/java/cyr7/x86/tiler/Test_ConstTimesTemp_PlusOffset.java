@@ -14,9 +14,9 @@ public class Test_ConstTimesTemp_PlusOffset {
         IRBinOp constTempOffset = makeIR(make ->
                 make.IRBinOp(OpType.ADD,
                         make.IRBinOp(OpType.MUL,
-                                make.IRConst(4),
+                                make.IRInteger(4),
                                 make.IRTemp("bleh")),
-                        make.IRConst(8))
+                        make.IRInteger(8))
         );
 
         assertEqualsTiled(constTempOffset, "leaq _t0, [ 4 * bleh + 8 ]");
@@ -28,8 +28,8 @@ public class Test_ConstTimesTemp_PlusOffset {
                 make.IRBinOp(OpType.ADD,
                         make.IRBinOp(OpType.MUL,
                                 make.IRTemp("bleh"),
-                                make.IRConst(4)),
-                        make.IRConst(8))
+                                make.IRInteger(4)),
+                        make.IRInteger(8))
         );
 
         assertEqualsTiled(constTempOffset, "leaq _t0, [ 4 * bleh + 8 ]");
@@ -39,9 +39,9 @@ public class Test_ConstTimesTemp_PlusOffset {
     void testOffsetAndConstTimesTemp() {
         IRBinOp constTempOffset = makeIR(make ->
                 make.IRBinOp(OpType.ADD,
-                        make.IRConst(8),
+                        make.IRInteger(8),
                         make.IRBinOp(OpType.MUL,
-                                make.IRConst(4),
+                                make.IRInteger(4),
                                 make.IRTemp("bleh"))
                 )
         );
@@ -53,10 +53,10 @@ public class Test_ConstTimesTemp_PlusOffset {
     void testOffsetAndTempTimesConstant() {
         IRBinOp constTempOffset = makeIR(make ->
                 make.IRBinOp(OpType.ADD,
-                        make.IRConst(8),
+                        make.IRInteger(8),
                         make.IRBinOp(OpType.MUL,
                                 make.IRTemp("bleh"),
-                                make.IRConst(4))
+                                make.IRInteger(4))
                 )
         );
 
@@ -68,9 +68,9 @@ public class Test_ConstTimesTemp_PlusOffset {
         IRBinOp constTempOffset = makeIR(make ->
             make.IRBinOp(OpType.ADD,
                 make.IRBinOp(OpType.MUL,
-                    make.IRConst(4),
+                    make.IRInteger(4),
                     make.IRTemp("bleh")),
-                make.IRConst(1099511627776L))
+                make.IRInteger(1099511627776L))
         );
 
         assertEqualsTiled(constTempOffset,

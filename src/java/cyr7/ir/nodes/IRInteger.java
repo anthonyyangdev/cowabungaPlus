@@ -10,14 +10,14 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
  * An intermediate representation for a 64-bit integer constant.
  * CONST(n)
  */
-public class IRConst extends IRExpr_c {
+public class IRInteger extends IRExpr_c {
     private long value;
 
     /**
      *
      * @param value value of this constant
      */
-    public IRConst(Location location, long value) {
+    public IRInteger(Location location, long value) {
         super(location);
         this.value = value;
     }
@@ -53,8 +53,8 @@ public class IRConst extends IRExpr_c {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        IRConst irConst = (IRConst) o;
-        return value == irConst.value;
+        IRInteger irInteger = (IRInteger) o;
+        return value == irInteger.value;
     }
 
     @Override

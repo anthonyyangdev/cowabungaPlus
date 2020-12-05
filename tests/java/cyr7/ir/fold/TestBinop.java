@@ -32,11 +32,11 @@ class TestBinop {
     }
 
     private IRExpr constant(long n) {
-        return make.IRConst(n);
+        return make.IRInteger(n);
     }
 
     private IRExpr constant(boolean n) {
-        return make.IRConst(n ? 1 : 0);
+        return make.IRInteger(n ? 1 : 0);
     }
 
     private IRExpr binop(OpType t, long l, long r) {

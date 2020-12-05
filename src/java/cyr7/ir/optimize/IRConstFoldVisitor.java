@@ -12,7 +12,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRExpr;
@@ -133,7 +133,7 @@ public class IRConstFoldVisitor
             throw new InternalCompilerError("Invalid binary operation");
         }
 
-        return make.IRConst(value);
+        return make.IRInteger(value);
     }
 
     // Expressions
@@ -184,7 +184,7 @@ public class IRConstFoldVisitor
      * </ul>
      */
     @Override
-    public OneOfThree<IRExpr, IRStmt, IRFuncDecl> visit(IRConst n) {
+    public OneOfThree<IRExpr, IRStmt, IRFuncDecl> visit(IRInteger n) {
         return OneOfThree.ofFirst(n);
     }
 

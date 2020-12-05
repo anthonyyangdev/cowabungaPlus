@@ -12,7 +12,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRExpr;
@@ -96,7 +96,7 @@ final class BlockTraceOptimizer {
         }
 
         @Override
-        public List<IRStmt> visit(IRConst n) {
+        public List<IRStmt> visit(IRInteger n) {
             throw new UnsupportedOperationException(errorMsg);
         }
 
@@ -147,7 +147,7 @@ final class BlockTraceOptimizer {
                     // we swap false and true so we fall through to the true
                     IRExpr inverted = make.IRBinOp(
                         OpType.XOR,
-                        make.IRConst(1),
+                        make.IRInteger(1),
                         n.cond()
                     );
 

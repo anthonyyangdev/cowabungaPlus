@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import cyr7.ir.nodes.IRBinOp;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRExpr;
 import cyr7.x86.asm.ASMAddrExpr;
 import cyr7.x86.asm.ASMAddrExpr.ScaleValues;
@@ -32,7 +32,7 @@ public class TempMinusConst extends MemoryAddrPattern {
         var tempMinusConst = BiPatternBuilder.left()
                                              .instOf(ASMTempArg.class)
                                              .right()
-                                             .instOf(IRConst.class)
+                                             .instOf(IRInteger.class)
                                              .and(x -> Is32Bits.check(-x.constant()))
                                              .finish()
                                              .mappingLeft(IRExpr.class,
@@ -42,7 +42,7 @@ public class TempMinusConst extends MemoryAddrPattern {
         if (tempMinusConst.matches(new Object[]
             { n.left(), n.right() })) {
             ASMTempArg lhs = tempMinusConst.leftObj();
-            IRConst rhs = tempMinusConst.rightObj();
+            IRInteger rhs = tempMinusConst.rightObj();
 
             insns.addAll(tempMinusConst.preMapLeft()
                                        .getOptimalTiling().optimalInstructions);

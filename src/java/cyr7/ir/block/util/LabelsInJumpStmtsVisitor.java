@@ -9,7 +9,7 @@ import cyr7.ir.nodes.IRCJump;
 import cyr7.ir.nodes.IRCall;
 import cyr7.ir.nodes.IRCallStmt;
 import cyr7.ir.nodes.IRCompUnit;
-import cyr7.ir.nodes.IRConst;
+import cyr7.ir.nodes.IRInteger;
 import cyr7.ir.nodes.IRESeq;
 import cyr7.ir.nodes.IRExp;
 import cyr7.ir.nodes.IRFuncDecl;
@@ -38,7 +38,7 @@ public class LabelsInJumpStmtsVisitor implements MyIRVisitor<List<String>> {
     }
 
     @Override
-    public List<String> visit(IRConst n) {
+    public List<String> visit(IRInteger n) {
         return List.of();
     }
 
