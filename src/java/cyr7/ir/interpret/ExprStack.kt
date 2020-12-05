@@ -1,6 +1,5 @@
 package cyr7.ir.interpret
 
-import edu.cornell.cs.cs4120.util.InternalCompilerError
 import java.util.*
 
 /**

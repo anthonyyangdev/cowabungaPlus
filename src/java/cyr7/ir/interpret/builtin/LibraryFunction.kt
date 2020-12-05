@@ -11,5 +11,5 @@ abstract class LibraryFunction(settings: SimulatorSettings) {
     protected val ws = Configuration.WORD_SIZE
     abstract fun callName(): String
     abstract fun moduleName(): String
-    abstract fun execute(args: LongArray): List<NumericValue>
+    abstract fun execute(args: LongArray): List<Long>
 }
