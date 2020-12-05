@@ -4,7 +4,7 @@ import java_cup.runtime.*;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import cyr7.parser.sym;
-import java.math.BigInteger;
+import java.math.BigDecimal;import java.math.BigInteger;
 
 %%
 %public
@@ -127,6 +127,7 @@ Letter = [a-zA-Z]
 Digit = [0-9]
 Identifier = {Letter}({Digit}|{Letter}|_|')*
 Integer = [1-9]{Digit}*
+Float = (({Digit}*\.{Digit}+|{Digit}+\.{Digit}*|{Digit}+)[Ee](\-?{Digit}+))|(({Digit}*\.{Digit}+)|({Digit}+\.{Digit}*))
 Hex = \\x(([(a-f|A-F)0-9]){1,4})
 
 %state STRING
@@ -152,12 +153,25 @@ Hex = \\x(([(a-f|A-F)0-9]){1,4})
     "free"              { return symbol(sym.FREE); }
     "length"            { return symbol(sym.LENGTH); }
 
+    "float"             { return symbol(sym.TYPE_FLOAT); }
     "int"               { return symbol(sym.TYPE_INT); }
     "bool"              { return symbol(sym.TYPE_BOOL); }
 
     "true"              { return symbol(sym.BOOL_LITERAL, true); }
     "false"             { return symbol(sym.BOOL_LITERAL, false); }
 
+    "Infinity"          { return symbol(sym.FLOAT_LITERAL, Double.POSITIVE_INFINITY); }
+    "NaN"               { return symbol(sym.FLOAT_LITERAL, Double.NaN); }
+    {Float}             {
+              String value = yytext();
+              BigDecimal n;
+              try {
+                  n = new BigDecimal(value);
+                  return symbol(sym.FLOAT_LITERAL, n.doubleValue());
+              } catch (Exception e) {
+                  return symbol(sym.FLOAT_LITERAL, Double.NaN);
+              }
+          }
     0
        {
           return symbol(sym.INT_LITERAL, "0");
