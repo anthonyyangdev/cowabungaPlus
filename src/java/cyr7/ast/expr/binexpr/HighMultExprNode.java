@@ -9,25 +9,10 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
  * high multiplication operator returns the highest 64 bit of the 128 bit
  * multiplication operation
  */
-public final class HighMultExprNode extends BinExprNode {
+public final class HighMultExprNode extends BinOpExprNode {
 
     public HighMultExprNode(Location location, ExprNode left, ExprNode right) {
-        super(location, left, right);
-    }
-
-    @Override
-    public <T> T accept(AbstractVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof HighMultExprNode) {
-            HighMultExprNode oNode = (HighMultExprNode) o;
-            return this.left.equals(oNode.left)
-                && this.right.equals(oNode.right);
-        }
-        return false;
+        super(location, BinOpExprNode.OpType.HIGH_MUL, left, right);
     }
 
 }

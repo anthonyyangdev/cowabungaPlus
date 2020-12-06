@@ -7,25 +7,9 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 /**
  * Node that represents the expression [ExprNode left] <= [ExprNode right]
  */
-public final class LTEExprNode extends BinExprNode {
+public final class LTEExprNode extends BinOpExprNode {
 
     public LTEExprNode(Location location, ExprNode left, ExprNode right) {
-        super(location, left, right);
+        super(location, OpType.LTE, left, right);
     }
-
-    @Override
-    public <T> T accept(AbstractVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof LTEExprNode) {
-            LTEExprNode oNode = (LTEExprNode) o;
-            return this.left.equals(oNode.left)
-                && this.right.equals(oNode.right);
-        }
-        return false;
-    }
-
 }

@@ -7,25 +7,9 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 /**
  * Node that represents the expression [ExprNode left] - [ExprNode right]
  */
-public final class SubExprNode extends BinExprNode {
+public final class SubExprNode extends BinOpExprNode {
 
     public SubExprNode(Location location, ExprNode left, ExprNode right) {
-        super(location, left, right);
+        super(location, OpType.REM, left, right);
     }
-
-    @Override
-    public <T> T accept(AbstractVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof SubExprNode) {
-            SubExprNode oNode = (SubExprNode) o;
-            return this.left.equals(oNode.left)
-                && this.right.equals(oNode.right);
-        }
-        return false;
-    }
-
 }

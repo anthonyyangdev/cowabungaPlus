@@ -352,90 +352,6 @@ public final class SExpVisitor extends AbstractVisitor<Optional<Void>> {
     }
 
     @Override
-    public Optional<Void> visit(AddExprNode n) {
-        printBinExpr("+", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(AndExprNode n) {
-        printBinExpr("&", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(DivExprNode n) {
-        printBinExpr("/", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(EqualsExprNode n) {
-        printBinExpr("==", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(GTEExprNode n) {
-        printBinExpr(">=", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(GTExprNode n) {
-        printBinExpr(">", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(HighMultExprNode n) {
-        printBinExpr("*>>", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(LTEExprNode n) {
-        printBinExpr("<=", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(LTExprNode n) {
-        printBinExpr("<", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(MultExprNode n) {
-        printBinExpr("*", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(NotEqualsExprNode n) {
-        printBinExpr("!=", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(OrExprNode n) {
-        printBinExpr("|", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(RemExprNode n) {
-        printBinExpr("%", n);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Void> visit(SubExprNode n) {
-        printBinExpr("-", n);
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<Void> visit(LiteralBoolExprNode n) {
         printer.printAtom(String.valueOf(n.contents));
         return Optional.empty();
@@ -493,15 +409,6 @@ public final class SExpVisitor extends AbstractVisitor<Optional<Void>> {
 
         printer.endList();
 
-        return Optional.empty();
-    }
-
-    private Optional<Void> printBinExpr(String symbol, BinExprNode n) {
-        printer.startList();
-        printer.printAtom(symbol);
-        n.left.accept(this);
-        n.right.accept(this);
-        printer.endList();
         return Optional.empty();
     }
 

@@ -8,26 +8,10 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
  * Node that represents taking [ExprNode] and dividing (integer division) by
  * [ExprNode right]
  */
-public final class DivExprNode extends BinExprNode {
+public final class DivExprNode extends BinOpExprNode {
 
     public DivExprNode(Location location, ExprNode left,
                        ExprNode right) {
-        super(location, left, right);
+        super(location, OpType.DIV, left, right);
     }
-
-    @Override
-    public <T> T accept(AbstractVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof DivExprNode) {
-            DivExprNode oNode = (DivExprNode) o;
-            return this.left.equals(oNode.left)
-                && this.right.equals(oNode.right);
-        }
-        return false;
-    }
-
 }

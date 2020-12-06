@@ -36,32 +36,33 @@ public final class CTranslationVisitor extends AbstractVisitor<IRStmt> {
     }
 
     @Override
-    public IRStmt visit(AndExprNode n) {
-        IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
-        String tPrime = generator.newLabel();
-        return make.IRSeq(
-                n.left.accept(new CTranslationVisitor(generator, tPrime,
-                        fLabel)),
-                make.IRLabel(tPrime),
-                n.right.accept(new CTranslationVisitor(generator, tLabel,
-                        fLabel)));
-    }
-
-    @Override
     public IRStmt visit(BoolNegExprNode n) {
         return n.expr.accept(new CTranslationVisitor(generator, fLabel, tLabel));
     }
 
     @Override
-    public IRStmt visit(OrExprNode n) {
-        IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
-        String fPrime = generator.newLabel();
-        return make.IRSeq(
-                n.left.accept(new CTranslationVisitor(generator, tLabel,
-                        fPrime)),
-                make.IRLabel(fPrime),
-                n.right.accept(new CTranslationVisitor(generator, tLabel,
-                        fLabel)));
+    public IRStmt visit(BinOpExprNode n) {
+        if (n.getOp() == BinOpExprNode.OpType.OR) {
+            IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
+            String fPrime = generator.newLabel();
+            return make.IRSeq(
+                    n.getLeft().accept(new CTranslationVisitor(generator, tLabel,
+                            fPrime)),
+                    make.IRLabel(fPrime),
+                    n.getRight().accept(new CTranslationVisitor(generator, tLabel,
+                            fLabel)));
+        } else if (n.getOp() == BinOpExprNode.OpType.AND) {
+            IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
+            String tPrime = generator.newLabel();
+            return make.IRSeq(
+                    n.getLeft().accept(new CTranslationVisitor(generator, tPrime,
+                            fLabel)),
+                    make.IRLabel(tPrime),
+                    n.getRight().accept(new CTranslationVisitor(generator, tLabel,
+                            fLabel)));
+        } else {
+            return cjump(n);
+        }
     }
 
     @Override
@@ -91,69 +92,6 @@ public final class CTranslationVisitor extends AbstractVisitor<IRStmt> {
 
     @Override
     public IRStmt visit(VariableAccessExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(BinOpExprNode n) { return cjump(n); }
-
-    @Override
-    public IRStmt visit(AddExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(DivExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(EqualsExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(GTEExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(GTExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(HighMultExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(LTEExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(LTExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(MultExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(NotEqualsExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(RemExprNode n) {
-        return cjump(n);
-    }
-
-    @Override
-    public IRStmt visit(SubExprNode n) {
         return cjump(n);
     }
 

@@ -6,11 +6,29 @@ import cyr7.ast.expr.ExprNode
 import cyr7.visitor.AbstractVisitor
 import java_cup.runtime.ComplexSymbolFactory
 
-class BinOpExprNode(
+open class BinOpExprNode(
         loc: ComplexSymbolFactory.Location,
         val op: OpType, val left: ExprNode, val right: ExprNode): AbstractExprNode(loc) {
     enum class OpType {
-        ADD, SUB, MUL, DIV, REM, HIGH_MUL, LTE, LT, GTE, GT, NEQ, EQ, OR, AND
+        ADD, SUB, MUL, DIV, REM, HIGH_MUL, LTE, LT, GTE, GT, NEQ, EQ, OR, AND;
+        override fun toString(): String {
+            return when (this) {
+                ADD -> "+"
+                SUB -> "-"
+                MUL -> "*"
+                DIV -> "/"
+                REM -> "%"
+                HIGH_MUL -> "*>>"
+                LTE -> "<="
+                LT -> "<"
+                GTE -> ">="
+                GT -> ">"
+                NEQ -> "!="
+                EQ -> "=="
+                OR -> "|"
+                AND -> "&"
+            }
+        }
     }
 
     override fun equals(other: Any?): Boolean {

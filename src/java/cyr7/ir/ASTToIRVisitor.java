@@ -573,41 +573,26 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(BinOpExprNode n) {
         switch(n.getOp()) {
-            case ADD:
-                return this.visit(new AddExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case SUB:
-                return this.visit(new SubExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case MUL:
-                return this.visit(new MultExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case DIV:
-                return this.visit(new DivExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case REM:
-                return this.visit(new RemExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case HIGH_MUL:
-                return this.visit(new HighMultExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case LTE:
-                return this.visit(new LTEExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case LT:
-                return this.visit(new LTExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case GTE:
-                return this.visit(new GTEExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case GT:
-                return this.visit(new GTExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case NEQ:
-                return this.visit(new NotEqualsExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case EQ:
-                return this.visit(new EqualsExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case OR:
-                return this.visit(new OrExprNode(n.getLocation(), n.getLeft(), n.getRight()));
-            case AND:
-                return this.visit(new AndExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case ADD: return add(n);
+            case SUB: return sub(n);
+            case MUL: return mul(n);
+            case DIV: return div(n);
+            case REM: return rem(n);
+            case HIGH_MUL: return highMul(n);
+            case LTE: return lte(n);
+            case LT: return lt(n);
+            case GTE: return gte(n);
+            case GT: return gt(n);
+            case NEQ: return neq(n);
+            case EQ: return eq(n);
+            case OR: return or(n);
+            case AND: return and(n);
             default:
                 throw new UnsupportedOperationException("Unimplemented");
         }
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(AddExprNode n) {
+    public OneOfTwo<IRExpr, IRStmt> add(BinOpExprNode n) {
         if (n.getType().isSubtypeOfInt()) {
             return binOp(IRBinOp.OpType.ADD_INT, n);
         } else if (n.getType().isSubtypeOfFloat()) {
@@ -628,11 +613,11 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
         String summedArrAddr = generator.newTemp();
 
         seq.add(make.IRMove(make.IRTemp(leftArrAddr),
-                n.left.accept(this)
+                n.getLeft().accept(this)
                       .assertFirst()));
 
         seq.add(make.IRMove(make.IRTemp(rightArrAddr),
-                n.right.accept(this)
+                n.getRight().accept(this)
                        .assertFirst()));
 
         seq.add(make.IRMove(make.IRTemp(leftArrSize),
@@ -730,18 +715,15 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                 make.IRTemp(summedArrAddr)));
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(AndExprNode n) {
+    public OneOfTwo<IRExpr, IRStmt> and(BinOpExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
 
         String t = generator.newTemp();
         String lt = generator.newLabel();
         String lf = generator.newLabel();
 
-        IRStmt e1CTranslated = n.left.accept(new CTranslationVisitor(generator,
-                lt, lf));
-        IRExpr e2 = n.right.accept(this)
-                           .assertFirst();
+        IRStmt e1CTranslated = n.getLeft().accept(new CTranslationVisitor(generator, lt, lf));
+        IRExpr e2 = n.getRight().accept(this).assertFirst();
 
         return OneOfTwo.ofFirst(make.IRESeq(make.IRSeq(make.IRMove(make.IRTemp(
                 t), make.IRInteger(0)),
@@ -751,52 +733,44 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                 make.IRLabel(lf)), make.IRTemp(t)));
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(EqualsExprNode n) {
+    public OneOfTwo<IRExpr, IRStmt> eq(BinOpExprNode n) {
         return binOp(IRBinOp.OpType.EQ, n);
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(GTEExprNode n) {
+    public OneOfTwo<IRExpr, IRStmt> gte(BinOpExprNode n) {
         return binOp(IRBinOp.OpType.GEQ, n);
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(GTExprNode n) {
+    public OneOfTwo<IRExpr, IRStmt> gt(BinOpExprNode n) {
         return binOp(IRBinOp.OpType.GT, n);
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(HighMultExprNode n) {
+    public OneOfTwo<IRExpr, IRStmt> highMul(BinOpExprNode n) {
         return binOp(IRBinOp.OpType.HMUL_INT, n);
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(LTEExprNode n) {
+    public OneOfTwo<IRExpr, IRStmt> lte(BinOpExprNode n) {
         return binOp(IRBinOp.OpType.LEQ, n);
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(LTExprNode n) {
+    public OneOfTwo<IRExpr, IRStmt> lt(BinOpExprNode n) {
         return binOp(IRBinOp.OpType.LT, n);
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(NotEqualsExprNode n) {
+    public OneOfTwo<IRExpr, IRStmt> neq(BinOpExprNode n) {
         return binOp(IRBinOp.OpType.NEQ, n);
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(OrExprNode n) {
+    public OneOfTwo<IRExpr, IRStmt> or(BinOpExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
 
         String t = generator.newTemp();
         String lt = generator.newLabel();
         String lf = generator.newLabel();
 
-        IRStmt e1CTranslated = n.left.accept(new CTranslationVisitor(generator,
+        IRStmt e1CTranslated = n.getLeft().accept(new CTranslationVisitor(generator,
                 lt, lf));
-        IRExpr e2 = n.right.accept(this)
+        IRExpr e2 = n.getRight().accept(this)
                            .assertFirst();
 
         return OneOfTwo.ofFirst(make.IRESeq(make.IRSeq(make.IRMove(make.IRTemp(
@@ -807,72 +781,60 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
                 make.IRLabel(lt)), make.IRTemp(t)));
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(MultExprNode n) {
-        IRExpr left = n.left.accept(this).assertFirst();
-        IRExpr right = n.right.accept(this).assertFirst();
-        if (n.left.getType().isSubtypeOfFloat() || n.right.getType().isSubtypeOfFloat()) {
-            return binOp(left, right, OpType.MUL_FLOAT, n);
-        } else if (n.left.getType().isSubtypeOfInt() && n.right.getType().isSubtypeOfInt()) {
-            return binOp(left, right, OpType.MUL_INT, n);
+    public OneOfTwo<IRExpr, IRStmt> mul(BinOpExprNode n) {
+        if (n.getLeft().getType().isSubtypeOfFloat() || n.getRight().getType().isSubtypeOfFloat()) {
+            return binOp(OpType.MUL_FLOAT, n);
+        } else if (n.getLeft().getType().isSubtypeOfInt() && n.getRight().getType().isSubtypeOfInt()) {
+            return binOp(OpType.MUL_INT, n);
         }
         throw new UnsupportedOperationException("Cannot type check");
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(RemExprNode n) {
-        IRExpr left = n.left.accept(this).assertFirst();
-        IRExpr right = n.right.accept(this).assertFirst();
-        if (n.left.getType().isSubtypeOfFloat() || n.right.getType().isSubtypeOfFloat()) {
-            return binOp(left, right, OpType.MOD_FLOAT, n);
-        } else if (n.left.getType().isSubtypeOfInt() && n.right.getType().isSubtypeOfInt()) {
-            return binOp(left, right, OpType.MOD_INT, n);
+    public OneOfTwo<IRExpr, IRStmt> rem(BinOpExprNode n) {
+        if (n.getLeft().getType().isSubtypeOfFloat() || n.getRight().getType().isSubtypeOfFloat()) {
+            return binOp(OpType.MOD_FLOAT, n);
+        } else if (n.getLeft().getType().isSubtypeOfInt() && n.getRight().getType().isSubtypeOfInt()) {
+            return binOp(OpType.MOD_INT, n);
         }
         throw new UnsupportedOperationException("Cannot type check");
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(SubExprNode n) {
-        IRExpr left = n.left.accept(this).assertFirst();
-        IRExpr right = n.right.accept(this).assertFirst();
-        if (n.left.getType().isSubtypeOfFloat() || n.right.getType().isSubtypeOfFloat()) {
-            return binOp(left, right, OpType.SUB_FLOAT, n);
-        } else if (n.left.getType().isSubtypeOfInt() && n.right.getType().isSubtypeOfInt()) {
-            return binOp(left, right, OpType.SUB_INT, n);
+    public OneOfTwo<IRExpr, IRStmt> sub(BinOpExprNode n) {
+        if (n.getLeft().getType().isSubtypeOfFloat() || n.getRight().getType().isSubtypeOfFloat()) {
+            return binOp(OpType.SUB_FLOAT, n);
+        } else if (n.getLeft().getType().isSubtypeOfInt() && n.getRight().getType().isSubtypeOfInt()) {
+            return binOp(OpType.SUB_INT, n);
         }
         throw new UnsupportedOperationException("Cannot type check");
     }
 
-    @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(DivExprNode n) {
-        IRExpr left = n.left.accept(this).assertFirst();
-        IRExpr right = n.right.accept(this).assertFirst();
-        if (n.left.getType().isSubtypeOfFloat() || n.right.getType().isSubtypeOfFloat()) {
-            return binOp(left, right, OpType.DIV_FLOAT, n);
-        } else if (n.left.getType().isSubtypeOfInt() && n.right.getType().isSubtypeOfInt()) {
-            return binOp(left, right, OpType.DIV_INT, n);
+    public OneOfTwo<IRExpr, IRStmt> div(BinOpExprNode n) {
+        if (n.getLeft().getType().isSubtypeOfFloat() || n.getRight().getType().isSubtypeOfFloat()) {
+            return binOp(OpType.DIV_FLOAT, n);
+        } else if (n.getLeft().getType().isSubtypeOfInt() && n.getRight().getType().isSubtypeOfInt()) {
+            return binOp(OpType.DIV_INT, n);
         }
         throw new UnsupportedOperationException("Cannot type check");
     }
 
-    private OneOfTwo<IRExpr, IRStmt> binOp(IRExpr left, IRExpr right, OpType opType, BinExprNode n) {
+    private OneOfTwo<IRExpr, IRStmt> binOp(IRExpr left, IRExpr right, OpType opType, BinOpExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
 
-        if (n.left.getType().isSubtypeOfInt() && n.right.getType().isSubtypeOfInt()) {
+        if (n.getLeft().getType().isSubtypeOfInt() && n.getRight().getType().isSubtypeOfInt()) {
             return OneOfTwo.ofFirst(make.IRBinOp(opType, left, right));
         }
-        if (n.left.getType().isSubtypeOfInt()) {
+        if (n.getLeft().getType().isSubtypeOfInt()) {
             left = make.IRCast(left, PrimitiveType.intDefault, PrimitiveType.floatDefault);
         }
-        if (n.right.getType().isSubtypeOfInt()) {
+        if (n.getRight().getType().isSubtypeOfInt()) {
             right = make.IRCast(right, PrimitiveType.intDefault, PrimitiveType.floatDefault);
         }
         return OneOfTwo.ofFirst(make.IRBinOp(opType, left, right));
     }
 
-    private OneOfTwo<IRExpr, IRStmt> binOp(OpType opType, BinExprNode n) {
-        IRExpr left = n.left.accept(this).assertFirst();
-        IRExpr right = n.right.accept(this).assertFirst();
+    private OneOfTwo<IRExpr, IRStmt> binOp(OpType opType, BinOpExprNode n) {
+        IRExpr left = n.getLeft().accept(this).assertFirst();
+        IRExpr right = n.getRight().accept(this).assertFirst();
         return binOp(left, right, opType, n);
     }
 
