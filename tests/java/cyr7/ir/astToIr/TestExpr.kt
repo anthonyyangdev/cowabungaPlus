@@ -103,7 +103,6 @@ internal class TestExpr {
     fun testRem() {
         val node: Node = RemExprNode(C.LOC, LiteralIntExprNode(C.LOC, "5"),
                 LiteralIntExprNode(C.LOC, "10"))
-        TypeCheckUtil.typeCheckNoIxiFiles(node)
         val expected: IRExpr = make.IRBinOp(IRBinOp.OpType.MOD_INT, make.IRInteger(5),
                 make.IRInteger(10))
         assertEq(expected, node)
@@ -113,7 +112,6 @@ internal class TestExpr {
     fun testSub() {
         val node: Node = SubExprNode(C.LOC, LiteralIntExprNode(C.LOC, "5"),
                 LiteralIntExprNode(C.LOC, "10"))
-        TypeCheckUtil.typeCheckNoIxiFiles(node)
         val expected: IRExpr = make.IRBinOp(IRBinOp.OpType.SUB_INT, make.IRInteger(5),
                 make.IRInteger(10))
         assertEq(expected, node)
@@ -172,7 +170,6 @@ internal class TestExpr {
                 LiteralIntExprNode(C.LOC, "14"),
                 LiteralFloatExprNode(C.LOC, 1.5)
         )
-        TypeCheckUtil.typeCheckNoIxiFiles(node)
         val expected = make.IRBinOp(IRBinOp.OpType.ADD_FLOAT,
                 make.IRCast(make.IRInteger(14), PrimitiveType.intDefault, PrimitiveType.floatDefault),
                 make.IRFloat(1.5)
@@ -182,6 +179,7 @@ internal class TestExpr {
 
     companion object {
         private fun assertEq(expected: IRNode, toTransform: Node) {
+            TypeCheckUtil.typeCheckNoIxiFiles(toTransform)
             Assertions.assertEquals(expected,
                     toTransform.accept(ASTToIRVisitor(DefaultIdGenerator())).assertFirst())
         }

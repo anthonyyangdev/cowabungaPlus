@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,8 +40,6 @@ import cyr7.semantics.types.ExpandedType;
 import cyr7.semantics.types.FunctionType;
 import cyr7.semantics.context.HashMapStackContext;
 import cyr7.semantics.types.PrimitiveType;
-import cyr7.semantics.types.ResultType;
-import cyr7.util.OneOfThree;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 class TestTypeCheckVisitorExpr {
