@@ -73,6 +73,7 @@ object LexerUtil {
             sym.TYPE_INT -> "int"
             sym.TYPE_BOOL -> "bool"
             sym.TYPE_FLOAT -> "float"
+            sym.TYPE_STRING -> "string"
             sym.BOOL_LITERAL -> value.toString()
             sym.INT_LITERAL -> "integer $value"
             sym.FLOAT_LITERAL -> "float $value"
