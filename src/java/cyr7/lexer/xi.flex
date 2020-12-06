@@ -1,6 +1,5 @@
 package cyr7.lexer;
 
-import java_cup.runtime.*;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import cyr7.parser.sym;
@@ -227,7 +226,7 @@ Hex = \\x(([(a-f|A-F)0-9]){1,4})
 
     "+"                 { return symbol(sym.PLUS); }
     "-"                 { return symbol(sym.MINUS); }
-    "*"                 { return symbol(sym.MULT); }
+    "*"                 { return symbol(sym.STAR); }
     "*>>"               { return symbol(sym.HIGH_MULT); }
     "/"                 { return symbol(sym.DIVIDE); }
     "%"                 { return symbol(sym.REMAINDER); }

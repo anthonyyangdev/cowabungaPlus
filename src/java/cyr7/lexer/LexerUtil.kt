@@ -93,7 +93,7 @@ object LexerUtil {
             sym.ASSIGN -> "="
             sym.PLUS -> "+"
             sym.MINUS -> "-"
-            sym.MULT -> "*"
+            sym.STAR -> "*"
             sym.HIGH_MULT -> "*>>"
             sym.DIVIDE -> "/"
             sym.REMAINDER -> "%"

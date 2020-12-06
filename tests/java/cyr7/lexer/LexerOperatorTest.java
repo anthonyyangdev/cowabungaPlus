@@ -64,11 +64,11 @@ class LexerOperatorTest {
     @Test
     void multAndHighMult() throws Exception {
         MyLexer lexer = LexerFactory.make("***>>>*>*>>*>>");
-        assertEquals(sym.MULT, lexer.next_token().sym);
-        assertEquals(sym.MULT, lexer.next_token().sym);
+        assertEquals(sym.STAR, lexer.next_token().sym);
+        assertEquals(sym.STAR, lexer.next_token().sym);
         assertEquals(sym.HIGH_MULT, lexer.next_token().sym);
         assertEquals(sym.GT, lexer.next_token().sym);
-        assertEquals(sym.MULT, lexer.next_token().sym);
+        assertEquals(sym.STAR, lexer.next_token().sym);
         assertEquals(sym.GT, lexer.next_token().sym);
         assertEquals(sym.HIGH_MULT, lexer.next_token().sym);
         assertEquals(sym.HIGH_MULT, lexer.next_token().sym);
@@ -217,15 +217,15 @@ class LexerOperatorTest {
         Symbol token = lexer.next_token();
         assertEquals(sym.INT_LITERAL, token.sym);
         assertEquals("0", token.value.toString());
-        
+
         token = lexer.next_token();
         assertEquals(sym.INT_LITERAL, token.sym);
         assertEquals("0", token.value.toString());
-        
+
         token = lexer.next_token();
         assertEquals(sym.INT_LITERAL, token.sym);
         assertEquals("10", token.value.toString());
-        
+
         lexer = LexerFactory.make("00");
         assertEquals(sym.INT_LITERAL, lexer.next_token().sym);
         assertEquals(sym.INT_LITERAL, lexer.next_token().sym);

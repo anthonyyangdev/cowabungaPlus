@@ -89,7 +89,7 @@ terminal COLON, SEMICOLON, COMMA, UNDERSCORE;
 terminal ASSIGN,
          PLUS,
          MINUS,
-         MULT,
+         STAR,
          HIGH_MULT,
          DIVIDE,
          EQUALS,
@@ -179,7 +179,7 @@ precedence left LOGICAL_AND;
 precedence left EQUALS, NOT_EQUALS;
 precedence left LT, LTE, GTE, GT;
 precedence left PLUS, MINUS;
-precedence left MULT, HIGH_MULT, DIVIDE, REMAINDER;
+precedence left STAR, HIGH_MULT, DIVIDE, REMAINDER;
 precedence nonassoc NEG_INT, NEG_BOOL;
 precedence left L_PAREN, L_SQ_BRKT;
 
@@ -520,7 +520,7 @@ UnaryExpr ::=
     ;
 
 BinaryExpr ::=
-    Expr:e1 MULT Expr:e2 {: RESULT = ast(e1xleft).mul(e1, e2); :}
+    Expr:e1 STAR Expr:e2 {: RESULT = ast(e1xleft).mul(e1, e2); :}
     | Expr:e1 HIGH_MULT Expr:e2 {: RESULT = ast(e1xleft).highMul(e1, e2); :}
     | Expr:e1 DIVIDE Expr:e2 {: RESULT = ast(e1xleft).div(e1, e2); :}
     | Expr:e1 REMAINDER Expr:e2 {: RESULT = ast(e1xleft).rem(e1, e2); :}
