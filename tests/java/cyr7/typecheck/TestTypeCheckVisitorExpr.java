@@ -6,24 +6,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import cyr7.C;
+import cyr7.ast.ASTFactory;
 import org.junit.jupiter.api.Test;
 
 import cyr7.ast.Node;
 import cyr7.ast.expr.FunctionCallExprNode;
 import cyr7.ast.expr.access.ArrayAccessExprNode;
 import cyr7.ast.expr.access.VariableAccessExprNode;
-import cyr7.ast.expr.binexpr.AddExprNode;
-import cyr7.ast.expr.binexpr.AndExprNode;
 import cyr7.ast.expr.binexpr.DivExprNode;
-import cyr7.ast.expr.binexpr.EqualsExprNode;
 import cyr7.ast.expr.binexpr.GTEExprNode;
 import cyr7.ast.expr.binexpr.GTExprNode;
 import cyr7.ast.expr.binexpr.HighMultExprNode;
 import cyr7.ast.expr.binexpr.LTEExprNode;
 import cyr7.ast.expr.binexpr.LTExprNode;
 import cyr7.ast.expr.binexpr.MultExprNode;
-import cyr7.ast.expr.binexpr.NotEqualsExprNode;
-import cyr7.ast.expr.binexpr.OrExprNode;
 import cyr7.ast.expr.binexpr.RemExprNode;
 import cyr7.ast.expr.binexpr.SubExprNode;
 import cyr7.ast.expr.literalexpr.LiteralArrayExprNode;
@@ -31,8 +28,6 @@ import cyr7.ast.expr.literalexpr.LiteralBoolExprNode;
 import cyr7.ast.expr.literalexpr.LiteralCharExprNode;
 import cyr7.ast.expr.literalexpr.LiteralIntExprNode;
 import cyr7.ast.expr.literalexpr.LiteralStringExprNode;
-import cyr7.ast.expr.unaryexpr.BoolNegExprNode;
-import cyr7.ast.expr.unaryexpr.IntNegExprNode;
 import cyr7.exceptions.semantics.SemanticException;
 import cyr7.semantics.types.ArrayType;
 import cyr7.semantics.context.Context;
@@ -50,23 +45,22 @@ class TestTypeCheckVisitorExpr {
     TypeCheckVisitor.Result result;
     Location loc = new Location(0, 0);
     IxiFileOpener opener = null;
+    private ASTFactory ast = new ASTFactory(C.LOC);
 
     @Test
     void testIntNegExprNode() {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new IntNegExprNode(loc,
-                new LiteralIntExprNode(loc, "13243546"));
+        node = ast.negateNumber(ast.integer("13243546"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new IntNegExprNode(loc,
-                new LiteralStringExprNode(loc, "Hello World"));
+        node = ast.negateNumber(ast.string("Hello World"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new IntNegExprNode(loc,
-                new LiteralBoolExprNode(loc, false));
+
+        node = ast.negateNumber(ast.bool(false));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
     }
 
@@ -74,18 +68,15 @@ class TestTypeCheckVisitorExpr {
     void testBoolNegExprNode() {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new BoolNegExprNode(loc,
-                new LiteralBoolExprNode(loc, true));
+        node = ast.negateBool(ast.bool(true));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new BoolNegExprNode(loc,
-                new LiteralStringExprNode(loc, "Hello World"));
+        node = ast.negateBool(ast.string("Hello World"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new BoolNegExprNode(loc,
-                new LiteralIntExprNode(loc, "13243546"));
+        node = ast.negateBool(ast.integer("13243546"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
     }
 
@@ -94,28 +85,28 @@ class TestTypeCheckVisitorExpr {
     void testLiterals() {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new LiteralBoolExprNode(loc, false);
+        node = ast.bool(false);
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new LiteralCharExprNode(loc, "a");
+        node = ast.character("a");
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
         assertTrue(result.assertFirst().isOrdinary());
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new LiteralIntExprNode(loc, "1324");
+        node = ast.integer("1324");
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
         assertTrue(result.assertFirst().isOrdinary());
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new LiteralStringExprNode(loc, "Hello World");
+        node = ast.string("Hello World");
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isArray());
         assertTrue(result.assertFirst().isASubtypeOf(
@@ -128,8 +119,7 @@ class TestTypeCheckVisitorExpr {
     void testAddExpr() {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AddExprNode(loc, new LiteralIntExprNode(loc, "1324"),
-                                     new LiteralIntExprNode(loc, "1324"));
+        node = ast.add(ast.integer("1234"), ast.integer("1324"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
         assertTrue(result.assertFirst().isOrdinary());
@@ -137,24 +127,21 @@ class TestTypeCheckVisitorExpr {
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AddExprNode(loc, new LiteralCharExprNode(loc, "a"),
-                                     new LiteralCharExprNode(loc, "b"));
+        node = ast.add(ast.character("a"), ast.character("b"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
         assertTrue(result.assertFirst().isOrdinary());
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AddExprNode(loc, new LiteralIntExprNode(loc, "134"),
-                                     new LiteralCharExprNode(loc, "b"));
+        node = ast.add(ast.integer("134"), ast.character("b"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
         assertTrue(result.assertFirst().isOrdinary());
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AddExprNode(loc, new LiteralStringExprNode(loc, "1324"),
-                                     new LiteralStringExprNode(loc, "1324"));
+        node = ast.add(ast.string("1324"), ast.string("1324"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isArray());
         assertTrue(result.assertFirst().isASubtypeOf(
@@ -165,8 +152,7 @@ class TestTypeCheckVisitorExpr {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addVar("numbers", new ArrayType(PrimitiveType.intDefault));
-        node = new AddExprNode(loc, new VariableAccessExprNode(loc, "numbers"),
-                                     new LiteralStringExprNode(loc, "1324"));
+        node = ast.add(ast.variable("numbers"), ast.string("1324"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isArray());
         assertTrue(result.assertFirst().isASubtypeOf(
@@ -176,34 +162,29 @@ class TestTypeCheckVisitorExpr {
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AddExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralBoolExprNode(loc, false));
+        node = ast.add(ast.bool(false), ast.bool(false));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AddExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralIntExprNode(loc, "124"));
+        node = ast.add(ast.bool(false), ast.integer("124"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AddExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralStringExprNode(loc, "This is a string"));
+        node = ast.add(ast.bool(false), ast.string("This is a string"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AddExprNode(loc, new LiteralIntExprNode(loc, "65432"),
-                new LiteralStringExprNode(loc, "This is a string"));
+        node = ast.add(ast.integer("65432"), ast.string("This is a string"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addVar("bools", new ArrayType(PrimitiveType.boolDefault));
-        node = new AddExprNode(loc, new VariableAccessExprNode(loc, "bools"),
-                                     new LiteralStringExprNode(loc, "1324"));
+        node = ast.add(ast.variable("bools"), ast.string("1324"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
     }
 
@@ -211,8 +192,7 @@ class TestTypeCheckVisitorExpr {
     void testEquality() {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new EqualsExprNode(loc, new LiteralIntExprNode(loc, "1324"),
-                                     new LiteralIntExprNode(loc, "1324"));
+        node = ast.eq(ast.integer("1324"), ast.integer("1324"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
@@ -220,8 +200,7 @@ class TestTypeCheckVisitorExpr {
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new EqualsExprNode(loc, new LiteralCharExprNode(loc, "a"),
-                                     new LiteralCharExprNode(loc, "b"));
+        node = ast.eq(ast.character("a"), ast.character("b"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
@@ -229,8 +208,7 @@ class TestTypeCheckVisitorExpr {
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new EqualsExprNode(loc, new LiteralIntExprNode(loc, "134"),
-                                     new LiteralCharExprNode(loc, "b"));
+        node = ast.eq(ast.integer("134"), ast.character("b"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
@@ -238,8 +216,7 @@ class TestTypeCheckVisitorExpr {
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new EqualsExprNode(loc, new LiteralStringExprNode(loc, "1324"),
-                                     new LiteralStringExprNode(loc, "1324"));
+        node = ast.eq(ast.string("1324"), ast.string("1324"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
@@ -248,8 +225,7 @@ class TestTypeCheckVisitorExpr {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addVar("numbers", new ArrayType(PrimitiveType.intDefault));
-        node = new EqualsExprNode(loc, new VariableAccessExprNode(loc, "numbers"),
-                                     new LiteralStringExprNode(loc, "1324"));
+        node = ast.eq(ast.variable("numbers"), ast.string("1324"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
@@ -257,38 +233,33 @@ class TestTypeCheckVisitorExpr {
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new EqualsExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralBoolExprNode(loc, false));
+        node = ast.eq(ast.bool(false), ast.bool(false));
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new EqualsExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralIntExprNode(loc, "124"));
+        node = ast.eq(ast.bool(false), ast.integer("124"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new EqualsExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralStringExprNode(loc, "This is a string"));
+        node = ast.eq(ast.bool(false), ast.string("This is a string"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new EqualsExprNode(loc, new LiteralIntExprNode(loc, "65432"),
-                new LiteralStringExprNode(loc, "This is a string"));
+        node = ast.eq(ast.integer("65432"), ast.string("This is a string"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addVar("bools", new ArrayType(PrimitiveType.boolDefault));
-        node = new EqualsExprNode(loc, new VariableAccessExprNode(loc, "bools"),
-                                     new LiteralStringExprNode(loc, "1324"));
+        node = ast.eq(ast.variable("bools"), ast.string("1324"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
     }
 
@@ -297,8 +268,7 @@ class TestTypeCheckVisitorExpr {
     void testInequality() {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new NotEqualsExprNode(loc, new LiteralIntExprNode(loc, "1324"),
-                                     new LiteralIntExprNode(loc, "1324"));
+        node = ast.neq(ast.integer("1324"), ast.integer("1324"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
@@ -306,8 +276,7 @@ class TestTypeCheckVisitorExpr {
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new NotEqualsExprNode(loc, new LiteralCharExprNode(loc, "a"),
-                                     new LiteralCharExprNode(loc, "b"));
+        node = ast.neq(ast.character("a"), ast.character("b"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
@@ -315,8 +284,7 @@ class TestTypeCheckVisitorExpr {
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new NotEqualsExprNode(loc, new LiteralIntExprNode(loc, "134"),
-                                     new LiteralCharExprNode(loc, "b"));
+        node = ast.neq(ast.integer("134"), ast.character("b"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
@@ -324,8 +292,7 @@ class TestTypeCheckVisitorExpr {
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new NotEqualsExprNode(loc, new LiteralStringExprNode(loc, "1324"),
-                                     new LiteralStringExprNode(loc, "1324"));
+        node = ast.neq(ast.string("1324"), ast.string("1324"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
@@ -334,8 +301,7 @@ class TestTypeCheckVisitorExpr {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addVar("numbers", new ArrayType(PrimitiveType.intDefault));
-        node = new NotEqualsExprNode(loc, new VariableAccessExprNode(loc, "numbers"),
-                                     new LiteralStringExprNode(loc, "1324"));
+        node = ast.neq(ast.variable("numbers"), ast.string("1324"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
@@ -343,38 +309,33 @@ class TestTypeCheckVisitorExpr {
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new NotEqualsExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralBoolExprNode(loc, false));
+        node = ast.neq(ast.bool(false), ast.bool(false));
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new NotEqualsExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralIntExprNode(loc, "124"));
+        node = ast.neq(ast.bool(false), ast.integer("124"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new NotEqualsExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralStringExprNode(loc, "This is a string"));
+        node = ast.neq(ast.bool(false), ast.string("This is a string"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new NotEqualsExprNode(loc, new LiteralIntExprNode(loc, "65432"),
-                new LiteralStringExprNode(loc, "This is a string"));
+        node = ast.neq(ast.integer("65432"), ast.string("This is a string"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addVar("bools", new ArrayType(PrimitiveType.boolDefault));
-        node = new NotEqualsExprNode(loc, new VariableAccessExprNode(loc, "bools"),
-                                     new LiteralStringExprNode(loc, "1324"));
+        node = ast.neq(ast.variable("bools"), ast.string("1324"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
     }
 
@@ -818,42 +779,34 @@ class TestTypeCheckVisitorExpr {
     void testBooleanOperators() {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AndExprNode(loc, new LiteralIntExprNode(loc, "1324"),
-                                     new LiteralIntExprNode(loc, "1324"));
+        node = ast.and(ast.integer("1324"), ast.integer("1324"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new OrExprNode(loc, new LiteralIntExprNode(loc, "1324"),
-                new LiteralIntExprNode(loc, "1324"));
+        node = ast.or(ast.integer("1324"), ast.integer("1324"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AndExprNode(loc, new LiteralCharExprNode(loc, "a"),
-                                     new LiteralCharExprNode(loc, "b"));
+        node = ast.and(ast.character("a"), ast.character("b"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new OrExprNode(loc, new LiteralCharExprNode(loc, "a"),
-                new LiteralCharExprNode(loc, "b"));
+        node = ast.or(ast.character("a"), ast.character("b"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AndExprNode(loc, new LiteralIntExprNode(loc, "134"),
-                new LiteralCharExprNode(loc, "b"));
+        node = ast.and(ast.integer("14"), ast.character("b"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new OrExprNode(loc, new LiteralIntExprNode(loc, "134"),
-                                new LiteralCharExprNode(loc, "b"));
+        node = ast.or(ast.integer("134"), ast.character("b"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AndExprNode(loc, new LiteralStringExprNode(loc, "1324"),
-                new LiteralStringExprNode(loc, "1324"));
+        node = ast.and(ast.string("1324"), ast.string("1324"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new OrExprNode(loc, new LiteralStringExprNode(loc, "1324"),
-                new LiteralStringExprNode(loc, "1324"));
+        node = ast.or(ast.string("1324"), ast.string("1324"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
@@ -861,23 +814,19 @@ class TestTypeCheckVisitorExpr {
         context = new HashMapStackContext();
         visitor.context.addVar("numbers", new ArrayType(PrimitiveType.intDefault));
         visitor = new TypeCheckVisitor(null);
-        node = new AndExprNode(loc, new VariableAccessExprNode(loc, "numbers"),
-                new LiteralStringExprNode(loc, "1324"));
+        node = ast.and(ast.variable("numbers"), ast.string("1324"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new OrExprNode(loc, new VariableAccessExprNode(loc, "numbers"),
-                new LiteralStringExprNode(loc, "1324"));
+        node = ast.or(ast.variable("numbers"), ast.string("1324"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AndExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralBoolExprNode(loc, false));
+        node = ast.and(ast.bool(false), ast.bool(false));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
-        node = new OrExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralBoolExprNode(loc, false));
+        node = ast.or(ast.bool(false), ast.bool(false));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isOrdinary());
@@ -885,33 +834,25 @@ class TestTypeCheckVisitorExpr {
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AndExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralIntExprNode(loc, "124"));
+        node = ast.and(ast.bool(false), ast.integer("124"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new OrExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralIntExprNode(loc, "124"));
+        node = ast.or(ast.bool(false), ast.integer("124"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AndExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralStringExprNode(loc, "This is a string"));
+        node = ast.and(ast.bool(false), ast.string("This is a string"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new OrExprNode(loc, new LiteralBoolExprNode(loc, false),
-                new LiteralStringExprNode(loc, "This is a string"));
+        node = ast.or(ast.bool(false), ast.string("This is a string"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new AndExprNode(loc, new LiteralIntExprNode(loc, "65432"),
-                new LiteralStringExprNode(loc, "This is a string"));
+        node = ast.and(ast.integer("65432"), ast.string("This is a string"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new OrExprNode(loc, new LiteralIntExprNode(loc, "65432"),
-                new LiteralStringExprNode(loc, "This is a string"));
+        node = ast.or(ast.integer("65432"), ast.string("This is a string"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
@@ -919,11 +860,9 @@ class TestTypeCheckVisitorExpr {
         context = new HashMapStackContext();
         visitor.context.addVar("bools", new ArrayType(PrimitiveType.boolDefault));
         visitor = new TypeCheckVisitor(null);
-        node = new AndExprNode(loc, new VariableAccessExprNode(loc, "bools"),
-                new LiteralStringExprNode(loc, "1324"));
+        node = ast.and(ast.variable("bools"), ast.string("1324"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new OrExprNode(loc, new VariableAccessExprNode(loc, "bools"),
-                new LiteralStringExprNode(loc, "1324"));
+        node = ast.or(ast.variable("bools"), ast.string("1324"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
     }
@@ -1275,21 +1214,19 @@ class TestTypeCheckVisitorExpr {
 
 
         // Attempt to add an access to an empty array to an array
-        node = new AddExprNode(loc,
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc, List.of()),
-                        new LiteralIntExprNode(loc, "0")),
-                new LiteralStringExprNode(loc, "A string"));
+        node = ast.add(
+                ast.arrayAccess(ast.array(), ast.integer("0")),
+                ast.string("A string")
+        );
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isArray());
         assertFalse(result.assertFirst().isVoid());
 
 
-        node = new AddExprNode(loc,
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc, List.of()),
-                        new LiteralIntExprNode(loc, "0")),
-                new LiteralIntExprNode(loc, "132"));
+        node = ast.add(
+                ast.arrayAccess(ast.array(), ast.integer("0")),
+                ast.integer("132")
+        );
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
         assertFalse(result.assertFirst().isVoid());
@@ -1297,38 +1234,28 @@ class TestTypeCheckVisitorExpr {
 
 
 
-        node = new DivExprNode(loc,
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc, List.of()),
-                        new LiteralIntExprNode(loc, "0")),
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc, List.of()),
-                        new LiteralIntExprNode(loc, "0")));
+        node = ast.div(
+                ast.arrayAccess(ast.array(), ast.integer("0")),
+                ast.arrayAccess(ast.array(), ast.integer("0"))
+        );
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfFloat());
         assertFalse(result.assertFirst().isVoid());
 
 
 
-        node = new AddExprNode(loc,
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc, List.of()),
-                        new LiteralIntExprNode(loc, "0")),
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc, List.of()),
-                        new LiteralIntExprNode(loc, "0")));
+        node = ast.add(
+                ast.arrayAccess(ast.array(), ast.integer("0")),
+                ast.arrayAccess(ast.array(), ast.integer("0"))
+        );
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isGenericAdd());
 
 
-
-        node = new AndExprNode(loc,
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc, List.of()),
-                        new LiteralIntExprNode(loc, "0")),
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc, List.of()),
-                        new LiteralIntExprNode(loc, "0")));
+        node = ast.and(
+                ast.arrayAccess(ast.array(), ast.integer("0")),
+                ast.arrayAccess(ast.array(), ast.integer("0"))
+        );
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertFalse(result.assertFirst().isVoid());

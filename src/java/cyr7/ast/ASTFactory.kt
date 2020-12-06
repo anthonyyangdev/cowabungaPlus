@@ -26,17 +26,19 @@ class ASTFactory(val location: ComplexSymbolFactory.Location) {
     fun arrayType(child: TypeExprNode, size: ExprNode) = TypeExprArrayNode(location, child, Optional.of(size))
     fun arrayType(child: TypeExprNode) = TypeExprArrayNode(location, child, Optional.empty())
 
-    fun int(value: String) = LiteralIntExprNode(location, value)
+    fun integer(value: String) = LiteralIntExprNode(location, value)
     fun bool(value: Boolean) = LiteralBoolExprNode(location, value)
-    fun float(value: Double) = LiteralFloatExprNode(location, value)
+    fun floating(value: Double) = LiteralFloatExprNode(location, value)
     fun string(value: String) = LiteralStringExprNode(location, value)
-    fun char(value: String) = LiteralCharExprNode(location, value)
+    fun character(value: String) = LiteralCharExprNode(location, value)
     fun array(vararg values: ExprNode) = LiteralArrayExprNode(location, listOf(*values))
     fun array(values: List<ExprNode>) = LiteralArrayExprNode(location, values)
 
     fun negateBool(value: ExprNode) = BoolNegExprNode(location, value)
     fun negateNumber(value: ExprNode) = IntNegExprNode(location, value)
 
+    fun call(id: String, vararg parameters: ExprNode) = FunctionCallExprNode(location, id, listOf(*parameters))
+    fun call(id: String, parameters: List<ExprNode>) = FunctionCallExprNode(location, id, parameters)
     fun length(value: ExprNode) = LengthExprNode(location, value)
 
     fun binop(op: BinOpExprNode.OpType, left: ExprNode, right: ExprNode) = BinOpExprNode(location, op, left, right)
@@ -58,7 +60,7 @@ class ASTFactory(val location: ComplexSymbolFactory.Location) {
     fun variable(id: String) = VariableAccessExprNode(location, id)
     fun arrayAccess(child: ExprNode, index: ExprNode) = ArrayAccessExprNode(location, child, index)
 
-    fun arrayDeclaration(id: String, type: TypeExprArrayNode) = ArrayDeclStmtNode(location, id, type)
+    fun arrayDecl(id: String, type: TypeExprArrayNode) = ArrayDeclStmtNode(location, id, type)
     fun assign(left: ExprNode, right: ExprNode) = AssignmentStmtNode(location, left, right)
     fun block(vararg stmts: StmtNode) = BlockStmtNode(location, listOf(*stmts))
     fun block(stmts: List<StmtNode>) = BlockStmtNode(location, stmts)

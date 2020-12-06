@@ -26,6 +26,10 @@ import java.util.Optional;
 
 parser code {:
 
+public ASTFactory ast(Location location) {
+    return new ASTFactory(location);
+}
+
 @Override
 public void unrecovered_syntax_error(Symbol token) throws Exception {
     ComplexSymbol cur_token = (ComplexSymbol) token;
@@ -191,7 +195,7 @@ Program ::=
 // Ixi Grammar
 
 IxiProgram ::=
-    FunctionHeaderDeclList:lst {: RESULT = new IxiProgramNode(lstxleft, lst); :}
+    FunctionHeaderDeclList:lst {: RESULT = ast(lstxleft).ixiProgram(lst); :}
     ;
 
 FunctionHeaderDeclList ::=
@@ -206,11 +210,11 @@ FunctionHeaderDeclList ::=
 
 FunctionHeaderDecl ::=
     ID:id L_PAREN R_PAREN ReturnType:returnList {:
-            RESULT = new FunctionHeaderDeclNode(idxleft, id, new LinkedList<>(), returnList);
+            RESULT = ast(idxleft).funcHeader(id, List.of(), returnList);
         :}
     | ID:id L_PAREN VarDecl:v FunctionVarDeclList:l R_PAREN ReturnType:returnList {:
             l.addFirst(v);
-            RESULT = new FunctionHeaderDeclNode(idxleft, id, l, returnList);
+            RESULT = ast(idxleft).funcHeader(id, l, returnList);
         :}
     ;
 
@@ -235,12 +239,12 @@ ReturnTypeList ::=
 // Xi Grammar
 
 XiProgram ::=
-    UseList:uses FunctionDeclList:functions {: RESULT = new XiProgramNode(usesxleft, uses, functions); :}
+    UseList:uses FunctionDeclList:functions {: RESULT = ast(usesxleft).xiProgram(uses, functions); :}
     ;
 
 UseList ::=
-    USE:u ID:id UseList:l {: l.addFirst(new UseNode(uxleft, id)); RESULT = l; :}
-    | USE:u ID:id SEMICOLON UseList:l {: l.addFirst(new UseNode(uxleft, id)); RESULT = l; :}
+    USE:u ID:id UseList:l {: l.addFirst(ast(uxleft).use(id)); RESULT = l; :}
+    | USE:u ID:id SEMICOLON UseList:l {: l.addFirst(ast(uxleft).use(id)); RESULT = l; :}
     | {: RESULT = new LinkedList<>(); :}
     ;
 
@@ -277,69 +281,69 @@ FunctionDeclList ::=
 
 FunctionDecl ::=
     FunctionHeaderDecl:header BlockStatement:block {:
-            RESULT = new FunctionDeclNode(headerxleft, header, block);
+            RESULT = ast(headerxleft).funcDecl(header, block);
         :}
     ;
 
 BlockStatement ::=
-    L_BRACE:b XiStatementList:l R_BRACE {: RESULT = new BlockStmtNode(bxleft, l); :}
-    | L_BRACE:b XiStatementList:l ReturnStatement:r R_BRACE {: l.addLast(r); RESULT = new BlockStmtNode(bxleft, l); :}
-    | L_BRACE:b XiStatementList:l ReturnStatement:r SEMICOLON R_BRACE {: l.addLast(r); RESULT = new BlockStmtNode(bxleft, l); :}
+    L_BRACE:b XiStatementList:l R_BRACE {: RESULT = ast(bxleft).block(l); :}
+    | L_BRACE:b XiStatementList:l ReturnStatement:r R_BRACE {: l.addLast(r); RESULT = ast(bxleft).block(l); :}
+    | L_BRACE:b XiStatementList:l ReturnStatement:r SEMICOLON R_BRACE {: l.addLast(r); RESULT = ast(bxleft).block(l); :}
     ;
 
 ReturnStatement ::=
-    RETURN:r ExprList:l {: RESULT = new ReturnStmtNode(rxleft, l); :}
+    RETURN:r ExprList:l {: RESULT = ast(rxleft).returnStmt(l); :}
     ;
 
 FreeStatement ::=
-    FREE:free L_PAREN Expr:e R_PAREN {: RESULT = new FreeStmtNode(freexleft, e); :}
+    FREE:free L_PAREN Expr:e R_PAREN {: RESULT = ast(freexleft).free(e); :}
     ;
 
 ProcedureStatement ::=
-    ProcedureCall:c {: RESULT = new ProcedureStmtNode(cxleft, c); :}
+    ProcedureCall:c {: RESULT = ast(cxleft).procedure(c); :}
     ;
 
 IfElseStatement ::=
     IF:i Expr:e SingleXiStatement:s {:
-        RESULT = new IfElseStmtNode(ixleft, e, s, Optional.empty());
+        RESULT = ast(ixleft).ifElse(e, s);
     :}
     | IF:i Expr:e SingleXiStatement:s ELSE SingleXiStatement:b {:
-            RESULT = new IfElseStmtNode(ixleft, e, s, Optional.of(b));
+            RESULT = ast(ixleft).ifElse(e, s, b);
         :}
     ;
 
 WhileStatement ::=
-    WHILE:w Expr:e XiStatement:s {: RESULT = new WhileStmtNode(wxleft, e, s); :}
+    WHILE:w Expr:e XiStatement:s {: RESULT = ast(wxleft).whileLoop(e, s); :}
     ;
 
 ForLoopStatement ::=
     FOR:f L_PAREN VarDecl:v ASSIGN Expr:initial SEMICOLON Expr:e SEMICOLON SingleXiStatement:stmt R_PAREN XiStatement:body {:
-        VarInitStmtNode varDecl = new VarInitStmtNode(vxleft, v, initial);
-        RESULT = new ForLoopStmtNode(fxleft, varDecl, e, stmt, body);
+        VarInitStmtNode varDecl = ast(vxleft).varInit(v, initial);
+        RESULT = ast(fxleft).forLoop(varDecl, e, stmt, body);
     :}
     ;
 
 DoWhileStatement ::=
     DO:d XiStatement:s WHILE Expr:e {:
-        RESULT = new DoWhileStmtNode(dxleft, s, e);
+        RESULT = ast(dxleft).doWhile(s, e);
     :}
     ;
 
 AssignmentStatement ::=
     AssignmentLHS:a ASSIGN Expr:e {:
-        RESULT = new AssignmentStmtNode(axleft, a, e);
+        RESULT = ast(axleft).assign(a, e);
     :}
     ;
 
 AssignmentLHS ::=
     AssignmentLHS:a L_SQ_BRKT Expr:e R_SQ_BRKT {:
-        RESULT = new ArrayAccessExprNode(axleft, a, e);
+        RESULT = ast(axleft).arrayAccess(a, e);
         :}
     | FunctionCall:f L_SQ_BRKT Expr:e R_SQ_BRKT {:
-        RESULT = new ArrayAccessExprNode(exleft, f, e);
+        RESULT = ast(exleft).arrayAccess(f, e);
     :}
     | ID:id {:
-        RESULT = new VariableAccessExprNode(idxleft, id);
+        RESULT = ast(idxleft).variable(id);
     :}
     ;
 
@@ -348,21 +352,21 @@ VarDeclStatement ::=
             RESULT = arr;
         :}
     | UNDERSCORE:u ASSIGN Expr:e {:
-            RESULT = new ExprStmtNode(uxleft, e);
+            RESULT = ast(uxleft).exprStmt(e);
         :}
     | VarDecl:v ASSIGN Expr:e {:
-            RESULT = new VarInitStmtNode(vxleft, v, e);
+            RESULT = ast(vxleft).varInit(v, e);
         :}
     | VarDecl:v {:
-            RESULT = new VarDeclStmtNode(vxleft, v);
+            RESULT = ast(vxleft).varDeclStmt(v);
         :}
     | VarDecl:v COMMA MultiVarDeclList:l ASSIGN FunctionCall:e {:
             l.addFirst(Optional.of(v));
-            RESULT = new MultiAssignStmtNode(vxleft, l, e);
+            RESULT = ast(vxleft).multiAssign(l, e);
         :}
     | UNDERSCORE:u COMMA MultiVarDeclList:l ASSIGN FunctionCall:e {:
             l.addFirst(Optional.empty());
-            RESULT = new MultiAssignStmtNode(uxleft, l, e);
+            RESULT = ast(uxleft).multiAssign(l, e);
         :}
     ;
 
@@ -392,7 +396,7 @@ VarDeclArrayInit ::=
     VarDeclDimensionedBracket:l {:
             l.addFirst(Optional.of(v));
             TypeExprArrayNode t = TypeExprNode.fromDimensionList(p, l);
-            RESULT = new ArrayDeclStmtNode(idxleft, id, t);
+            RESULT = ast(idxleft).arrayDecl(id, t);
         :}
     ;
 
@@ -413,13 +417,13 @@ VarDeclDimensionlessBracket ::=
     ;
 
 VarDecl ::=
-    ID:id COLON TypeExpr:te {: RESULT = new VarDeclNode(idxleft, id, te); :}
+    ID:id COLON TypeExpr:te {: RESULT = ast(idxleft).varDecl(id, te); :}
     ;
 
 Primitive ::=
-    TYPE_INT:i {: RESULT = new PrimitiveTypeNode(ixleft, PrimitiveEnum.INT); :}
-    | TYPE_BOOL:b {: RESULT = new PrimitiveTypeNode(bxleft, PrimitiveEnum.BOOL); :}
-    | TYPE_FLOAT:f {: RESULT = new PrimitiveTypeNode(fxleft, PrimitiveEnum.FLOAT); :}
+    TYPE_INT:i {: RESULT = ast(ixleft).intType(); :}
+    | TYPE_BOOL:b {: RESULT = ast(bxleft).boolType(); :}
+    | TYPE_FLOAT:f {: RESULT = ast(fxleft).floatType(); :}
     ;
 
 TypeExpr ::=
@@ -450,30 +454,30 @@ Expr ::=
     ;
 
 AccessExpr ::=
-    ID:id {: RESULT = new VariableAccessExprNode(idxleft, id); :}
+    ID:id {: RESULT = ast(idxleft).variable(id); :}
     | Expr:e L_SQ_BRKT:l Expr:i R_SQ_BRKT {:
-            RESULT = new ArrayAccessExprNode(lxleft, e, i);
+            RESULT = ast(lxleft).arrayAccess(e, i);
         :}
     ;
 // can't have the length call in a procedure
 ProcedureCall ::=
     ID:id L_PAREN R_PAREN {:
-            RESULT = new FunctionCallExprNode(idxleft, id, new LinkedList<>());
+            RESULT = ast(idxleft).call(id);
         :}
     | ID:id L_PAREN Expr:e ArgParamList:l R_PAREN {:
             l.addFirst(e);
-            RESULT = new FunctionCallExprNode(idxleft, id, l);
+            RESULT = ast(idxleft).call(id, l);
         :}
     ;
 
 // For an explanation of %prec https://www.cs.princeton.edu/~appel/modern/java/CUP/manual.html#cpp
 FunctionCall ::=
     ID:id L_PAREN R_PAREN {:
-            RESULT = new FunctionCallExprNode(idxleft, id, new LinkedList<>());
+            RESULT = ast(idxleft).call(id);
         :}
     | ID:id L_PAREN Expr:e ArgParamList:l R_PAREN {:
             l.addFirst(e);
-            RESULT = new FunctionCallExprNode(idxleft, id, l);
+            RESULT = ast(idxleft).call(id, l);
         :}
     ;
 
@@ -483,12 +487,12 @@ ArgParamList ::=
     ;
 
 LiteralExpr ::=
-    INT_LITERAL:l {: RESULT = new LiteralIntExprNode(lxleft, l); :}
-    | FLOAT_LITERAL:l {: RESULT = new LiteralFloatExprNode(lxleft, l); :}
-    | CHAR_LITERAL:l {: RESULT = new LiteralCharExprNode(lxleft, l); :}
-    | STRING_LITERAL:l {: RESULT = new LiteralStringExprNode(lxleft, l); :}
-    | BOOL_LITERAL:l {: RESULT = new LiteralBoolExprNode(lxleft, l); :}
-    | L_BRACE ArrayElements:l R_BRACE {: RESULT = new LiteralArrayExprNode(lxleft, l); :}
+    INT_LITERAL:l {: RESULT = ast(lxleft).integer(l); :}
+    | FLOAT_LITERAL:l {: RESULT = ast(lxleft).floating(l); :}
+    | CHAR_LITERAL:l {: RESULT = ast(lxleft).character(l); :}
+    | STRING_LITERAL:l {: RESULT = ast(lxleft).string(l); :}
+    | BOOL_LITERAL:l {: RESULT = ast(lxleft).bool(l); :}
+    | L_BRACE ArrayElements:l R_BRACE {: RESULT = ast(lxleft).array(l); :}
     ;
 
 ArrayElements ::=
@@ -502,33 +506,33 @@ ArrayElements ::=
     ;
 
 UnaryExpr ::=
-    NEG_BOOL:n Expr:e {: RESULT = new BoolNegExprNode(nxleft, e); :}
+    NEG_BOOL:n Expr:e {: RESULT = ast(nxleft).negateBool(e); :}
     | MINUS:m Expr:e {:
-            RESULT = new IntNegExprNode(mxleft, e);
+            RESULT = ast(mxleft).negateNumber(e);
         :} %prec NEG_INT
     | MINUS:m INT_MAX:i {:
-            ExprNode e = new LiteralIntExprNode(ixleft, MyLexer.maxIntegerString);
-            RESULT = new IntNegExprNode(mxleft, e);
+            ExprNode e = ast(ixleft).integer(MyLexer.maxIntegerString);
+            RESULT = ast(mxleft).negateNumber(e);
         :} %prec NEG_INT
     | LENGTH:len L_PAREN Expr:e R_PAREN {:
-            RESULT = new LengthExprNode(lenxleft, e);
+            RESULT = ast(lenxleft).length(e);
         :}
     ;
 
 BinaryExpr ::=
-    Expr:e1 MULT Expr:e2 {: RESULT = new MultExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 HIGH_MULT Expr:e2 {: RESULT = new HighMultExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 DIVIDE Expr:e2 {: RESULT = new DivExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 REMAINDER Expr:e2 {: RESULT = new RemExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 PLUS Expr:e2 {: RESULT = new AddExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 MINUS Expr:e2 {: RESULT = new SubExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 LT Expr:e2 {: RESULT = new LTExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 LTE Expr:e2 {: RESULT = new LTEExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 GT Expr:e2 {: RESULT = new GTExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 GTE Expr:e2 {: RESULT = new GTEExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 EQUALS Expr:e2 {: RESULT = new EqualsExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 NOT_EQUALS Expr:e2 {: RESULT = new NotEqualsExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 LOGICAL_AND Expr:e2 {: RESULT = new AndExprNode(e1xleft, e1, e2); :}
-    | Expr:e1 LOGICAL_OR Expr:e2 {: RESULT = new OrExprNode(e1xleft, e1, e2); :}
+    Expr:e1 MULT Expr:e2 {: RESULT = ast(e1xleft).mul(e1, e2); :}
+    | Expr:e1 HIGH_MULT Expr:e2 {: RESULT = ast(e1xleft).highMul(e1, e2); :}
+    | Expr:e1 DIVIDE Expr:e2 {: RESULT = ast(e1xleft).div(e1, e2); :}
+    | Expr:e1 REMAINDER Expr:e2 {: RESULT = ast(e1xleft).rem(e1, e2); :}
+    | Expr:e1 PLUS Expr:e2 {: RESULT = ast(e1xleft).add(e1, e2); :}
+    | Expr:e1 MINUS Expr:e2 {: RESULT = ast(e1xleft).sub(e1, e2); :}
+    | Expr:e1 LT Expr:e2 {: RESULT = ast(e1xleft).lt(e1, e2); :}
+    | Expr:e1 LTE Expr:e2 {: RESULT = ast(e1xleft).lte(e1, e2); :}
+    | Expr:e1 GT Expr:e2 {: RESULT = ast(e1xleft).gt(e1, e2); :}
+    | Expr:e1 GTE Expr:e2 {: RESULT = ast(e1xleft).gte(e1, e2); :}
+    | Expr:e1 EQUALS Expr:e2 {: RESULT = ast(e1xleft).eq(e1, e2); :}
+    | Expr:e1 NOT_EQUALS Expr:e2 {: RESULT = ast(e1xleft).neq(e1, e2); :}
+    | Expr:e1 LOGICAL_AND Expr:e2 {: RESULT = ast(e1xleft).and(e1, e2); :}
+    | Expr:e1 LOGICAL_OR Expr:e2 {: RESULT = ast(e1xleft).or(e1, e2); :}
     ;
 

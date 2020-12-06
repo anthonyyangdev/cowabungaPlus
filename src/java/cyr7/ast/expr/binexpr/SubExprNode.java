@@ -10,6 +10,6 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 public final class SubExprNode extends BinOpExprNode {
 
     public SubExprNode(Location location, ExprNode left, ExprNode right) {
-        super(location, OpType.REM, left, right);
+        super(location, OpType.SUB, left, right);
     }
 }

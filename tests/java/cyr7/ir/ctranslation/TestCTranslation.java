@@ -4,27 +4,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
+import cyr7.ast.ASTFactory;
 import cyr7.semantics.types.FunctionType;
 import org.junit.jupiter.api.Test;
 
 import cyr7.C;
 import cyr7.ast.Node;
 import cyr7.ast.expr.FunctionCallExprNode;
-import cyr7.ast.expr.binexpr.AndExprNode;
-import cyr7.ast.expr.binexpr.OrExprNode;
-import cyr7.ast.expr.literalexpr.LiteralBoolExprNode;
 import cyr7.ir.CTranslationVisitor;
 import cyr7.ir.nodes.IRNode;
 import cyr7.ir.nodes.IRNodeFactory;
 import cyr7.ir.nodes.IRNodeFactory_c;
 import cyr7.ir.nodes.IRStmt;
 import cyr7.semantics.types.ExpandedType;
-import java_cup.runtime.ComplexSymbolFactory.Location;
+import org.junit.jupiter.api.TestInstance;
 
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class TestCTranslation {
 
-    private final IRNodeFactory make = new IRNodeFactory_c(
-            new Location(-1, -1));
+    private final IRNodeFactory make = new IRNodeFactory_c(C.LOC);
+    private final ASTFactory ast = new ASTFactory(C.LOC);
 
     @Test
     void testTrue() {
@@ -32,12 +31,9 @@ public class TestCTranslation {
         String t = generator.newLabel();
         String f = generator.newLabel();
 
-        Node node = new LiteralBoolExprNode(C.LOC, true);
+        Node node = ast.bool(true);
         IRStmt expected = make.IRJump(make.IRName(t));
-        assertEquals(
-            expected,
-            node.accept(new CTranslationVisitor(generator, t, f))
-        );
+        assertEquals(expected, node.accept(new CTranslationVisitor(generator, t, f)));
     }
 
     @Test
@@ -46,12 +42,9 @@ public class TestCTranslation {
         String t = generator.newLabel();
         String f = generator.newLabel();
 
-        Node node = new LiteralBoolExprNode(C.LOC, false);
+        Node node = ast.bool(false);
         IRStmt expected = make.IRJump(make.IRName(f));
-        assertEquals(
-            expected,
-            node.accept(new CTranslationVisitor(generator, t, f))
-        );
+        assertEquals(expected, node.accept(new CTranslationVisitor(generator, t, f)));
     }
 
     @Test
@@ -61,10 +54,7 @@ public class TestCTranslation {
         String f = generator.newLabel();
         String l1 = generator.peekLabel(0);
 
-        Node node = new AndExprNode(C.LOC,
-            new LiteralBoolExprNode(C.LOC, true),
-            new LiteralBoolExprNode(C.LOC, false)
-        );
+        Node node = ast.and(ast.bool(true), ast.bool(false));
         IRStmt expected = make.IRSeq(make.IRJump(make.IRName(l1)),
                 make.IRLabel(l1), make.IRJump(make.IRName(f))
         );
@@ -84,15 +74,9 @@ public class TestCTranslation {
         String l4 = generator.peekLabel(2);
 
         // (true & false) & (true & true)
-        Node node = new AndExprNode(C.LOC,
-            new AndExprNode(C.LOC,
-                new LiteralBoolExprNode(C.LOC, true),
-                new LiteralBoolExprNode(C.LOC, false)
-            ),
-            new AndExprNode(C.LOC,
-                new LiteralBoolExprNode(C.LOC, true),
-                new LiteralBoolExprNode(C.LOC, true)
-            )
+        Node node = ast.and(
+                ast.and(ast.bool(true), ast.bool(false)),
+                ast.and(ast.bool(true), ast.bool(true))
         );
         IRStmt expected = make.IRSeq(make.IRSeq(make.IRJump(make.IRName(l3)),
                 make.IRLabel(l3), make.IRJump(make.IRName(f))
@@ -114,10 +98,7 @@ public class TestCTranslation {
         String f = generator.newLabel();
         String l1 = generator.peekLabel(0);
 
-        Node node = new OrExprNode(C.LOC,
-            new LiteralBoolExprNode(C.LOC, true),
-            new LiteralBoolExprNode(C.LOC, false)
-        );
+        Node node = ast.or(ast.bool(true), ast.bool(false));
         IRStmt expected = make.IRSeq(make.IRJump(make.IRName(t)),
                 make.IRLabel(l1), make.IRJump(make.IRName(f))
         );
@@ -137,15 +118,9 @@ public class TestCTranslation {
         String l4 = generator.peekLabel(2);
 
         // (false | true) | (true | false)
-        Node node = new OrExprNode(C.LOC,
-            new OrExprNode(C.LOC,
-                new LiteralBoolExprNode(C.LOC, false),
-                new LiteralBoolExprNode(C.LOC, true)
-            ),
-            new OrExprNode(C.LOC,
-                new LiteralBoolExprNode(C.LOC, true),
-                new LiteralBoolExprNode(C.LOC, false)
-            )
+        Node node = ast.or(
+                ast.or(ast.bool(false), ast.bool(true)),
+                ast.or(ast.bool(true), ast.bool(false))
         );
         IRStmt expected = make.IRSeq(make.IRSeq(make.IRJump(make.IRName(l3)),
                 make.IRLabel(l3), make.IRJump(make.IRName(t))
@@ -169,29 +144,23 @@ public class TestCTranslation {
         String l3 = generator.peekLabel(1);
         String l4 = generator.peekLabel(2);
 
-        FunctionCallExprNode fcall = new FunctionCallExprNode(C.LOC, "f", List.of());
+        FunctionCallExprNode fcall = ast.call("f");
         fcall.setType(ExpandedType.boolType);
         fcall.setFunctionType(new FunctionType(new ExpandedType(List.of()), ExpandedType.boolType));
-        FunctionCallExprNode gcall = new FunctionCallExprNode(C.LOC, "g", List.of());
+        FunctionCallExprNode gcall = ast.call("g");
         gcall.setType(ExpandedType.boolType);
         gcall.setFunctionType(new FunctionType(new ExpandedType(List.of()), ExpandedType.boolType));
-        FunctionCallExprNode hcall = new FunctionCallExprNode(C.LOC, "h", List.of());
+        FunctionCallExprNode hcall = ast.call("h");
         hcall.setType(ExpandedType.boolType);
         hcall.setFunctionType(new FunctionType(new ExpandedType(List.of()), ExpandedType.boolType));
-        FunctionCallExprNode icall = new FunctionCallExprNode(C.LOC, "i", List.of());
+        FunctionCallExprNode icall = ast.call("i");
         icall.setType(ExpandedType.boolType);
         icall.setFunctionType(new FunctionType(new ExpandedType(List.of()), ExpandedType.boolType));
 
         // (f() & g()) | (h() & i())
-        Node node = new OrExprNode(C.LOC,
-            new AndExprNode(C.LOC,
-                fcall,
-                gcall
-            ).setType(ExpandedType.boolType),
-            new AndExprNode(C.LOC,
-                hcall,
-                icall
-            ).setType(ExpandedType.boolType)
+        Node node = ast.or(
+                ast.and(fcall, gcall).setType(ExpandedType.boolType),
+                ast.and(hcall, icall).setType(ExpandedType.boolType)
         ).setType(ExpandedType.boolType);
         IRNode expected = make.IRSeq(make.IRSeq(
                 make.IRCJump(make.IRCall(make.IRName("_If_b")), l3, l2),
@@ -217,7 +186,7 @@ public class TestCTranslation {
         String t = generator.newLabel();
         String f = generator.newLabel();
 
-        FunctionCallExprNode fcall = new FunctionCallExprNode(C.LOC, "f", List.of());
+        FunctionCallExprNode fcall = ast.call("f");
         fcall.setType(ExpandedType.boolType);
         fcall.setFunctionType(new FunctionType(new ExpandedType(List.of()), ExpandedType.boolType));
         IRNode expected = make.IRCJump(make.IRCall(make.IRName("_If_b")), t, f);
