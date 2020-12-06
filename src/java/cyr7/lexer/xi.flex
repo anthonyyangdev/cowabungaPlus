@@ -143,6 +143,7 @@ Hex = \\x(([(a-f|A-F)0-9]){1,4})
     "//"            { yybegin(COMMENT); }
     "/*"            { yybegin(DOCBLOCK);}
 
+    "pure"              { return symbol(sym.PURE); }
     "for"               { return symbol(sym.FOR); }
     "do"                { return symbol(sym.DO); }
     "use"               { return symbol(sym.USE); }
