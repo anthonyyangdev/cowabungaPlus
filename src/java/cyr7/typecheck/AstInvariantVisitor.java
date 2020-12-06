@@ -1,6 +1,6 @@
 package cyr7.typecheck;
 
-import cyr7.ast.VarDeclNode;
+import cyr7.ast.stmt.VarDeclNode;
 import cyr7.ast.expr.FunctionCallExprNode;
 import cyr7.ast.expr.access.ArrayAccessExprNode;
 import cyr7.ast.expr.access.VariableAccessExprNode;

@@ -6,9 +6,7 @@ import cyr7.ast.expr.ExprNode
 import cyr7.visitor.AbstractVisitor
 import java_cup.runtime.ComplexSymbolFactory.Location
 
-class FreeStmtNode(location: Location,
-                   val expr: ExprNode,
-                   ): AbstractNode(location), StmtNode {
+class FreeStmtNode(location: Location, val expr: ExprNode): AbstractNode(location), StmtNode {
     override val children: List<Node>
         get() = mutableListOf(expr);
 

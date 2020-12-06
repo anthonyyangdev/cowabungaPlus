@@ -2,7 +2,6 @@ package cyr7.ast.stmt;
 
 import cyr7.ast.AbstractNode;
 import cyr7.ast.Node;
-import cyr7.ast.VarDeclNode;
 import cyr7.ast.expr.ExprNode;
 import cyr7.visitor.AbstractVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;

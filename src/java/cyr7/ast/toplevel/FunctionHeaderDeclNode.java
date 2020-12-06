@@ -1,14 +1,12 @@
 package cyr7.ast.toplevel;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import cyr7.ast.AbstractNode;
 import cyr7.ast.Node;
-import cyr7.ast.VarDeclNode;
+import cyr7.ast.stmt.VarDeclNode;
 import cyr7.ast.type.TypeExprNode;
 import cyr7.semantics.types.FunctionType;
 import cyr7.util.Util;

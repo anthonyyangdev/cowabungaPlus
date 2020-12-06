@@ -23,8 +23,7 @@ public final class FunctionCallExprNode extends AbstractExprNode {
 
     private Optional<FunctionType> functionType = Optional.empty();
 
-    public FunctionCallExprNode(Location location,
-                                String id, List<ExprNode> parameters) {
+    public FunctionCallExprNode(Location location, String id, List<ExprNode> parameters) {
         super(location);
 
         assert id != null;

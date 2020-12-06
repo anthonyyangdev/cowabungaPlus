@@ -9,8 +9,8 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import cyr7.ast.*;
 import cyr7.ast.expr.ExprNode;
+import cyr7.ast.stmt.VarDeclNode;
 import cyr7.ast.toplevel.FunctionHeaderDeclNode;
 import cyr7.ast.toplevel.IxiProgramNode;
 import cyr7.ast.type.TypeExprNode;

@@ -2,7 +2,6 @@ package cyr7.ast.stmt;
 
 import cyr7.ast.AbstractNode;
 import cyr7.ast.Node;
-import cyr7.ast.VarDeclNode;
 import cyr7.ast.expr.FunctionCallExprNode;
 import cyr7.util.Util;
 import cyr7.visitor.AbstractVisitor;

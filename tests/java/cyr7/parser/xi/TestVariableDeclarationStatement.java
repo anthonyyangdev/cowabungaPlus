@@ -1,6 +1,6 @@
 package cyr7.parser.xi;
 
-import cyr7.ast.VarDeclNode;
+import cyr7.ast.stmt.VarDeclNode;
 import cyr7.ast.expr.access.ArrayAccessExprNode;
 import cyr7.ast.expr.access.VariableAccessExprNode;
 import cyr7.ast.expr.FunctionCallExprNode;
