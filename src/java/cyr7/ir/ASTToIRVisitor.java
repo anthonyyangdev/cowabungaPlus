@@ -840,14 +840,10 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
             return OneOfTwo.ofFirst(make.IRBinOp(opType, left, right));
         }
         if (n.left.getType().isSubtypeOfInt()) {
-            IRTemp castResult = make.IRTemp(generator.newLabel());
-            IRStmt castLeft = make.IRMove(castResult, make.IRCast(left, PrimitiveType.intDefault, PrimitiveType.floatDefault));
-            left = make.IRESeq(castLeft, castResult);
+            left = make.IRCast(left, PrimitiveType.intDefault, PrimitiveType.floatDefault);
         }
         if (n.right.getType().isSubtypeOfInt()) {
-            IRTemp castResult = make.IRTemp(generator.newLabel());
-            IRStmt castRight = make.IRMove(castResult, make.IRCast(right, PrimitiveType.intDefault, PrimitiveType.floatDefault));
-            right = make.IRESeq(castRight, castResult);
+            right = make.IRCast(right, PrimitiveType.intDefault, PrimitiveType.floatDefault);
         }
         return OneOfTwo.ofFirst(make.IRBinOp(opType, left, right));
     }
@@ -917,7 +913,6 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(LiteralBoolExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
-        n.setType(ExpandedType.boolType);
         return OneOfTwo.ofFirst(make.IRInteger(n.contents ? 1 : 0));
     }
 
@@ -925,7 +920,6 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     public OneOfTwo<IRExpr, IRStmt> visit(LiteralCharExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
         assert n.contents.length() == 1;
-        n.setType(ExpandedType.intType);
         return OneOfTwo.ofFirst(make.IRInteger(n.contents.charAt(0)));
     }
 
@@ -935,14 +929,12 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(LiteralIntExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
-        n.setType(ExpandedType.intType);
         return OneOfTwo.ofFirst(make.IRInteger(Long.parseLong(n.contents)));
     }
 
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(LiteralFloatExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
-        n.setType(ExpandedType.floatType);
         return OneOfTwo.ofFirst(make.IRFloat(n.getValue()));
     }
 

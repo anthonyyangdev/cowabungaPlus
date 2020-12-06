@@ -15,7 +15,6 @@ class LexerFloatTest {
         assertEquals(sym.FLOAT_LITERAL, token.sym)
         assertEquals(100.123, token.value)
 
-        val k = 1E3
         token = lexer.next_token()
         assertEquals(sym.FLOAT_LITERAL, token.sym)
         assertEquals(123456.0, token.value)
