@@ -170,16 +170,16 @@ public class TestCTranslation {
         String l4 = generator.peekLabel(2);
 
         FunctionCallExprNode fcall = new FunctionCallExprNode(C.LOC, "f", List.of());
-        fcall.typed(ExpandedType.boolType);
+        fcall.setType(ExpandedType.boolType);
         fcall.setFunctionType(new FunctionType(new ExpandedType(List.of()), ExpandedType.boolType));
         FunctionCallExprNode gcall = new FunctionCallExprNode(C.LOC, "g", List.of());
-        gcall.typed(ExpandedType.boolType);
+        gcall.setType(ExpandedType.boolType);
         gcall.setFunctionType(new FunctionType(new ExpandedType(List.of()), ExpandedType.boolType));
         FunctionCallExprNode hcall = new FunctionCallExprNode(C.LOC, "h", List.of());
-        hcall.typed(ExpandedType.boolType);
+        hcall.setType(ExpandedType.boolType);
         hcall.setFunctionType(new FunctionType(new ExpandedType(List.of()), ExpandedType.boolType));
         FunctionCallExprNode icall = new FunctionCallExprNode(C.LOC, "i", List.of());
-        icall.typed(ExpandedType.boolType);
+        icall.setType(ExpandedType.boolType);
         icall.setFunctionType(new FunctionType(new ExpandedType(List.of()), ExpandedType.boolType));
 
         // (f() & g()) | (h() & i())
@@ -187,12 +187,12 @@ public class TestCTranslation {
             new AndExprNode(C.LOC,
                 fcall,
                 gcall
-            ).typed(ExpandedType.boolType),
+            ).setType(ExpandedType.boolType),
             new AndExprNode(C.LOC,
                 hcall,
                 icall
-            ).typed(ExpandedType.boolType)
-        ).typed(ExpandedType.boolType);
+            ).setType(ExpandedType.boolType)
+        ).setType(ExpandedType.boolType);
         IRNode expected = make.IRSeq(make.IRSeq(
                 make.IRCJump(make.IRCall(make.IRName("_If_b")), l3, l2),
                 make.IRLabel(l3),
@@ -218,7 +218,7 @@ public class TestCTranslation {
         String f = generator.newLabel();
 
         FunctionCallExprNode fcall = new FunctionCallExprNode(C.LOC, "f", List.of());
-        fcall.typed(ExpandedType.boolType);
+        fcall.setType(ExpandedType.boolType);
         fcall.setFunctionType(new FunctionType(new ExpandedType(List.of()), ExpandedType.boolType));
         IRNode expected = make.IRCJump(make.IRCall(make.IRName("_If_b")), t, f);
         assertEquals(

@@ -20,8 +20,9 @@ public abstract class AbstractExprNode extends AbstractNode implements ExprNode 
     }
 
     @Override
-    public void setType(ExpandedType t) {
+    public ExprNode setType(ExpandedType t) {
         this.type = t;
+        return this;
     }
 
 }
