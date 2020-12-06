@@ -502,7 +502,16 @@ public final class SExpVisitor extends AbstractVisitor<Optional<Void>> {
         n.left.accept(this);
         n.right.accept(this);
         printer.endList();
+        return Optional.empty();
+    }
 
+    @Override
+    public Optional<Void> visit(BinOpExprNode n) {
+        printer.startList();
+        printer.printAtom(n.getOp().toString());
+        n.getLeft().accept(this);
+        n.getRight().accept(this);
+        printer.endList();
         return Optional.empty();
     }
 

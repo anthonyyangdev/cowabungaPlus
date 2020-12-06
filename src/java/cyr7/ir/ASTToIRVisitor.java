@@ -9,21 +9,7 @@ import cyr7.ast.expr.ExprNode;
 import cyr7.ast.expr.FunctionCallExprNode;
 import cyr7.ast.expr.access.ArrayAccessExprNode;
 import cyr7.ast.expr.access.VariableAccessExprNode;
-import cyr7.ast.expr.binexpr.AddExprNode;
-import cyr7.ast.expr.binexpr.AndExprNode;
-import cyr7.ast.expr.binexpr.BinExprNode;
-import cyr7.ast.expr.binexpr.DivExprNode;
-import cyr7.ast.expr.binexpr.EqualsExprNode;
-import cyr7.ast.expr.binexpr.GTEExprNode;
-import cyr7.ast.expr.binexpr.GTExprNode;
-import cyr7.ast.expr.binexpr.HighMultExprNode;
-import cyr7.ast.expr.binexpr.LTEExprNode;
-import cyr7.ast.expr.binexpr.LTExprNode;
-import cyr7.ast.expr.binexpr.MultExprNode;
-import cyr7.ast.expr.binexpr.NotEqualsExprNode;
-import cyr7.ast.expr.binexpr.OrExprNode;
-import cyr7.ast.expr.binexpr.RemExprNode;
-import cyr7.ast.expr.binexpr.SubExprNode;
+import cyr7.ast.expr.binexpr.*;
 import cyr7.ast.expr.literalexpr.*;
 import cyr7.ast.expr.unaryexpr.BoolNegExprNode;
 import cyr7.ast.expr.unaryexpr.IntNegExprNode;
@@ -582,6 +568,42 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     public OneOfTwo<IRExpr, IRStmt> visit(VariableAccessExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
         return OneOfTwo.ofFirst(make.IRTemp(n.identifier));
+    }
+
+    @Override
+    public OneOfTwo<IRExpr, IRStmt> visit(BinOpExprNode n) {
+        switch(n.getOp()) {
+            case ADD:
+                return this.visit(new AddExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case SUB:
+                return this.visit(new SubExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case MUL:
+                return this.visit(new MultExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case DIV:
+                return this.visit(new DivExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case REM:
+                return this.visit(new RemExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case HIGH_MUL:
+                return this.visit(new HighMultExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case LTE:
+                return this.visit(new LTEExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case LT:
+                return this.visit(new LTExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case GTE:
+                return this.visit(new GTEExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case GT:
+                return this.visit(new GTExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case NEQ:
+                return this.visit(new NotEqualsExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case EQ:
+                return this.visit(new EqualsExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case OR:
+                return this.visit(new OrExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            case AND:
+                return this.visit(new AndExprNode(n.getLocation(), n.getLeft(), n.getRight()));
+            default:
+                throw new UnsupportedOperationException("Unimplemented");
+        }
     }
 
     @Override

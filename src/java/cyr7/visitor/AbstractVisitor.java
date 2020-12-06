@@ -52,6 +52,7 @@ public abstract class AbstractVisitor<T> {
     abstract public T visit(VariableAccessExprNode n);
 
     // bin expr
+    abstract public T visit(BinOpExprNode n);
     abstract public T visit(AddExprNode n);
     abstract public T visit(AndExprNode n);
     abstract public T visit(DivExprNode n);

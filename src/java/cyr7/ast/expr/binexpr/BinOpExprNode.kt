@@ -1,0 +1,33 @@
+package cyr7.ast.expr.binexpr
+
+import cyr7.ast.Node
+import cyr7.ast.expr.AbstractExprNode
+import cyr7.ast.expr.ExprNode
+import cyr7.visitor.AbstractVisitor
+import java_cup.runtime.ComplexSymbolFactory
+
+class BinOpExprNode(
+        loc: ComplexSymbolFactory.Location,
+        val op: OpType, val left: ExprNode, val right: ExprNode): AbstractExprNode(loc) {
+    enum class OpType {
+        ADD, SUB, MUL, DIV, REM, HIGH_MUL, LTE, LT, GTE, GT, NEQ, EQ, OR, AND
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is BinOpExprNode && other.op == op && other.left == left && other.right == right
+    }
+
+    override fun <T> accept(visitor: AbstractVisitor<T>): T {
+        return visitor.visit(this)
+    }
+
+    override fun hashCode(): Int {
+        var result = op.hashCode()
+        result = 31 * result + left.hashCode()
+        result = 31 * result + right.hashCode()
+        return result
+    }
+
+    override val children: List<Node>
+        get() = mutableListOf(left, right)
+}
