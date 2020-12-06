@@ -9,7 +9,7 @@ public final class VoidType extends OrdinaryType {
     }
 
     @Override
-    public Type getType() {
+    public Type type() {
         return Type.VOID;
     }
 

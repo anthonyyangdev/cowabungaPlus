@@ -19,7 +19,7 @@ public final class GenericAddType extends OrdinaryType {
     private GenericAddType() {}
 
     @Override
-    public Type getType() {
+    public Type type() {
         return Type.GENERIC_ADD;
     }
 

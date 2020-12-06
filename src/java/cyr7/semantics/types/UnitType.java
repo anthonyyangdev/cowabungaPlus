@@ -4,11 +4,10 @@ public final class UnitType extends OrdinaryType {
     // The wildcard _ is a unit type, i.e. a supertype of every type.
     public final static UnitType unitValue = new UnitType();
 
-    private UnitType() {
-    }
+    private UnitType() { }
 
     @Override
-    public Type getType() {
+    public Type type() {
         return Type.UNIT;
     }
 

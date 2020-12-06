@@ -21,7 +21,7 @@ public final class PrimitiveType extends OrdinaryType {
     }
 
     @Override
-    public Type getType() {
+    public Type type() {
         return this.type;
     }
 
@@ -35,6 +35,6 @@ public final class PrimitiveType extends OrdinaryType {
 
     @Override
     public boolean isSubtypeOf(OrdinaryType expectedSupertype) {
-        return expectedSupertype.isUnit() || this.type == expectedSupertype.getType();
+        return expectedSupertype.isUnit() || this.type == expectedSupertype.type();
     }
 }

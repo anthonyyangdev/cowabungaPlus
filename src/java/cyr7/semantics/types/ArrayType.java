@@ -14,7 +14,7 @@ public final class ArrayType extends OrdinaryType {
     }
 
     @Override
-    public Type getType() {
+    public Type type() {
         return Type.ARRAY;
     }
 
