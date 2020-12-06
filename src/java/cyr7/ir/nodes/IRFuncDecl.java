@@ -16,8 +16,7 @@ public class IRFuncDecl extends IRNode_c {
     private final IRStmt body;
     private final FunctionType type;
 
-    public IRFuncDecl(Location location, String name, IRStmt body,
-            FunctionType type) {
+    public IRFuncDecl(Location location, String name, IRStmt body, FunctionType type) {
         super(location);
         this.name = name;
         this.body = body;

@@ -1,11 +1,7 @@
 package cyr7.ir;
 
 import java.math.BigInteger;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import cyr7.ast.VarDeclNode;
@@ -518,27 +514,6 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
 
     // Expressions
 
-    private OneOfTwo<IRExpr, IRStmt> binOp(IRBinOp.OpType opType, BinExprNode n) {
-        IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
-
-        IRExpr left = n.left.accept(this).assertFirst();
-        IRExpr right = n.right.accept(this).assertFirst();
-        if (n.left.getType().isSubtypeOfInt() && n.right.getType().isSubtypeOfInt()) {
-            return OneOfTwo.ofFirst(make.IRBinOp(opType, left, right));
-        }
-        if (n.left.getType().isSubtypeOfInt()) {
-            IRTemp castResult = make.IRTemp(generator.newLabel());
-            IRStmt castLeft = make.IRMove(castResult, make.IRCast(left, PrimitiveType.intDefault, PrimitiveType.floatDefault));
-            left = make.IRESeq(castLeft, castResult);
-        }
-        if (n.right.getType().isSubtypeOfInt()) {
-            IRTemp castResult = make.IRTemp(generator.newLabel());
-            IRStmt castRight = make.IRMove(castResult, make.IRCast(right, PrimitiveType.intDefault, PrimitiveType.floatDefault));
-            right = make.IRESeq(castRight, castResult);
-        }
-        return OneOfTwo.ofFirst(make.IRBinOp(opType, left, right));
-    }
-
     /**
      * Translates f(e1, e2, e3, ...)
      */
@@ -606,7 +581,6 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(VariableAccessExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
-
         return OneOfTwo.ofFirst(make.IRTemp(n.identifier));
     }
 
@@ -756,12 +730,6 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     }
 
     @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(DivExprNode n) {
-        if (n.getType().isSubtypeOfInt()) return binOp(OpType.DIV_INT, n);
-        else return binOp(OpType.DIV_FLOAT, n);
-    }
-
-    @Override
     public OneOfTwo<IRExpr, IRStmt> visit(EqualsExprNode n) {
         return binOp(IRBinOp.OpType.EQ, n);
     }
@@ -792,12 +760,6 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     }
 
     @Override
-    public OneOfTwo<IRExpr, IRStmt> visit(MultExprNode n) {
-        if (n.getType().isSubtypeOfInt()) return binOp(OpType.MUL_INT, n);
-        else return binOp(OpType.MUL_FLOAT, n);
-    }
-
-    @Override
     public OneOfTwo<IRExpr, IRStmt> visit(NotEqualsExprNode n) {
         return binOp(IRBinOp.OpType.NEQ, n);
     }
@@ -824,15 +786,76 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     }
 
     @Override
+    public OneOfTwo<IRExpr, IRStmt> visit(MultExprNode n) {
+        IRExpr left = n.left.accept(this).assertFirst();
+        IRExpr right = n.right.accept(this).assertFirst();
+        if (n.left.getType().isSubtypeOfFloat() || n.right.getType().isSubtypeOfFloat()) {
+            return binOp(left, right, OpType.MUL_FLOAT, n);
+        } else if (n.left.getType().isSubtypeOfInt() && n.right.getType().isSubtypeOfInt()) {
+            return binOp(left, right, OpType.MUL_INT, n);
+        }
+        throw new UnsupportedOperationException("Cannot type check");
+    }
+
+    @Override
     public OneOfTwo<IRExpr, IRStmt> visit(RemExprNode n) {
-        if (n.getType().isSubtypeOfInt()) return binOp(OpType.MOD_INT, n);
-        else return binOp(OpType.MOD_FLOAT, n);
+        IRExpr left = n.left.accept(this).assertFirst();
+        IRExpr right = n.right.accept(this).assertFirst();
+        if (n.left.getType().isSubtypeOfFloat() || n.right.getType().isSubtypeOfFloat()) {
+            return binOp(left, right, OpType.MOD_FLOAT, n);
+        } else if (n.left.getType().isSubtypeOfInt() && n.right.getType().isSubtypeOfInt()) {
+            return binOp(left, right, OpType.MOD_INT, n);
+        }
+        throw new UnsupportedOperationException("Cannot type check");
     }
 
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(SubExprNode n) {
-        if (n.getType().isSubtypeOfInt()) return binOp(OpType.SUB_INT, n);
-        else return binOp(OpType.SUB_FLOAT, n);
+        IRExpr left = n.left.accept(this).assertFirst();
+        IRExpr right = n.right.accept(this).assertFirst();
+        if (n.left.getType().isSubtypeOfFloat() || n.right.getType().isSubtypeOfFloat()) {
+            return binOp(left, right, OpType.SUB_FLOAT, n);
+        } else if (n.left.getType().isSubtypeOfInt() && n.right.getType().isSubtypeOfInt()) {
+            return binOp(left, right, OpType.SUB_INT, n);
+        }
+        throw new UnsupportedOperationException("Cannot type check");
+    }
+
+    @Override
+    public OneOfTwo<IRExpr, IRStmt> visit(DivExprNode n) {
+        IRExpr left = n.left.accept(this).assertFirst();
+        IRExpr right = n.right.accept(this).assertFirst();
+        if (n.left.getType().isSubtypeOfFloat() || n.right.getType().isSubtypeOfFloat()) {
+            return binOp(left, right, OpType.DIV_FLOAT, n);
+        } else if (n.left.getType().isSubtypeOfInt() && n.right.getType().isSubtypeOfInt()) {
+            return binOp(left, right, OpType.DIV_INT, n);
+        }
+        throw new UnsupportedOperationException("Cannot type check");
+    }
+
+    private OneOfTwo<IRExpr, IRStmt> binOp(IRExpr left, IRExpr right, OpType opType, BinExprNode n) {
+        IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
+
+        if (n.left.getType().isSubtypeOfInt() && n.right.getType().isSubtypeOfInt()) {
+            return OneOfTwo.ofFirst(make.IRBinOp(opType, left, right));
+        }
+        if (n.left.getType().isSubtypeOfInt()) {
+            IRTemp castResult = make.IRTemp(generator.newLabel());
+            IRStmt castLeft = make.IRMove(castResult, make.IRCast(left, PrimitiveType.intDefault, PrimitiveType.floatDefault));
+            left = make.IRESeq(castLeft, castResult);
+        }
+        if (n.right.getType().isSubtypeOfInt()) {
+            IRTemp castResult = make.IRTemp(generator.newLabel());
+            IRStmt castRight = make.IRMove(castResult, make.IRCast(right, PrimitiveType.intDefault, PrimitiveType.floatDefault));
+            right = make.IRESeq(castRight, castResult);
+        }
+        return OneOfTwo.ofFirst(make.IRBinOp(opType, left, right));
+    }
+
+    private OneOfTwo<IRExpr, IRStmt> binOp(OpType opType, BinExprNode n) {
+        IRExpr left = n.left.accept(this).assertFirst();
+        IRExpr right = n.right.accept(this).assertFirst();
+        return binOp(left, right, opType, n);
     }
 
     /**
@@ -894,7 +917,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(LiteralBoolExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
-
+        n.setType(ExpandedType.boolType);
         return OneOfTwo.ofFirst(make.IRInteger(n.contents ? 1 : 0));
     }
 
@@ -902,6 +925,7 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     public OneOfTwo<IRExpr, IRStmt> visit(LiteralCharExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
         assert n.contents.length() == 1;
+        n.setType(ExpandedType.intType);
         return OneOfTwo.ofFirst(make.IRInteger(n.contents.charAt(0)));
     }
 
@@ -911,12 +935,14 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(LiteralIntExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
+        n.setType(ExpandedType.intType);
         return OneOfTwo.ofFirst(make.IRInteger(Long.parseLong(n.contents)));
     }
 
     @Override
     public OneOfTwo<IRExpr, IRStmt> visit(LiteralFloatExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
+        n.setType(ExpandedType.floatType);
         return OneOfTwo.ofFirst(make.IRFloat(n.getValue()));
     }
 
@@ -965,10 +991,10 @@ public class ASTToIRVisitor extends AbstractVisitor<OneOfTwo<IRExpr, IRStmt>> {
             }
         }
         IRExpr e = n.expr.accept(this).assertFirst();
-        if (n.getType().isSubtypeOfInt()) {
+        if (Objects.requireNonNull(n.expr.getType()).isSubtypeOfInt()) {
             return OneOfTwo.ofFirst(make.IRBinOp(OpType.SUB_INT,
                     make.IRInteger(0), e));
-        } else if (n.getType().isSubtypeOfFloat()) {
+        } else if (n.expr.getType().isSubtypeOfFloat()) {
             return OneOfTwo.ofFirst(make.IRBinOp(OpType.SUB_FLOAT,
                     make.IRFloat(0), e));
         }

@@ -1308,7 +1308,7 @@ class TestTypeCheckVisitorExpr {
                         new LiteralArrayExprNode(loc, List.of()),
                         new LiteralIntExprNode(loc, "0")));
         result = node.accept(visitor);
-        assertTrue(result.assertFirst().isSubtypeOfInt());
+        assertTrue(result.assertFirst().isSubtypeOfFloat());
         assertFalse(result.assertFirst().isVoid());
 
 

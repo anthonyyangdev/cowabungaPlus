@@ -773,8 +773,8 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
         ExpandedType left = n.left.accept(this).assertFirst();
         ExpandedType right = n.right.accept(this).assertFirst();
 
-        if (!(left.isSubtypeOfInt() || left.isSubtypeOfFloat()
-                || right.isSubtypeOfInt() || right.isSubtypeOfFloat()))
+        if (!(left.isSubtypeOfInt() || left.isSubtypeOfFloat())
+                || !(right.isSubtypeOfInt() || right.isSubtypeOfFloat()))
             throw new TypeMismatchException(left, ExpandedType.intType, n.left.getLocation());
 
         if (left.isSubtypeOfFloat() || right.isSubtypeOfFloat())

@@ -149,8 +149,7 @@ class SubexpressionTest {
 
         Map<String, IRFuncDecl> funcs = new HashMap<>();
         funcs.put("main", make.IRFuncDecl("main", make.IRSeq(stmtsOfMain)));
-        funcs.put("helper",
-                make.IRFuncDecl("helper", make.IRSeq(stmtsOfHelper)));
+        funcs.put("helper", make.IRFuncDecl("helper", make.IRSeq(stmtsOfHelper)));
 
         Map<String, IRFuncDecl> funcsFolded = new HashMap<>();
         funcsFolded.put("main",

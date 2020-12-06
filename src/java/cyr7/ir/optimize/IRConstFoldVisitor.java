@@ -272,7 +272,11 @@ public class IRConstFoldVisitor
     public OneOfThree<IRExpr, IRStmt, IRFuncDecl> visit(IRFuncDecl n) {
         IRNodeFactory make = new IRNodeFactory_c(n.location());
         IRStmt body = n.body().accept(this).assertSecond();
-        return OneOfThree.ofThird(make.IRFuncDecl(n.name(), body, n.type()));
+        if (n.type() == null) {
+            return OneOfThree.ofThird(make.IRFuncDecl(n.name(), body));
+        } else {
+            return OneOfThree.ofThird(make.IRFuncDecl(n.name(), body, n.type()));
+        }
     }
 
     /**
