@@ -71,7 +71,7 @@ terminal IF, ELSE, RETURN, USE, WHILE, LENGTH, FREE, FOR, DO;
 terminal String ID;
 
 // Types
-terminal String TYPE_INT, TYPE_FLOAT, TYPE_BOOL;
+terminal String TYPE_INT, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING;
 
 // Values
 terminal String INT_LITERAL; // n < 2^63
@@ -393,7 +393,7 @@ MultiVarDeclList ::=
 
 VarDeclArrayInit ::=
     ID:id COLON Primitive:p L_SQ_BRKT Expr:v R_SQ_BRKT
-    VarDeclDimensionedBracket:l {:
+      VarDeclDimensionedBracket:l {:
             l.addFirst(Optional.of(v));
             TypeExprArrayNode t = TypeExprNode.fromDimensionList(p, l);
             RESULT = ast(idxleft).arrayDecl(id, t);
@@ -427,7 +427,17 @@ Primitive ::=
     ;
 
 TypeExpr ::=
-    Primitive:p L_SQ_BRKT R_SQ_BRKT TypeExprArrayList:l {:
+    | TYPE_STRING:s {:
+            ASTFactory a = ast(sxleft);
+            RESULT = a.arrayType(a.intType());
+        :}
+    | TYPE_STRING:s L_SQ_BRKT R_SQ_BRKT TypeExprArrayList:l {:
+                l.addFirst(Optional.empty());
+                l.addFirst(Optional.empty());
+                ASTFactory a = ast(sxleft);
+                RESULT = TypeExprNode.fromDimensionList(a.intType(), l);
+            :}
+    | Primitive:p L_SQ_BRKT R_SQ_BRKT TypeExprArrayList:l {:
             l.addFirst(Optional.empty());
             RESULT = TypeExprNode.fromDimensionList(p, l);
         :}

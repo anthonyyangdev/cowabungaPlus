@@ -152,6 +152,7 @@ Hex = \\x(([(a-f|A-F)0-9]){1,4})
     "free"              { return symbol(sym.FREE); }
     "length"            { return symbol(sym.LENGTH); }
 
+    "string"            { return symbol(sym.TYPE_STRING); }
     "float"             { return symbol(sym.TYPE_FLOAT); }
     "int"               { return symbol(sym.TYPE_INT); }
     "bool"              { return symbol(sym.TYPE_BOOL); }
