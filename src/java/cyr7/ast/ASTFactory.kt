@@ -27,10 +27,13 @@ class ASTFactory(val location: ComplexSymbolFactory.Location) {
     fun arrayType(child: TypeExprNode) = TypeExprArrayNode(location, child, Optional.empty())
 
     fun integer(value: String) = LiteralIntExprNode(location, value)
+    fun integer(value: Int) = LiteralIntExprNode(location, value.toString())
+    fun integer(value: Long) = LiteralIntExprNode(location, value.toString())
     fun bool(value: Boolean) = LiteralBoolExprNode(location, value)
     fun floating(value: Double) = LiteralFloatExprNode(location, value)
     fun string(value: String) = LiteralStringExprNode(location, value)
     fun character(value: String) = LiteralCharExprNode(location, value)
+    fun character(value: Char) = LiteralCharExprNode(location, value.toString())
     fun array(vararg values: ExprNode) = LiteralArrayExprNode(location, listOf(*values))
     fun array(values: List<ExprNode>) = LiteralArrayExprNode(location, values)
 
