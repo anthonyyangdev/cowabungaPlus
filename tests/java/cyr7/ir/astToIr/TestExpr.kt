@@ -1,29 +1,20 @@
 package cyr7.ir.astToIr
 
 import cyr7.C
+import cyr7.ast.ASTFactory
 import cyr7.ast.Node
-import cyr7.ast.expr.binexpr.AddExprNode
-import cyr7.ast.expr.binexpr.RemExprNode
-import cyr7.ast.expr.binexpr.SubExprNode
-import cyr7.ast.expr.literalexpr.LiteralBoolExprNode
-import cyr7.ast.expr.literalexpr.LiteralCharExprNode
-import cyr7.ast.expr.literalexpr.LiteralFloatExprNode
-import cyr7.ast.expr.literalexpr.LiteralIntExprNode
-import cyr7.ast.expr.unaryexpr.BoolNegExprNode
-import cyr7.ast.expr.unaryexpr.IntNegExprNode
 import cyr7.ir.ASTToIRVisitor
 import cyr7.ir.DefaultIdGenerator
 import cyr7.ir.IdGenerator
 import cyr7.ir.nodes.*
 import cyr7.semantics.types.PrimitiveType
 import cyr7.typecheck.TypeCheckUtil
-import java_cup.runtime.ComplexSymbolFactory
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 internal class TestExpr {
-    private val make: IRNodeFactory = IRNodeFactory_c(
-            ComplexSymbolFactory.Location(-1, -1))
+    private val make = IRNodeFactory_c(C.LOC)
+    private val ast = ASTFactory(C.LOC)
 
     /*
     @Test
@@ -101,8 +92,7 @@ internal class TestExpr {
     */
     @Test
     fun testRem() {
-        val node: Node = RemExprNode(C.LOC, LiteralIntExprNode(C.LOC, "5"),
-                LiteralIntExprNode(C.LOC, "10"))
+        val node: Node = ast.rem(ast.integer(5), ast.integer(10))
         val expected: IRExpr = make.IRBinOp(IRBinOp.OpType.MOD_INT, make.IRInteger(5),
                 make.IRInteger(10))
         assertEq(expected, node)
@@ -110,8 +100,7 @@ internal class TestExpr {
 
     @Test
     fun testSub() {
-        val node: Node = SubExprNode(C.LOC, LiteralIntExprNode(C.LOC, "5"),
-                LiteralIntExprNode(C.LOC, "10"))
+        val node: Node = ast.sub(ast.integer(5), ast.integer(10))
         val expected: IRExpr = make.IRBinOp(IRBinOp.OpType.SUB_INT, make.IRInteger(5),
                 make.IRInteger(10))
         assertEq(expected, node)
@@ -119,8 +108,7 @@ internal class TestExpr {
 
     @Test
     fun testBoolNegExpr() {
-        val node: Node = BoolNegExprNode(C.LOC,
-                LiteralBoolExprNode(C.LOC, false))
+        val node: Node = ast.negateBool(ast.bool(false))
         val expected: IRExpr = make.IRBinOp(IRBinOp.OpType.XOR, make.IRInteger(1),
                 make.IRInteger(0))
         assertEq(expected, node)
@@ -128,9 +116,7 @@ internal class TestExpr {
 
     @Test
     fun testIntNegExpr() {
-        val node: Node = IntNegExprNode(C.LOC,
-                LiteralIntExprNode(C.LOC, "5"))
-        TypeCheckUtil.typeCheckNoIxiFiles(node)
+        val node = ast.negateNumber(ast.integer(5))
         val expected: IRExpr = make.IRBinOp(IRBinOp.OpType.SUB_INT, make.IRInteger(0),
                 make.IRInteger(5))
         assertEq(expected, node)
@@ -138,38 +124,35 @@ internal class TestExpr {
 
     @Test
     fun testLiteralInt() {
-        val node: Node = LiteralIntExprNode(C.LOC, "5")
+        val node = ast.integer(5)
         val expected: IRExpr = make.IRInteger(5)
         assertEq(expected, node)
     }
 
     @Test
     fun testLiteralBool() {
-        val node: Node = LiteralBoolExprNode(C.LOC, true)
+        val node = ast.bool(true)
         val expected: IRExpr = make.IRInteger(1)
         assertEq(expected, node)
     }
 
     @Test
     fun testLiteralChar() {
-        val node: Node = LiteralCharExprNode(C.LOC, "x")
+        val node = ast.character('x')
         val expected: IRExpr = make.IRInteger('x'.toLong())
         assertEq(expected, node)
     }
 
     @Test
     fun `test floating-point values`() {
-        val node = LiteralFloatExprNode(C.LOC, 1e21)
+        val node = ast.floating(1e21)
         val expected = make.IRFloat(1e21)
         assertEq(expected, node)
     }
 
     @Test
     fun `test casting integers to floats`() {
-        val node = AddExprNode(C.LOC,
-                LiteralIntExprNode(C.LOC, "14"),
-                LiteralFloatExprNode(C.LOC, 1.5)
-        )
+        val node = ast.add(ast.integer(14), ast.floating(1.5))
         val expected = make.IRBinOp(IRBinOp.OpType.ADD_FLOAT,
                 make.IRCast(make.IRInteger(14), PrimitiveType.intDefault, PrimitiveType.floatDefault),
                 make.IRFloat(1.5)

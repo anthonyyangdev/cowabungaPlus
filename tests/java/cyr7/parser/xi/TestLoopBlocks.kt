@@ -1,18 +1,8 @@
 package cyr7.parser.xi
 
 import cyr7.C
-import cyr7.ast.stmt.VarDeclNode
-import cyr7.ast.expr.FunctionCallExprNode
-import cyr7.ast.expr.access.VariableAccessExprNode
-import cyr7.ast.expr.binexpr.AddExprNode
-import cyr7.ast.expr.binexpr.LTExprNode
-import cyr7.ast.expr.literalexpr.LiteralBoolExprNode
-import cyr7.ast.expr.literalexpr.LiteralIntExprNode
-import cyr7.ast.expr.literalexpr.LiteralStringExprNode
-import cyr7.ast.expr.unaryexpr.LengthExprNode
+import cyr7.ast.ASTFactory
 import cyr7.ast.stmt.*
-import cyr7.ast.type.PrimitiveEnum
-import cyr7.ast.type.PrimitiveTypeNode
 import cyr7.parser.util.ParserFactory
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -24,36 +14,25 @@ class TestLoopBlocks {
     private fun String.parse(): StmtNode {
         return ParserFactory.parseStatement(this)[0]
     }
-    private val LOC = C.LOC
+    val ast = ASTFactory(C.LOC);
 
     @Test
     fun `test do-while loops`() {
         val statement = "do i = i + 1 while(true)".parse()
-        assertEquals(
-                DoWhileStmtNode(LOC,
-                        AssignmentStmtNode(LOC,
-                                VariableAccessExprNode(LOC, "i"),
-                                AddExprNode(LOC,
-                                        VariableAccessExprNode(LOC, "i"),
-                                        LiteralIntExprNode(LOC, "1")
-                        )
-                ), LiteralBoolExprNode(LOC, true)
+        assertEquals(ast.doWhile(
+                ast.assign(ast.variable("i"), ast.add(ast.variable("i"), ast.integer(1))),
+                ast.bool(true)
         ), statement)
     }
 
     @Test
     fun `test for-loop`() {
         val statement = """for (i: int = 1; i < length(x); i = i + 1) println("Hello") """.parse()
-        assertEquals(
-                ForLoopStmtNode(
-                        LOC,
-                        VarInitStmtNode(LOC, VarDeclNode(LOC, "i", PrimitiveTypeNode(LOC, PrimitiveEnum.INT)), LiteralIntExprNode(LOC, "1")),
-                        LTExprNode(LOC, VariableAccessExprNode(LOC, "i"), LengthExprNode(LOC, VariableAccessExprNode(LOC, "x"))),
-                        AssignmentStmtNode(LOC, VariableAccessExprNode(LOC, "i"), AddExprNode(LOC, VariableAccessExprNode(LOC, "i"), LiteralIntExprNode(LOC, "1"))),
-                        ProcedureStmtNode(LOC, FunctionCallExprNode(LOC, "println", listOf(LiteralStringExprNode(LOC, "Hello"))))
-                ),
-                statement
-        )
+        val init = ast.varInit(ast.varDecl("i", ast.intType()), ast.integer(1))
+        val cond = ast.lt(ast.variable("i"), ast.length(ast.variable("x")))
+        val epilogue = ast.assign(ast.variable("i"), ast.add(ast.variable("i"), ast.integer(1)))
+        val body = ast.procedure(ast.call("println", ast.string("Hello")))
+        assertEquals(ast.forLoop(init, cond, epilogue, body), statement)
     }
 
 }

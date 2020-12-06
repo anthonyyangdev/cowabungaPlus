@@ -1,15 +1,9 @@
 package cyr7.parser.xi;
 
-import cyr7.ast.stmt.VarDeclNode;
-import cyr7.ast.expr.access.ArrayAccessExprNode;
-import cyr7.ast.expr.access.VariableAccessExprNode;
-import cyr7.ast.expr.FunctionCallExprNode;
-import cyr7.ast.expr.binexpr.AddExprNode;
-import cyr7.ast.expr.literalexpr.LiteralIntExprNode;
+import cyr7.C;
+import cyr7.ast.ASTFactory;
+import cyr7.ast.Node;
 import cyr7.ast.stmt.*;
-import cyr7.ast.type.PrimitiveEnum;
-import cyr7.ast.type.PrimitiveTypeNode;
-import cyr7.ast.type.TypeExprArrayNode;
 import cyr7.exceptions.parser.ParserException;
 import cyr7.exceptions.parser.UnexpectedTokenException;
 import cyr7.parser.util.ParserFactory;
@@ -21,118 +15,44 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import static cyr7.parser.util.ParserFactory.LOC;
-
 public class TestVariableDeclarationStatement {
+
+    private final ASTFactory ast = new ASTFactory(C.LOC);
 
     @Test
     void testVarInitStmtNode() throws Exception {
         StmtNode statement =
             ParserFactory.parseStatement("a: int = x").get(0);
-        assertEquals(new VarInitStmtNode(
-            LOC,
-            new VarDeclNode(
-                LOC,
-                "a",
-                new PrimitiveTypeNode(
-                    LOC,
-                    PrimitiveEnum.INT
-                )
-            ),
-            new VariableAccessExprNode(
-                LOC,
-                "x"
-            )
-        ), statement);
+        Node expected = ast.varInit(
+                ast.varDecl("a", ast.intType()),
+                ast.variable("x")
+        );
+        assertEquals(expected, statement);
 
-        statement =
-            ParserFactory.parseStatement("b: int[][] = x").get(0);
-        assertEquals(new VarInitStmtNode(
-            LOC,
-            new VarDeclNode(
-                LOC,
-                "b",
-                new TypeExprArrayNode(
-                    LOC,
-                    new TypeExprArrayNode(
-                        LOC,
-                        new PrimitiveTypeNode(
-                            LOC,
-                            PrimitiveEnum.INT
-                        ),
-                        Optional.empty()
-                    ),
-                    Optional.empty()
-                )
-            ),
-            new VariableAccessExprNode(
-                LOC,
-                "x"
-            )
-        ), statement);
+        statement = ParserFactory.parseStatement("b: int[][] = x").get(0);
+        expected = ast.varInit(
+                ast.varDecl("b", ast.arrayType(ast.arrayType(ast.intType()))),
+                ast.variable("x")
+        );
+        assertEquals(expected, statement);
 
         statement = ParserFactory.parseStatement("i: int = c[3];").get(0);
-        assertEquals(statement, new VarInitStmtNode(
-            LOC,
-            new VarDeclNode(
-                LOC,
-                "i",
-                new PrimitiveTypeNode(
-                    LOC,
-                    PrimitiveEnum.INT
-                )
-            ),
-            new ArrayAccessExprNode(
-                LOC,
-                new VariableAccessExprNode(
-                    LOC,
-                    "c"
-                ),
-                new LiteralIntExprNode(
-                    LOC,
-                    "3"
-                )
-            )
-        ));
+        expected = ast.varInit(
+                ast.varDecl("i", ast.intType()),
+                ast.arrayAccess(ast.variable("c"), ast.integer(3))
+        );
+        assertEquals(expected, statement);
     }
 
     @Test
     void testVarDeclStmtNode() throws Exception {
-        StmtNode statement =
-            ParserFactory.parseStatement("z: int").get(0);
-        assertEquals(new VarDeclStmtNode(
-            LOC,
-            new VarDeclNode(
-                LOC,
-                "z",
-                new PrimitiveTypeNode(
-                    LOC,
-                    PrimitiveEnum.INT
-                )
-            )
-        ), statement);
+        StmtNode statement = ParserFactory.parseStatement("z: int").get(0);
+        Node expected = ast.varDecl("z", ast.intType());
+        assertEquals(expected, statement);
 
-        statement =
-            ParserFactory.parseStatement("c: bool[][]").get(0);
-        assertEquals(new VarDeclStmtNode(
-            LOC,
-            new VarDeclNode(
-                LOC,
-                "c",
-                new TypeExprArrayNode(
-                    LOC,
-                    new TypeExprArrayNode(
-                        LOC,
-                        new PrimitiveTypeNode(
-                            LOC,
-                            PrimitiveEnum.BOOL
-                        ),
-                        Optional.empty()
-                    ),
-                    Optional.empty()
-                )
-            )
-        ), statement);
+        statement = ParserFactory.parseStatement("c: bool[][]").get(0);
+        expected = ast.varDecl("c", ast.arrayType(ast.arrayType(ast.boolType())));
+        assertEquals(expected, statement);
     }
 
     @Test
@@ -154,77 +74,36 @@ public class TestVariableDeclarationStatement {
 
     @Test
     void testMultiAssignDeclarations() throws Exception {
-        StmtNode statement =
-            ParserFactory.parseStatement("a: int, b: bool = function()").get(0);
-        assertEquals(statement, new MultiAssignStmtNode(
-            LOC,
-            List.of(
-                Optional.of(
-                    new VarDeclNode(
-                        LOC,
-                        "a",
-                        new PrimitiveTypeNode(
-                            LOC,
-                            PrimitiveEnum.INT
-                        )
-                    )
+        StmtNode statement = ParserFactory.parseStatement("a: int, b: bool = function()").get(0);
+        Node expected = ast.multiAssign(
+                List.of(
+                        Optional.of(ast.varDecl("a", ast.intType())),
+                        Optional.of(ast.varDecl("b", ast.boolType()))
                 ),
-                Optional.of(
-                    new VarDeclNode(
-                        LOC,
-                        "b",
-                        new PrimitiveTypeNode(
-                            LOC,
-                            PrimitiveEnum.BOOL
-                        )
-                    )
-                )
-            ),
-            new FunctionCallExprNode(
-                LOC,
-                "function",
-                List.of()
-            )
-        ));
+                ast.call("function")
+        );
+        assertEquals(expected, statement);
 
-        statement =
-            ParserFactory.parseStatement("a: int, _ = f()").get(0);
-        assertEquals(statement, new MultiAssignStmtNode(
-            LOC,
-            List.of(
-                Optional.of(
-                    new VarDeclNode(
-                        LOC,
-                        "a",
-                        new PrimitiveTypeNode(
-                            LOC,
-                            PrimitiveEnum.INT
-                        )
-                    )
+        statement = ParserFactory.parseStatement("a: int, _ = f()").get(0);
+        expected = ast.multiAssign(
+                List.of(
+                        Optional.of(ast.varDecl("a", ast.intType())),
+                        Optional.empty()
                 ),
-                Optional.empty()
-            ),
-            new FunctionCallExprNode(
-                LOC,
-                "f",
-                List.of()
-            )
-        ));
+                ast.call("f")
+        );
+        assertEquals(expected, statement);
 
         statement =
             ParserFactory.parseStatement("_, _ = f()").get(0);
-        assertEquals(statement, new MultiAssignStmtNode(
-            LOC,
-            List.of(
-                Optional.empty(),
-                Optional.empty()
-            ),
-            new FunctionCallExprNode(
-                LOC,
-                "f",
-                List.of()
-            )
-        ));
+        expected = ast.multiAssign(
+                List.of(
+                        Optional.empty(),
+                        Optional.empty()
+                ),
+                ast.call("f")
+        );
+        assertEquals(expected, statement);
     }
 
     @Test
@@ -249,90 +128,29 @@ public class TestVariableDeclarationStatement {
     void testArrayVarDeclarations() throws Exception {
         StmtNode statement =
             ParserFactory.parseStatement("a: int[5]").get(0);
-        assertEquals(statement, new ArrayDeclStmtNode(
-            LOC,
-            "a",
-            new TypeExprArrayNode(
-                LOC,
-                new PrimitiveTypeNode(
-                    LOC,
-                    PrimitiveEnum.INT
-                ),
-                Optional.of(
-                    new LiteralIntExprNode(
-                        LOC,
-                        "5"
-                    )
-                )
-            )
-        ));
+        Node expected = ast.arrayDecl("a", ast.arrayType(ast.intType(), ast.integer(5)));
+        assertEquals(expected, statement);
 
-        statement =
-            ParserFactory.parseStatement("a: int[5][]").get(0);
-        assertEquals(statement, new ArrayDeclStmtNode(
-            LOC,
-            "a",
-            new TypeExprArrayNode(
-                LOC,
-                new TypeExprArrayNode(
-                    LOC,
-                    new PrimitiveTypeNode(
-                        LOC,
-                        PrimitiveEnum.INT
-                    ),
-                    Optional.empty()
-                ),
-                Optional.of(
-                    new LiteralIntExprNode(
-                        LOC,
-                        "5"
-                    )
+        statement = ParserFactory.parseStatement("a: int[5][]").get(0);
+        expected = ast.arrayDecl("a",
+                ast.arrayType(
+                        ast.arrayType(ast.intType()),
+                        ast.integer(5)
                 )
-            )
-        ));
+        );
+        assertEquals(expected, statement);
 
-        statement =
-            ParserFactory.parseStatement("a: int[5 + i][4 + j]").get(0);
-        assertEquals(statement, new ArrayDeclStmtNode(
-            LOC,
-            "a",
-            new TypeExprArrayNode(
-                LOC,
-                new TypeExprArrayNode(
-                    LOC,
-                    new PrimitiveTypeNode(
-                        LOC,
-                        PrimitiveEnum.INT
-                    ),
-                    Optional.of(
-                        new AddExprNode(
-                            LOC,
-                            new LiteralIntExprNode(
-                                LOC,
-                                "4"
-                            ),
-                            new VariableAccessExprNode(
-                                LOC,
-                                "j"
-                            )
-                        )
-                    )
-                ),
-                Optional.of(
-                    new AddExprNode(
-                        LOC,
-                        new LiteralIntExprNode(
-                            LOC,
-                            "5"
+        statement = ParserFactory.parseStatement("a: int[5 + i][4 + j]").get(0);
+        expected = ast.arrayDecl("a",
+                ast.arrayType(
+                        ast.arrayType(
+                                ast.intType(),
+                                ast.add(ast.integer(4), ast.variable("j"))
                         ),
-                        new VariableAccessExprNode(
-                            LOC,
-                            "i"
-                        )
-                    )
+                        ast.add(ast.integer(5), ast.variable("i"))
                 )
-            )
-        ));
+        );
+        assertEquals(expected, statement);
     }
 
     @Test
