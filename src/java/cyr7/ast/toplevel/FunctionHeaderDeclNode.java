@@ -23,6 +23,7 @@ public final class FunctionHeaderDeclNode extends AbstractNode {
     public final String identifier;
     public final List<VarDeclNode> args;
     public final List<TypeExprNode> returnTypes;
+    public final boolean isPure;
 
     private FunctionType type;
 
@@ -31,8 +32,6 @@ public final class FunctionHeaderDeclNode extends AbstractNode {
                                   List<VarDeclNode> args,
                                   List<TypeExprNode> returnTypes) {
         super(location);
-
-
         assert id != null;
         assert args != null;
         assert returnTypes != null;
@@ -40,6 +39,23 @@ public final class FunctionHeaderDeclNode extends AbstractNode {
         this.identifier = id;
         this.args = Util.immutableCopy(args);
         this.returnTypes = Util.immutableCopy(returnTypes);
+        this.isPure = false;
+    }
+
+    public FunctionHeaderDeclNode(Location location,
+                                  String id,
+                                  List<VarDeclNode> args,
+                                  List<TypeExprNode> returnTypes,
+                                  boolean isPure) {
+        super(location);
+        assert id != null;
+        assert args != null;
+        assert returnTypes != null;
+
+        this.identifier = id;
+        this.args = Util.immutableCopy(args);
+        this.returnTypes = Util.immutableCopy(returnTypes);
+        this.isPure = isPure;
     }
 
     @Override

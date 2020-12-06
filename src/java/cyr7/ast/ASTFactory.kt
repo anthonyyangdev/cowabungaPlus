@@ -93,6 +93,9 @@ class ASTFactory(val location: ComplexSymbolFactory.Location) {
     fun funcHeader(id: String, args: List<VarDeclNode>, returnTypes: List<TypeExprNode>): FunctionHeaderDeclNode {
         return FunctionHeaderDeclNode(location, id, args, returnTypes)
     }
+    fun funcHeader(id: String, args: List<VarDeclNode>, returnTypes: List<TypeExprNode>, isPure: Boolean): FunctionHeaderDeclNode {
+        return FunctionHeaderDeclNode(location, id, args, returnTypes, isPure)
+    }
     fun ixiProgram(funcs: List<FunctionHeaderDeclNode>) = IxiProgramNode(location, funcs)
     fun ixiProgram(vararg funcs: FunctionHeaderDeclNode) = IxiProgramNode(location, listOf(*funcs))
     fun use(interfaceName: String) = UseNode(location, interfaceName)
