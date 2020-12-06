@@ -13,10 +13,23 @@ class ForLoopStmtNode(
         val epilogue: StmtNode,
         val body: StmtNode
 ): AbstractNode(location), StmtNode {
-    override fun <T : Any?> accept(visitor: AbstractVisitor<T>): T {
+    override fun equals(other: Any?): Boolean {
+        return other is ForLoopStmtNode
+                && other.varDecl == varDecl
+                && other.condition == condition
+                && other.epilogue == epilogue
+                && other.body == body
+    }
+    override fun hashCode(): Int {
+        var result = varDecl.hashCode()
+        result = 31 * result + condition.hashCode()
+        result = 31 * result + epilogue.hashCode()
+        result = 31 * result + body.hashCode()
+        return result
+    }
+    override fun <T> accept(visitor: AbstractVisitor<T>): T {
         return visitor.visit(this)
     }
-    override fun getChildren(): MutableList<Node> {
-        return mutableListOf(varDecl, condition, epilogue, body)
-    }
+    override val children: MutableList<Node>
+        get() = mutableListOf(varDecl, condition, epilogue, body)
 }

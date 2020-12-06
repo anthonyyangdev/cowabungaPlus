@@ -11,10 +11,16 @@ class DoWhileStmtNode(
         val body: StmtNode,
         val condition: ExprNode
 ): AbstractNode(location), StmtNode {
+    override fun equals(other: Any?): Boolean {
+        return other is DoWhileStmtNode && other.body == body && other.condition == condition
+    }
+    override fun hashCode(): Int {
+        var result = body.hashCode()
+        result = 31 * result + condition.hashCode()
+        return result
+    }
     override fun <T : Any?> accept(visitor: AbstractVisitor<T>): T {
         return visitor.visit(this);
     }
-    override fun getChildren(): MutableList<Node> {
-        return mutableListOf(body, condition)
-    }
+    override val children get() = mutableListOf(body, condition)
 }

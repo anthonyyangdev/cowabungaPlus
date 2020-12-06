@@ -4,7 +4,8 @@ Xi Compiler originally branched from [group project](https://github.com/connorre
 
 ## Extensions
 
-TBD
+- Freeing memory
+- Float values
 
 ## Setup
 
