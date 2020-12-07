@@ -785,8 +785,7 @@ class TestTypeCheckVisitorExpr {
         assertTrue(result.assertFirst().isArray());
         assertTrue(result.assertFirst().getInnerArrayType().isArray());
         assertTrue(result.assertFirst().isASubtypeOf(
-                new ExpandedType(
-                        new ArrayType(new ArrayType(PrimitiveType.intDefault)))));
+                new ExpandedType(new ArrayType(new ArrayType(PrimitiveType.intDefault)))));
 
 
         node = new LiteralArrayExprNode(loc, List.of());
@@ -812,33 +811,25 @@ class TestTypeCheckVisitorExpr {
         visitor.context.addFn("print", new FunctionType(
                 new ExpandedType(new ArrayType(PrimitiveType.intDefault)),
                 ExpandedType.unitExpandedType));
-        node = new FunctionCallExprNode(loc, "print",
-                List.of(new LiteralStringExprNode(loc, "Hello World")));
+        node = ast.call("print", ast.string("Hello World"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isUnit());
-
-
-
-
 
         visitor = new TypeCheckVisitor(null);
         visitor.context.addFn("duplicate", new FunctionType(
                 new ExpandedType(new ArrayType(PrimitiveType.intDefault)),
                 new ExpandedType(new ArrayType(PrimitiveType.intDefault))));
-        node = new FunctionCallExprNode(loc, "duplicate",
-                List.of(new LiteralStringExprNode(loc, "Hello World")));
+        node = ast.call("duplicate", ast.string("Hello World"));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isArray());
         assertTrue(result.assertFirst().getInnerArrayType().isInt());
-
-
 
 
         visitor = new TypeCheckVisitor(null);
         visitor.context.addFn("exit", new FunctionType(
                 ExpandedType.unitExpandedType,
                 ExpandedType.unitExpandedType));
-        node = new FunctionCallExprNode(loc, "exit", List.of());
+        node = ast.call("exit");
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isUnit());
 
@@ -848,7 +839,7 @@ class TestTypeCheckVisitorExpr {
         visitor = new TypeCheckVisitor(null);
         visitor.context.addFn("random", new FunctionType(
                 ExpandedType.unitExpandedType, ExpandedType.intType));
-        node = new FunctionCallExprNode(loc, "random", List.of());
+        node = ast.call("random");
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
         assertTrue(result.assertFirst().getOrdinaryType().isInt());
@@ -875,55 +866,44 @@ class TestTypeCheckVisitorExpr {
         visitor.context.addFn("manyToSingle",
                 new FunctionType(tuple, ExpandedType.intType));
 
-        node = new FunctionCallExprNode(loc, "genMany", List.of());
+        node = ast.call("genMany");
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isTuple());
         assertTrue(result.assertFirst().isASubtypeOf(tuple));
 
-        node = new FunctionCallExprNode(loc, "singleToMany",
-                List.of(new LiteralIntExprNode(loc, "0")));
+        node = ast.call("singleToMany", ast.integer(0));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isTuple());
         assertTrue(result.assertFirst().isASubtypeOf(tuple));
 
 
-        node = new FunctionCallExprNode(loc, "transform",
-                List.of(new LiteralIntExprNode(loc, "0"),
-                        new LiteralBoolExprNode(loc, false),
-                        new LiteralBoolExprNode(loc, true)));
+        node = ast.call("transform", ast.integer(0), ast.bool(false), ast.bool(true));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isTuple());
         assertTrue(result.assertFirst().isASubtypeOf(oppositeTuple));
 
 
-        node = new FunctionCallExprNode(loc, "consume",
-                List.of(new LiteralIntExprNode(loc, "0"),
-                        new LiteralBoolExprNode(loc, false),
-                        new LiteralBoolExprNode(loc, true)));
+        node = ast.call("consume", ast.integer(0), ast.bool(false), ast.bool(true));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isUnit());
 
 
-        node = new FunctionCallExprNode(loc, "manyToSingle",
-                List.of(new LiteralIntExprNode(loc, "0"),
-                        new LiteralBoolExprNode(loc, false),
-                        new LiteralBoolExprNode(loc, true)));
+        node = ast.call("manyToSingle", ast.integer(0), ast.bool(false), ast.bool(true));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
         assertTrue(result.assertFirst().getOrdinaryType().isInt());
 
 
-        node = new FunctionCallExprNode(loc, "nonexistantFunction", List.of());
+        node = ast.call("nonexistantFunction");
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
-        node = new FunctionCallExprNode(loc, "manyToSingle", List.of());
+        node = ast.call("manyToSingle");
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
-        node = new FunctionCallExprNode(loc, "consume", List.of());
+        node = ast.call("consume");
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
-        node = new FunctionCallExprNode(loc, "genMany",
-                List.of(new LiteralStringExprNode(loc, "Bad Input")));
+        ast.call("genMany", ast.string("Bad Input"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
     }
@@ -936,75 +916,52 @@ class TestTypeCheckVisitorExpr {
         visitor = new TypeCheckVisitor(null);
 
         visitor.context.addVar("cash", PrimitiveType.intDefault);
-        node = new VariableAccessExprNode(loc, "cash");
+        node = ast.variable("cash");
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
 
         // empty[0]
         visitor.context.addVar("empty", new ArrayType(PrimitiveType.intDefault));
-        node = new ArrayAccessExprNode(loc,
-                new VariableAccessExprNode(loc, "empty"),
-                new LiteralIntExprNode(loc, "0"));
+        node = ast.arrayAccess(ast.variable("empty"), ast.integer(0));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
 
 
         // empty
-        node = new VariableAccessExprNode(loc, "empty");
+        node = ast.variable("empty");
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isArray());
 
 
         // empty[true]
-        node = new ArrayAccessExprNode(loc,
-                new VariableAccessExprNode(loc, "empty"),
-                new LiteralBoolExprNode(loc, true));
+        node = ast.arrayAccess(ast.variable("empty"), ast.bool(true));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         // empty["this is not a number"]
-        node = new ArrayAccessExprNode(loc,
-                new VariableAccessExprNode(loc, "empty"),
-                new LiteralStringExprNode(loc, "this is not a number"));
+        node = ast.arrayAccess(ast.variable("empty"), ast.string("this is not a number"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         // empty[0][0]
-        node = new ArrayAccessExprNode(loc,
-                new ArrayAccessExprNode(
-                        loc,
-                        new VariableAccessExprNode(loc, "empty"),
-                        new LiteralIntExprNode(loc, "0")),
-                new LiteralIntExprNode(loc, "0"));
+        node = ast.arrayAccess(ast.arrayAccess(ast.variable("empty"), ast.integer(0)), ast.integer(0));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         visitor.context.addVar("twoDimensionMap", new ArrayType(
                 new ArrayType(PrimitiveType.intDefault)));
-        node = new ArrayAccessExprNode(loc,
-                        new VariableAccessExprNode(loc, "twoDimensionMap"),
-                new LiteralIntExprNode(loc, "0"));
+        node = ast.arrayAccess(ast.variable("twoDimensionMap"), ast.integer(0));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isArray());
         assertTrue(result.assertFirst().getInnerArrayType().isInt());
 
 
-        node = new ArrayAccessExprNode(loc,
-                new ArrayAccessExprNode(
-                        loc,
-                        new VariableAccessExprNode(loc, "twoDimensionMap"),
-                        new LiteralIntExprNode(loc, "0")),
-                new LiteralIntExprNode(loc, "0"));
+        node = ast.arrayAccess(ast.arrayAccess(ast.variable("twoDimensionMap"), ast.integer(0)), ast.integer(0));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
 
 
-        node = new ArrayAccessExprNode(loc,
-                new ArrayAccessExprNode(
-                        loc,
-                        new VariableAccessExprNode(loc, "twoDimensionMap"),
-                        new LiteralIntExprNode(loc, "0")),
-                new LiteralStringExprNode(loc, "NaN"));
+        node = ast.arrayAccess(ast.arrayAccess(ast.variable("twoDimensionMap"), ast.integer(0)), ast.floating(Double.NaN));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
     }
@@ -1015,18 +972,13 @@ class TestTypeCheckVisitorExpr {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
 
-        node = new ArrayAccessExprNode(loc,
-                new LiteralArrayExprNode(loc,
-                        List.of(new LiteralIntExprNode(loc, "0"))),
-                new LiteralIntExprNode(loc, "0"));
+        node = ast.arrayAccess(ast.array(ast.integer(0)), ast.integer(0));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
 
 
         // Access to an empty array can be potentially any type.
-        node = new ArrayAccessExprNode(loc,
-                new LiteralArrayExprNode(loc, List.of()),
-                new LiteralIntExprNode(loc, "0"));
+        node = ast.arrayAccess(ast.array(), ast.integer(0));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
         assertTrue(result.assertFirst().isSubtypeOfBool());
@@ -1037,15 +989,7 @@ class TestTypeCheckVisitorExpr {
 
         // The array literal's type becomes the supertype of among the elements.
         // Example: {{}, {1,2,3}}
-        node = new LiteralArrayExprNode(loc,
-                List.of(
-                        new LiteralArrayExprNode(loc, List.of()),
-                        new LiteralArrayExprNode(loc, List.of(
-                                new LiteralIntExprNode(loc, "1"),
-                                new LiteralIntExprNode(loc, "2"),
-                                new LiteralIntExprNode(loc, "3")
-                                ))
-                        ));
+        node = ast.array(ast.array(), ast.array(ast.integer(1), ast.integer(2), ast.integer(3)));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isArray());
         assertTrue(result.assertFirst().isASubtypeOf(
@@ -1056,42 +1000,32 @@ class TestTypeCheckVisitorExpr {
 
         // The array literal's type becomes the supertype of among the elements.
         // {{}, {1,2,3}}[0][0]
-        node = new ArrayAccessExprNode(loc,
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc,
-                          List.of(
-                               new LiteralArrayExprNode(loc, List.of()),
-                               new LiteralArrayExprNode(loc, List.of(
-                                       new LiteralIntExprNode(loc, "1"),
-                                       new LiteralIntExprNode(loc, "2"),
-                                       new LiteralIntExprNode(loc, "3")))
-                               )), new LiteralIntExprNode(loc, "0")),
-                new LiteralIntExprNode(loc, "0"));
+        node = ast.arrayAccess(
+                ast.arrayAccess(
+                        ast.array(ast.array(),
+                                ast.array(ast.integer(1), ast.integer(2), ast.integer(3))
+                        ),
+                        ast.integer(0)),
+                ast.integer(0));
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
         assertTrue(result.assertFirst().getOrdinaryType().isInt());
 
 
 
-
-
         // {{}, {}}[0][0]
-        node = new ArrayAccessExprNode(loc,
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc,
-                          List.of(
-                               new LiteralArrayExprNode(loc, List.of()),
-                               new LiteralArrayExprNode(loc, List.of())
-                               )), new LiteralIntExprNode(loc, "0")),
-                new LiteralIntExprNode(loc, "0"));
+        node = ast.arrayAccess(
+                ast.arrayAccess(
+                        ast.array(ast.array(), ast.array()),
+                        ast.integer(0)
+                ),
+                ast.integer(0)
+        );
         result = node.accept(visitor);
         assertTrue(result.assertFirst().isSubtypeOfInt());
         assertTrue(result.assertFirst().isSubtypeOfBool());
         assertTrue(result.assertFirst().isSubtypeOfArray());
         assertTrue(result.assertFirst().isVoid());
-
-
-
 
 
 
