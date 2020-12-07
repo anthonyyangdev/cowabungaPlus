@@ -30,7 +30,7 @@ import cyr7.ir.ASTToIRVisitor;
 import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.IRUtil;
 import cyr7.ir.IdGenerator;
-import cyr7.ir.interpret.MyIRSimulator;
+import cyr7.ir.interpret.IRSimulator;
 import cyr7.ir.nodes.IRCompUnit;
 import cyr7.ir.nodes.IRNode;
 import cyr7.ir.visit.CheckCanonicalIRVisitor;
@@ -183,9 +183,9 @@ public final class Run {
         System.setIn(inputStream);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        MyIRSimulator sim = new MyIRSimulator(
+        IRSimulator sim = new IRSimulator(
             compUnit,
-            runConfiguration.bigHeap ? MyIRSimulator.getBIG_HEAP_SIZE() : MyIRSimulator.getDEFAULT_HEAP_SIZE(),
+            runConfiguration.bigHeap ? IRSimulator.getBIG_HEAP_SIZE() : IRSimulator.getDEFAULT_HEAP_SIZE(),
             new PrintStream(outputStream)
         );
         System.setIn(systemIn);
@@ -217,9 +217,9 @@ public final class Run {
 
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        MyIRSimulator sim = new MyIRSimulator(
+        IRSimulator sim = new IRSimulator(
             lowered,
-            runConfiguration.bigHeap ? MyIRSimulator.Companion.getBIG_HEAP_SIZE() : MyIRSimulator.Companion.getDEFAULT_HEAP_SIZE(),
+            runConfiguration.bigHeap ? IRSimulator.Companion.getBIG_HEAP_SIZE() : IRSimulator.Companion.getDEFAULT_HEAP_SIZE(),
             new PrintStream(outputStream)
         );
         System.setIn(systemIn);

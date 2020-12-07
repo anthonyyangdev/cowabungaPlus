@@ -3,7 +3,7 @@ package cyr7.ir.util;
 import cyr7.ast.AbstractNode;
 import cyr7.ir.ASTToIRVisitor;
 import cyr7.ir.DefaultIdGenerator;
-import cyr7.ir.interpret.MyIRSimulator;
+import cyr7.ir.interpret.IRSimulator;
 import cyr7.ir.nodes.IRCompUnit;
 import cyr7.ir.nodes.IRFuncDecl;
 import cyr7.ir.nodes.IRNode;
@@ -31,7 +31,7 @@ public class IRFactory {
         IRCompUnit compUnit = new IRCompUnit(loc, "test");
         compUnit.appendFunc(bFunc);
 
-        MyIRSimulator sim = new MyIRSimulator(compUnit);
+        IRSimulator sim = new IRSimulator(compUnit);
         return sim.call("function");
     }
 

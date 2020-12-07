@@ -14,7 +14,7 @@ import cyr7.cfg.ir.opt.LoopUnrollingOptimization;
 import cyr7.cli.CLI;
 import cyr7.cli.OptConfig;
 import cyr7.ir.block.TraceOptimizer;
-import cyr7.ir.interpret.MyIRSimulator;
+import cyr7.ir.interpret.IRSimulator;
 import cyr7.ir.lowering.LoweringVisitor;
 import cyr7.ir.nodes.IRCompUnit;
 import cyr7.ir.nodes.IRNode;
@@ -143,7 +143,7 @@ public class IRUtil {
         IRCompUnit compUnit = (IRCompUnit)
             result.accept(new ASTToIRVisitor(generator)).assertSecond();
 
-        MyIRSimulator sim = new MyIRSimulator(compUnit);
+        IRSimulator sim = new IRSimulator(compUnit);
         long retVal = sim.call("_Imain_paai");
         writer.append(String.valueOf(retVal)).append(System.lineSeparator());
     }
@@ -200,7 +200,7 @@ public class IRUtil {
             optConfig,
             new DefaultIdGenerator());
 
-        MyIRSimulator sim = new MyIRSimulator(lowered);
+        IRSimulator sim = new IRSimulator(lowered);
         long retVal = sim.call("_Imain_paai", 0);
         writer.append(String.valueOf(retVal)).append(System.lineSeparator());
     }

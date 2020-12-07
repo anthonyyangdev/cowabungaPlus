@@ -13,11 +13,10 @@ import java.io.PrintStream
 import java.lang.UnsupportedOperationException
 import java.math.BigInteger
 import java.util.*
-import kotlin.math.exp
 import kotlin.random.Random
 import kotlin.random.asJavaRandom
 
-class MyIRSimulator(private val cu: IRCompUnit, val heapSize: Int, private val stdout: PrintStream) {
+open class IRSimulator(cu: IRCompUnit, val heapSize: Int, stdout: PrintStream) {
 
     companion object {
         @JvmStatic
@@ -203,12 +202,18 @@ class MyIRSimulator(private val cu: IRCompUnit, val heapSize: Int, private val s
             if (debugLevel > 2) {
                 println("Arguments: " + args.contentToString())
             }
-            val target: ExprStack.StackItem = exprStack.pop()
-            val targetName: String
-            targetName = if (target.type == ExprStack.StackItem.Kind.NAME) target.name else if (indexToInsn.containsKey(target.value)) {
-                val node = indexToInsn[target.value]
-                if (node is IRFuncDecl) node.name() else throw InternalCompilerError("Call to a non-function instruction!")
-            } else throw InternalCompilerError("Invalid function call '$insn' (target '${target.value}' is unknown!)")
+            val targetName = when (val target: ExprStack.ExprStackItem = exprStack.pop()) {
+                is ExprStack.ExprStackItem.NameItem -> target.name
+                else -> {
+                    if (indexToInsn.containsKey(target.value)) {
+                        val node = indexToInsn[target.value]
+                        if (node is IRFuncDecl) node.name()
+                        else throw InternalCompilerError("Call to a non-function instruction!")
+                    } else
+                        throw InternalCompilerError(
+                                "Invalid function call '$insn' (target '${target.value}' is unknown!)")
+                }
+            }
             val retVal = call(frame, targetName, *args)
             if (debugLevel > 2) {
                 System.err.println("Return value: $retVal")
@@ -219,13 +224,12 @@ class MyIRSimulator(private val cu: IRCompUnit, val heapSize: Int, private val s
             exprStack.pushName(if (libraryFunctions.contains(name)) -1 else findLabel(name), name)
         } else if (insn is IRMove) {
             val r: Long = exprStack.popValue()
-            val stackItem: ExprStack.StackItem = exprStack.pop()
-            when (stackItem.type) {
-                ExprStack.StackItem.Kind.MEM -> {
+            when (val stackItem: ExprStack.ExprStackItem = exprStack.pop()) {
+                is ExprStack.ExprStackItem.MemoryItem -> {
                     if (debugLevel > 0) println("mem[${stackItem.addr}]=$r")
                     heap.store(stackItem.addr, r)
                 }
-                ExprStack.StackItem.Kind.TEMP -> {
+                is ExprStack.ExprStackItem.TempItem -> {
                     if (debugLevel > 0) println("temp[${stackItem.temp}]=$r")
                     frame.put(stackItem.temp, r)
                 }
@@ -233,8 +237,7 @@ class MyIRSimulator(private val cu: IRCompUnit, val heapSize: Int, private val s
             }
         } else if (insn is IRCallStmt) {
             val make: IRNodeFactory = IRNodeFactory_c(insn.location())
-            val syntheticCall = make.IRCall(insn.target(),
-                    insn.args())
+            val syntheticCall = make.IRCall(insn.target(), insn.args())
             interpret(frame, syntheticCall)
             exprStack.popValue()
             val collectors = insn.collectors()
@@ -278,7 +281,7 @@ class MyIRSimulator(private val cu: IRCompUnit, val heapSize: Int, private val s
      */
     open class ExecutionFrame(
             /** instruction pointer  */
-            private val simulator: MyIRSimulator,
+            private val simulator: IRSimulator,
             private var ip: Long) {
         /** local registers (register name -> value)  */
         private val regs: MutableMap<String, Long>
