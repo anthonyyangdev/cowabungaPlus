@@ -6,10 +6,18 @@ public final class FunctionType {
 
     public final ExpandedType input;
     public final ExpandedType output;
+    public final boolean isPure;
 
     public FunctionType(ExpandedType input, ExpandedType output) {
         this.input = input;
         this.output = output;
+        this.isPure = false;
+    }
+
+    public FunctionType(ExpandedType input, ExpandedType output, boolean isPure) {
+        this.input = input;
+        this.output = output;
+        this.isPure = isPure;
     }
 
     @Override

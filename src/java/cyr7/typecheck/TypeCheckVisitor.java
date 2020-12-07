@@ -154,7 +154,7 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
             assert t.isOrdinary();
             return t.getOrdinaryType();
         }).collect(Collectors.toList()));
-        return new FunctionType(input, output);
+        return new FunctionType(input, output, n.isPure);
     }
 
     /**
