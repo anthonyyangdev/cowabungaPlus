@@ -1,18 +1,9 @@
 package cyr7.typecheck;
 
+import cyr7.C;
+import cyr7.ast.ASTFactory;
 import cyr7.ast.Node;
-import cyr7.ast.stmt.VarDeclNode;
-import cyr7.ast.expr.FunctionCallExprNode;
-import cyr7.ast.expr.access.ArrayAccessExprNode;
-import cyr7.ast.expr.access.VariableAccessExprNode;
-import cyr7.ast.expr.literalexpr.LiteralArrayExprNode;
-import cyr7.ast.expr.literalexpr.LiteralBoolExprNode;
-import cyr7.ast.expr.literalexpr.LiteralIntExprNode;
-import cyr7.ast.expr.literalexpr.LiteralStringExprNode;
 import cyr7.ast.stmt.*;
-import cyr7.ast.type.PrimitiveEnum;
-import cyr7.ast.type.PrimitiveTypeNode;
-import cyr7.ast.type.TypeExprArrayNode;
 import cyr7.exceptions.semantics.SemanticException;
 import cyr7.semantics.context.Context;
 import cyr7.semantics.types.ExpandedType;
@@ -36,6 +27,7 @@ class TestTypeCheckVisitorStmt {
     TypeCheckVisitor visitor;
     Node node;
     TypeCheckVisitor.Result result;
+    private final ASTFactory ast = new ASTFactory(C.LOC);
     Location loc = new Location(0, 0);
 
     @Test
@@ -45,27 +37,21 @@ class TestTypeCheckVisitorStmt {
 
         visitor.context.addFn("bool_of_int", new FunctionType(ExpandedType.intType,
                                                 ExpandedType.boolType));
-        node = new ExprStmtNode(loc,
-                new FunctionCallExprNode(loc, "bool_of_int",
-                        List.of(new LiteralIntExprNode(loc, "1000"))));
+        node = ast.exprStmt(ast.call("bool_of_int", ast.integer(1000)));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
         visitor.context.addFn("sleep", new FunctionType(ExpandedType.intType,
                 ExpandedType.unitExpandedType));
-        node = new ExprStmtNode(loc,
-                new FunctionCallExprNode(loc, "sleep",
-                        List.of(new LiteralIntExprNode(loc, "1000"))));
+        node = ast.exprStmt(ast.call("sleep", ast.integer(1000)));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         visitor.context.addFn("factorize", new FunctionType(ExpandedType.intType,
                 new ExpandedType(
                         List.of(PrimitiveType.intDefault, PrimitiveType.intDefault))));
-        node = new ExprStmtNode(loc,
-                new FunctionCallExprNode(loc, "factorize",
-                        List.of(new LiteralIntExprNode(loc, "1000"))));
+        node = ast.exprStmt(ast.call("factorize", ast.integer(1000)));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
     }
@@ -76,29 +62,19 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
 
-        node = new VarInitStmtNode(loc,
-                new VarDeclNode(loc, "alias",
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT)),
-                new LiteralIntExprNode(loc, "123"));
+        node = ast.varInit(ast.varDecl("alias", ast.intType()), ast.integer(123));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
         // Assigning Mismatching types
-        node = new VarInitStmtNode(loc,
-                new VarDeclNode(loc, "alias2",
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT)),
-                new LiteralBoolExprNode(loc, false));
+        node = ast.varInit(ast.varDecl("alias2", ast.intType()), ast.bool(false));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
-        // Redeclaring variable names
-        node = new VarInitStmtNode(loc,
-                new VarDeclNode(loc, "alias",
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.BOOL)),
-                new LiteralBoolExprNode(loc, false));
+        // Redeclaring variable names is bad
+        node = ast.varInit(ast.varDecl("alias", ast.boolType()), ast.bool(false));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-
 
     }
 
@@ -109,25 +85,19 @@ class TestTypeCheckVisitorStmt {
         visitor = new TypeCheckVisitor(null);
         visitor.context.addVar("cash", PrimitiveType.intDefault);
 
-        node = new AssignmentStmtNode(loc,
-                new VariableAccessExprNode(loc, "cash"),
-                new LiteralIntExprNode(loc, "123"));
+        node = ast.assign(ast.variable("cash"), ast.integer(123));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
         // Mismatched types
-        node = new AssignmentStmtNode(loc,
-                new VariableAccessExprNode(loc, "cash"),
-                new LiteralBoolExprNode(loc, false));
+        node = ast.assign(ast.variable("cash"), ast.bool(false));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
 
         // Attempting to assign to undeclared variable.
-        node = new AssignmentStmtNode(loc,
-                new VariableAccessExprNode(loc, "undeclaredValue"),
-                new LiteralStringExprNode(loc, "Anything"));
+        node = ast.assign(ast.variable("undeclaredValue"), ast.string("Anything"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
     }
 
@@ -144,61 +114,45 @@ class TestTypeCheckVisitorStmt {
                         List.of(PrimitiveType.intDefault, PrimitiveType.boolDefault))));
 
 
-        node = new MultiAssignStmtNode(loc,
-                List.of(Optional.of(new VarDeclNode(loc, "apple",
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT))),
-                        Optional.of(new VarDeclNode(loc, "oranges",
-                                new PrimitiveTypeNode(loc, PrimitiveEnum.BOOL))
-                        )),
-                new FunctionCallExprNode(loc, "generate", List.of())
-                );
+        node = ast.multiAssign(List.of(
+                Optional.of(ast.varDecl("apple", ast.intType())),
+                Optional.of(ast.varDecl("oranges", ast.boolType()))
+        ), ast.call("generate"));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
-
-
-        node = new MultiAssignStmtNode(loc,
-                List.of(Optional.of(new VarDeclNode(loc, "banana",
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT)))
-                        , Optional.empty()),
-                new FunctionCallExprNode(loc, "generate", List.of())
-                );
+        node = ast.multiAssign(List.of(
+                Optional.of(ast.varDecl("banana", ast.intType())),
+                Optional.empty()
+        ), ast.call("generate"));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
-        node = new MultiAssignStmtNode(loc,
-                List.of(Optional.empty(), Optional.empty()),
-                new FunctionCallExprNode(loc, "generate", List.of())
-                );
+        node = ast.multiAssign(List.of(
+                Optional.empty(),
+                Optional.empty()
+        ), ast.call("generate"));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
-
-
 
 
         // Duplicate Assignment
-        node = new MultiAssignStmtNode(loc,
-                List.of(Optional.of(new VarDeclNode(loc, "apple",
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT))),
-                        Optional.of(new VarDeclNode(loc, "apple",
-                                new PrimitiveTypeNode(loc, PrimitiveEnum.BOOL))
-                        )),
-                new FunctionCallExprNode(loc, "generate", List.of())
-                );
+        node = ast.multiAssign(List.of(
+                Optional.of(ast.varDecl("apple", ast.intType())),
+                Optional.of(ast.varDecl("apple", ast.boolType()))
+        ), ast.call("generate"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
 
         // Mismatched types
-        node = new MultiAssignStmtNode(loc,
-                List.of(Optional.of(new VarDeclNode(loc, "gorilla",
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT))),
-                        Optional.empty(),
-                        Optional.empty()),
-                new FunctionCallExprNode(loc, "generate", List.of())
-                );
+        node = ast.multiAssign(List.of(
+                Optional.of(ast.varDecl("gorilla", ast.intType())),
+                Optional.empty(),
+                Optional.empty()
+        ), ast.call("generate"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
     }
@@ -209,22 +163,16 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
 
-        node = new VarDeclStmtNode(loc,
-                new VarDeclNode(loc, "testVar",
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT)));
+        node = ast.varDeclStmt(ast.varDecl("testVar", ast.intType()));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
 
         // Redeclare Variables
-        node = new VarDeclStmtNode(loc,
-                new VarDeclNode(loc, "testVar",
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.BOOL)));
+        node = ast.varDeclStmt(ast.varDecl("testVar", ast.boolType()));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new VarDeclStmtNode(loc,
-                new VarDeclNode(loc, "testVar",
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT)));
+        node = ast.varDeclStmt(ast.varDecl("testVar", ast.intType()));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
     }
@@ -236,39 +184,23 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
 
-        node = new ArrayDeclStmtNode(loc, "arr",
-                new TypeExprArrayNode(loc,
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT),
-                        Optional.empty()));
+        node = ast.arrayDecl("arr", ast.arrayType(ast.intType()));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
-        node = new ArrayDeclStmtNode(loc, "arrSized",
-                new TypeExprArrayNode(loc,
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT),
-                        Optional.of(new LiteralIntExprNode(loc, "12"))));
+        node = ast.arrayDecl("arrSized", ast.arrayType(ast.intType(), ast.integer(12)));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
-
-
 
         // Using Strings as array size.
-        node = new ArrayDeclStmtNode(loc, "arrSized",
-                new TypeExprArrayNode(loc,
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT),
-                        Optional.of(new LiteralStringExprNode(loc, "num"))));
+        node = ast.arrayDecl("arrSized", ast.arrayType(ast.intType(), ast.string("num")));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         // Redeclare Variables
-        node = new ArrayDeclStmtNode(loc, "arr",
-                new TypeExprArrayNode(loc,
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.INT),
-                        Optional.empty()));
+        node = ast.arrayDecl("arr", ast.arrayType(ast.intType()));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
-        node = new VarDeclStmtNode(loc,
-                new VarDeclNode(loc, "arr",
-                        new PrimitiveTypeNode(loc, PrimitiveEnum.BOOL)));
+        node = ast.varDeclStmt(ast.varDecl("arr", ast.boolType()));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
     }
 
@@ -280,8 +212,7 @@ class TestTypeCheckVisitorStmt {
         visitor.context.addFn("foo", new FunctionType(ExpandedType.unitExpandedType,
                 ExpandedType.unitExpandedType));
 
-        node = new ProcedureStmtNode(loc,
-                new FunctionCallExprNode(loc, "foo", List.of()));
+        node = ast.procedure(ast.call("foo"));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
@@ -289,16 +220,14 @@ class TestTypeCheckVisitorStmt {
 
         visitor.context.addFn("bar", new FunctionType(ExpandedType.unitExpandedType,
                 ExpandedType.intType));
-        node = new ProcedureStmtNode(loc,
-                new FunctionCallExprNode(loc, "bar", List.of()));
+        node = ast.procedure(ast.call("bar"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         visitor.context.addFn("python", new FunctionType(ExpandedType.unitExpandedType,
                 new ExpandedType(List.of(PrimitiveType.intDefault,
                         PrimitiveType.boolDefault))));
-        node = new ProcedureStmtNode(loc,
-                new FunctionCallExprNode(loc, "python", List.of()));
+        node = ast.procedure(ast.call("python"));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
     }
 
@@ -308,7 +237,7 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new ReturnStmtNode(loc, List.of());
+        node = ast.returnStmt();
         result = node.accept(visitor);
         assertEquals(ResultType.VOID, result.assertSecond());
 
@@ -316,8 +245,7 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.intType);
-        node = new ReturnStmtNode(loc,
-                List.of(new LiteralIntExprNode(loc, "0")));
+        node = ast.returnStmt(ast.integer(0));
         result = node.accept(visitor);
         assertEquals(ResultType.VOID, result.assertSecond());
 
@@ -327,10 +255,7 @@ class TestTypeCheckVisitorStmt {
         visitor.context.addRet(new ExpandedType(List.of(
                 PrimitiveType.intDefault, PrimitiveType.boolDefault
                 )));
-        node = new ReturnStmtNode(loc,
-                List.of(
-                        new LiteralIntExprNode(loc, "0"),
-                        new LiteralBoolExprNode(loc, false)));
+        node = ast.returnStmt(ast.integer(0), ast.bool(false));
         result = node.accept(visitor);
         assertEquals(ResultType.VOID, result.assertSecond());
 
@@ -339,15 +264,14 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new ReturnStmtNode(loc, List.of(
-                new LiteralIntExprNode(loc, "0")));
+        node = ast.returnStmt(ast.integer(0));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.intType);
-        node = new ReturnStmtNode(loc, List.of());
+        node = ast.returnStmt();
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
@@ -356,8 +280,7 @@ class TestTypeCheckVisitorStmt {
         visitor.context.addRet(new ExpandedType(List.of(
                 PrimitiveType.intDefault, PrimitiveType.boolDefault
                 )));
-        node = new ReturnStmtNode(loc,
-                List.of(new LiteralIntExprNode(loc, "0")));
+        node = ast.returnStmt(ast.integer(0));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
     }
 
@@ -368,62 +291,45 @@ class TestTypeCheckVisitorStmt {
         visitor = new TypeCheckVisitor(null);
 
 
-
-        /**
+        /*
          * if (true)
          *    apple: int;
          * else
          *    apple: bool;
          */
-        node = new IfElseStmtNode(loc, new LiteralBoolExprNode(loc, true),
-                new VarDeclStmtNode(loc,
-                        new VarDeclNode(loc, "apple",
-                                new PrimitiveTypeNode(loc,
-                                        PrimitiveEnum.INT))),
-                Optional.of(new VarDeclStmtNode(loc,
-                        new VarDeclNode(loc, "apple",
-                                new PrimitiveTypeNode(loc,
-                                        PrimitiveEnum.BOOL)))));
+        node = ast.ifElse(ast.bool(true),
+                ast.varDeclStmt(ast.varDecl("apple", ast.intType())),
+                ast.varDeclStmt(ast.varDecl("apple", ast.boolType())));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
-
-        /**
+        /*
          * if (true) {
          *    return;
          * } else
          *    apple: bool;
          */
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new IfElseStmtNode(loc, new LiteralBoolExprNode(loc, true),
-                new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of())
-                )),
-                Optional.of(new VarDeclStmtNode(loc,
-                        new VarDeclNode(loc, "apple",
-                                new PrimitiveTypeNode(loc,
-                                        PrimitiveEnum.BOOL)))));
+        node = ast.ifElse(ast.bool(true),
+                ast.returnStmt(),
+                ast.varDeclStmt(ast.varDecl("apple", ast.boolType())));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
-        /**
+        /*
          * if (true)
          *    apple: int;
          */
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new IfElseStmtNode(loc, new LiteralBoolExprNode(loc, true),
-                new VarDeclStmtNode(loc,
-                        new VarDeclNode(loc, "apple",
-                                new PrimitiveTypeNode(loc,
-                                        PrimitiveEnum.INT))),
-                Optional.empty());
+        node = ast.ifElse(ast.bool(true),
+                ast.varDeclStmt(ast.varDecl("apple", ast.intType())));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
-        /**
+        /*
          * if (true) {
          *    return;
          * } else {
@@ -433,18 +339,14 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new IfElseStmtNode(loc, new LiteralBoolExprNode(loc, true),
-                new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of())
-                )),
-                Optional.of(new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of())
-                ))));
+        node = ast.ifElse(ast.bool(true),
+                ast.block(ast.returnStmt()),
+                ast.block(ast.returnStmt()));
         result = node.accept(visitor);
         assertEquals(ResultType.VOID, result.assertSecond());
 
 
-        /**
+        /*
          * if (true) {
          *    return;
          * }
@@ -452,20 +354,13 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new IfElseStmtNode(loc, new LiteralBoolExprNode(loc, false),
-                new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of())
-                )),
-                Optional.empty());
+        node = ast.ifElse(ast.bool(true), ast.returnStmt());
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
 
-
-
-
-        /**
+        /*
          * if ({}) {
          *    return 123;
          * } else {
@@ -475,21 +370,14 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new IfElseStmtNode(loc, new LiteralArrayExprNode(loc, List.of()),
-                new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of(
-                                new LiteralIntExprNode(loc, "123")))
-                )),
-                Optional.of(
-                        new BlockStmtNode(loc, List.of(
-                                new ReturnStmtNode(loc, List.of())
-                        ))));
+        node = ast.ifElse(ast.array(),
+                ast.returnStmt(ast.integer(123)), ast.returnStmt());
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
-        /**
+        /*
          * if ({}[0]) {
-         *    return 123;
+         *    return;
          * } else {
          *    return;
          * }
@@ -497,17 +385,9 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new IfElseStmtNode(loc,
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc, List.of()),
-                        new LiteralIntExprNode(loc, "0")),
-                new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of())
-                )),
-                Optional.of(
-                        new BlockStmtNode(loc, List.of(
-                                new ReturnStmtNode(loc, List.of())
-                        ))));
+        node = ast.ifElse(ast.arrayAccess(ast.array(), ast.integer(0)),
+                ast.block(ast.returnStmt()),
+                ast.block(ast.returnStmt()));
         result = node.accept(visitor);
         assertEquals(ResultType.VOID, result.assertSecond());
 
@@ -516,7 +396,7 @@ class TestTypeCheckVisitorStmt {
 
 
 
-        /**
+        /*
          * if ({}[0]) {
          *    return 123;
          * }
@@ -524,15 +404,8 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.intType);
-        node = new IfElseStmtNode(loc,
-                new ArrayAccessExprNode(loc,
-                        new LiteralArrayExprNode(loc, List.of()),
-                        new LiteralIntExprNode(loc, "0")),
-                new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of(
-                                new LiteralIntExprNode(loc, "123")))
-                )),
-                Optional.empty());
+        node = ast.ifElse(ast.arrayAccess(ast.array(), ast.integer(0)),
+                ast.block(ast.returnStmt(ast.integer(123))));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
@@ -540,10 +413,7 @@ class TestTypeCheckVisitorStmt {
 
 
 
-
-
-
-        /**
+        /*
          * if (121)
          *    apple: int;
          * else
@@ -551,19 +421,13 @@ class TestTypeCheckVisitorStmt {
          */
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new IfElseStmtNode(loc, new LiteralIntExprNode(loc, "121"),
-                new VarDeclStmtNode(loc,
-                        new VarDeclNode(loc, "apple",
-                                new PrimitiveTypeNode(loc,
-                                        PrimitiveEnum.INT))),
-                Optional.of(new VarDeclStmtNode(loc,
-                        new VarDeclNode(loc, "apple",
-                                new PrimitiveTypeNode(loc,
-                                        PrimitiveEnum.BOOL)))));
+        node = ast.ifElse(ast.integer(123),
+                ast.varDeclStmt(ast.varDecl("apple", ast.intType())),
+                ast.varDeclStmt(ast.varDecl("apple", ast.boolType())));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
-        /**
+        /*
          * if (true) {
          *    return 123;
          * } else {
@@ -573,13 +437,9 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new IfElseStmtNode(loc, new LiteralBoolExprNode(loc, true),
-                new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of(
-                                new LiteralIntExprNode(loc, "123")))
-                )),
-                Optional.of(new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of())))));
+        node = ast.ifElse(ast.bool(true),
+                ast.block(ast.returnStmt(ast.integer(123))),
+                ast.block(ast.returnStmt()));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
@@ -593,52 +453,38 @@ class TestTypeCheckVisitorStmt {
         visitor = new TypeCheckVisitor(null);
 
 
-
-        /**
+        /*
          * while (true)
          *    apple: int;
          */
-        node = new WhileStmtNode(loc, new LiteralBoolExprNode(loc, true),
-                new VarDeclStmtNode(loc,
-                        new VarDeclNode(loc, "apple",
-                                new PrimitiveTypeNode(loc,
-                                        PrimitiveEnum.INT))));
+        node = ast.whileLoop(ast.bool(true), ast.varDeclStmt(ast.varDecl("apple", ast.intType())));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
 
-        /**
+        /*
          * while (true) {
          *    return;
          * }
          */
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new WhileStmtNode(loc, new LiteralBoolExprNode(loc, true),
-                new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of())
-                )));
+        node = ast.whileLoop(ast.bool(true), ast.block(ast.returnStmt()));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
-        /**
+        /*
          * while (true)
          *    apple: int;
          */
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new WhileStmtNode(loc, new LiteralBoolExprNode(loc, true),
-                new VarDeclStmtNode(loc,
-                        new VarDeclNode(loc, "apple",
-                                new PrimitiveTypeNode(loc,
-                                        PrimitiveEnum.INT))));
+        node = ast.whileLoop(ast.bool(true), ast.varDeclStmt(ast.varDecl("apple", ast.intType())));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
-
-
-        /**
+        /*
          * while ({}) {
          *    return 123;
          * }
@@ -646,30 +492,22 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new WhileStmtNode(loc, new LiteralArrayExprNode(loc, List.of()),
-                new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of(
-                                new LiteralIntExprNode(loc, "123")))
-                )));
+        node = ast.whileLoop(ast.array(), ast.block(ast.returnStmt(ast.integer(123))));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
 
-        /**
+        /*
          * while (121)
          *    apple: int;
          */
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
-        node = new WhileStmtNode(loc, new LiteralIntExprNode(loc, "121"),
-                new VarDeclStmtNode(loc,
-                        new VarDeclNode(loc, "apple",
-                                new PrimitiveTypeNode(loc,
-                                        PrimitiveEnum.INT))));
+        node = ast.whileLoop(ast.integer(123), ast.varDeclStmt(ast.varDecl("apple", ast.intType())));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
-        /**
+        /*
          * while (true) {
          *    return 123;
          * }
@@ -677,11 +515,7 @@ class TestTypeCheckVisitorStmt {
         context = new HashMapStackContext();
         visitor = new TypeCheckVisitor(null);
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new WhileStmtNode(loc, new LiteralBoolExprNode(loc, true),
-                new BlockStmtNode(loc, List.of(
-                        new ReturnStmtNode(loc, List.of(
-                                new LiteralIntExprNode(loc, "123")))
-                )));
+        node = ast.whileLoop(ast.bool(true), ast.block(ast.returnStmt(ast.integer(123))));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
 
 
@@ -698,30 +532,19 @@ class TestTypeCheckVisitorStmt {
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
-        node = new BlockStmtNode(loc, List.of(
-                new VarDeclStmtNode(loc,
-                        new VarDeclNode(loc, "ringo",
-                                new PrimitiveTypeNode(loc, PrimitiveEnum.INT)))
-                ));
+        node = ast.block(ast.varDeclStmt(ast.varDecl("ringo", ast.intType())));
         result = node.accept(visitor);
         assertEquals(ResultType.UNIT, result.assertSecond());
 
 
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new BlockStmtNode(loc, List.of(
-                new ReturnStmtNode(loc, List.of())
-                ));
+        node = ast.block(ast.returnStmt());
         result = node.accept(visitor);
         assertEquals(ResultType.VOID, result.assertSecond());
 
 
         visitor.context.addRet(ExpandedType.unitExpandedType);
-        node = new BlockStmtNode(loc, List.of(
-                new ReturnStmtNode(loc, List.of()),
-                new VarDeclStmtNode(loc,
-                        new VarDeclNode(loc, "ringo",
-                                new PrimitiveTypeNode(loc, PrimitiveEnum.INT)))
-                ));
+        node = ast.block(ast.returnStmt(), ast.varDeclStmt(ast.varDecl("ringo", ast.intType())));
         assertThrows(SemanticException.class, () -> node.accept(visitor));
     }
 

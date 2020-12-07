@@ -1,6 +1,5 @@
 package cyr7.ast.expr;
 
-import cyr7.ast.AbstractNode;
 import cyr7.ast.Node;
 import cyr7.semantics.types.FunctionType;
 import cyr7.util.Util;

@@ -16,14 +16,10 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import cyr7.C;
+import cyr7.ast.ASTFactory;
 import cyr7.ast.expr.ExprNode;
-import cyr7.ast.expr.FunctionCallExprNode;
-import cyr7.ast.expr.literalexpr.LiteralArrayExprNode;
-import cyr7.ast.expr.literalexpr.LiteralStringExprNode;
-import cyr7.ast.stmt.BlockStmtNode;
-import cyr7.ast.stmt.ProcedureStmtNode;
 import cyr7.ast.toplevel.FunctionDeclNode;
-import cyr7.ast.toplevel.FunctionHeaderDeclNode;
 import cyr7.ast.toplevel.XiProgramNode;
 import cyr7.cli.OptConfig;
 import cyr7.ir.ASTToIRVisitor;
@@ -44,6 +40,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 
 public final class Run {
 
+    private static final ASTFactory ast = new ASTFactory(C.LOC);
     public static final class RunConfiguration {
 
         public final String[] args;
@@ -51,7 +48,6 @@ public final class Run {
         public final boolean bigHeap;
 
         public final String stdin;
-
         public RunConfiguration() {
             this.args = new String[] { };
             this.bigHeap = false;
@@ -106,6 +102,7 @@ public final class Run {
         InputStream filePath = Run.class
             .getClassLoader()
             .getResourceAsStream("integration/" + filename + ".xi");
+        assert filePath != null;
         return new String(filePath.readAllBytes());
     }
 
@@ -133,29 +130,16 @@ public final class Run {
     }
 
     private static XiProgramNode addPremain(XiProgramNode toModify, String[] args) {
-        Location LOC = new Location(-1, -1);
-
         List<ExprNode> exprArgs = new ArrayList<>();
-        exprArgs.add(new LiteralStringExprNode(LOC, "asdlkfjasldfkjdbkljad"));
+        exprArgs.add(ast.string("asdlkfjasldfkjdbkljad"));
         for (String arg : args) {
-            exprArgs.add(new LiteralStringExprNode(LOC, arg));
+            exprArgs.add(ast.string(arg));
         }
 
-        FunctionDeclNode premain = new FunctionDeclNode(LOC,
-            new FunctionHeaderDeclNode(LOC,
-                "*premain*",
-                List.of(),
-                List.of()
-            ),
-            new BlockStmtNode(LOC, List.of(
-                new ProcedureStmtNode(LOC,
-                    new FunctionCallExprNode(LOC, "main", List.of(
-                        new LiteralArrayExprNode(LOC, exprArgs)
-                    ))
-                )
-            ))
-        );
-
+        FunctionDeclNode premain =
+                ast.funcDecl(ast.funcHeader("*premain*", List.of(), List.of()), ast.block(
+                        ast.procedure(ast.call("main", ast.array(exprArgs)))
+                ));
         List<FunctionDeclNode> functionDecls = new ArrayList<>(toModify.functions);
         functionDecls.add(premain);
 

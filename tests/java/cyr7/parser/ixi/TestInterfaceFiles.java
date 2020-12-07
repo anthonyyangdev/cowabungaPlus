@@ -3,12 +3,11 @@ package cyr7.parser.ixi;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import cyr7.C;
+import cyr7.ast.ASTFactory;
 import cyr7.ast.expr.ExprNode;
 import cyr7.ast.stmt.VarDeclNode;
 import cyr7.ast.toplevel.FunctionHeaderDeclNode;
@@ -29,6 +28,8 @@ import java_cup.runtime.ComplexSymbolFactory;
 import static cyr7.parser.util.ParserFactory.LOC;
 
 class TestInterfaceFiles {
+
+    private final ASTFactory ast = new ASTFactory(C.LOC);
 
     LinkedList<Optional<ExprNode>> generateEmptyList(int size) {
         LinkedList<Optional<ExprNode>> l = new LinkedList<>();
@@ -68,26 +69,23 @@ class TestInterfaceFiles {
 
         args = new LinkedList<>();
         returnTypes = new LinkedList<>();
-        function = new FunctionHeaderDeclNode(LOC, "main", args, returnTypes);
+        function = ast.funcHeader("main", args, returnTypes);
         functions = new LinkedList<>();
         functions.add(function);
-        expected = new IxiProgramNode(LOC, functions);
+        expected = ast.ixiProgram(functions);
         prgm = new StringReader("\nmain()\n");
         parser = new XiParser(new MultiFileLexer(prgm, "", true), new ComplexSymbolFactory());
         tree = parser.parse().value;
         assertEquals(tree, expected);
 
-        function = new FunctionHeaderDeclNode(LOC, "main", new LinkedList<>(),
-                new LinkedList<>());
-
+        function = ast.funcHeader("main", List.of(), List.of());
         String[] expectedNames = new String[]
             { "main", "trial", "run", "halt", "stop", "terminate", "kill" };
         functions = new LinkedList<>();
         for (String n : expectedNames) {
-            functions.add(new FunctionHeaderDeclNode(LOC, n, new LinkedList<>(),
-                    new LinkedList<>()));
+            functions.add(ast.funcHeader(n, List.of(), List.of()));
         }
-        expected = new IxiProgramNode(LOC, functions);
+        expected = ast.ixiProgram(functions);
         prgm = new StringReader("\nmain()\ntrial()\nrun()\n"
                 + "halt()stop()terminate()kill()");
         parser = new XiParser(new MultiFileLexer(prgm, "", true),
