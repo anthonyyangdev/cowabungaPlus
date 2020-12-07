@@ -30,22 +30,7 @@ import cyr7.ast.type.PrimitiveTypeNode;
 import cyr7.ast.type.TypeExprArrayNode;
 import cyr7.exceptions.lexer.LexerException;
 import cyr7.exceptions.parser.ParserException;
-import cyr7.exceptions.semantics.ArrayTypeExpectedException;
-import cyr7.exceptions.semantics.DuplicateIdentifierException;
-import cyr7.exceptions.semantics.EarlyReturnException;
-import cyr7.exceptions.semantics.ExpectedFunctionException;
-import cyr7.exceptions.semantics.InterfaceFileNotFoundException;
-import cyr7.exceptions.semantics.InvalidArgumentException;
-import cyr7.exceptions.semantics.InvalidInterfaceException;
-import cyr7.exceptions.semantics.InvalidReturnValueException;
-import cyr7.exceptions.semantics.MissingReturnException;
-import cyr7.exceptions.semantics.OrdinaryTypeExpectedException;
-import cyr7.exceptions.semantics.ReturnValueInUnitFunctionException;
-import cyr7.exceptions.semantics.SemanticException;
-import cyr7.exceptions.semantics.TypeMismatchException;
-import cyr7.exceptions.semantics.UnboundIdentifierException;
-import cyr7.exceptions.semantics.UncomparableValuesException;
-import cyr7.exceptions.semantics.UnsummableValuesException;
+import cyr7.exceptions.semantics.*;
 import cyr7.parser.ParserUtil;
 import cyr7.semantics.context.Context;
 import cyr7.semantics.context.HashMapStackContext;
@@ -95,6 +80,8 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
 
     private final Map<String, FunctionType> interfaceFuncDecls;
 
+    private final PureCheckVisitor pureChecker;
+
     /**
      * Initialize typecheck visitor with given Context {@code initialContext}.
      */
@@ -102,6 +89,7 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
         this.context = new HashMapStackContext();
         this.fileOpener = fileOpener;
         this.interfaceFuncDecls = new HashMap<>();
+        this.pureChecker = new PureCheckVisitor();
     }
 
     // Top Level
@@ -131,6 +119,11 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
             throw new MissingReturnException(n.getLocation());
         }
         context.pop();
+        if (n.header.isPure) {
+            var violation = pureChecker.visit(n.block);
+            if (violation != null)
+                throw new InvalidPureFunctionException(n.header.identifier, violation);
+        }
         return Result.ofVoid();
     }
 

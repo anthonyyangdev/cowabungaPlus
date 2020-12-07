@@ -219,7 +219,7 @@ FunctionPurity ::=
 
 FunctionHeaderDecl ::=
     FunctionPurity:p ID:id L_PAREN R_PAREN ReturnType:returnList {:
-            RESULT = ast(pxleft).funcHeader(id, List.of(), returnList);
+            RESULT = ast(pxleft).funcHeader(id, List.of(), returnList, p);
         :}
     | FunctionPurity:p ID:id L_PAREN VarDecl:v FunctionVarDeclList:l R_PAREN ReturnType:returnList {:
             l.addFirst(v);
