@@ -43,6 +43,8 @@ import cyr7.semantics.types.ResultType;
 import cyr7.semantics.types.UnitType;
 import cyr7.util.OneOfThree;
 import cyr7.visitor.AbstractVisitor;
+import cyr7.visitor.VisitorFactory;
+import java_cup.runtime.ComplexSymbolFactory;
 
 final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
 
@@ -80,7 +82,7 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
 
     private final Map<String, FunctionType> interfaceFuncDecls;
 
-    private final PureCheckVisitor pureChecker;
+    private final AbstractVisitor<ComplexSymbolFactory.Location> pureChecker;
 
     /**
      * Initialize typecheck visitor with given Context {@code initialContext}.
@@ -89,7 +91,7 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
         this.context = new HashMapStackContext();
         this.fileOpener = fileOpener;
         this.interfaceFuncDecls = new HashMap<>();
-        this.pureChecker = new PureCheckVisitor();
+        this.pureChecker = VisitorFactory.Companion.pureCheckVisitor();
     }
 
     // Top Level

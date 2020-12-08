@@ -31,7 +31,7 @@ import kotlin.collections.map
 import kotlin.collections.toList
 
 class ASTToIRTranslator(
-        val generator: IdGenerator,
+        val generator: IdGenerator
 ): AbstractVisitor<OneOfTwo<IRExpr, IRStmt>>() {
 
     private fun assemblyFunctionName(name: String, f: FunctionType): String {
@@ -704,7 +704,7 @@ class ASTToIRTranslator(
      * @param location
      * @return
      */
-    private fun visitArr(vals: kotlin.collections.List<IRExpr>,
+    private fun visitArr(vals: List<IRExpr>,
                          location: ComplexSymbolFactory.Location): OneOfTwo<IRExpr, IRStmt> {
         val make: IRNodeFactory = IRNodeFactory_c(location)
         val memBlockStart = generator.newTemp()
