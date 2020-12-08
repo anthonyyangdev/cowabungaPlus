@@ -33,7 +33,6 @@ import kotlin.collections.toList
 
 class ASTToIRTranslator(
         val generator: IdGenerator,
-        val pureCheck: PureCheckVisitor
 ): AbstractVisitor<OneOfTwo<IRExpr, IRStmt>>() {
 
     private fun assemblyFunctionName(name: String, f: FunctionType): String {
