@@ -1,7 +1,7 @@
 package cyr7.ast.expr.unaryexpr;
 
 import cyr7.ast.expr.ExprNode;
-import cyr7.visitor.AbstractVisitor;
+import cyr7.visitor.AstVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 /**
@@ -15,7 +15,7 @@ public final class IntNegExprNode extends UnaryExprNode {
     }
 
     @Override
-    public <T> T accept(AbstractVisitor<T> visitor) {
+    public <T> T accept(AstVisitor<T> visitor) {
         return visitor.visit(this);
     }
 

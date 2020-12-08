@@ -17,11 +17,11 @@ import cyr7.ast.toplevel.UseNode;
 import cyr7.ast.toplevel.XiProgramNode;
 import cyr7.ast.type.PrimitiveTypeNode;
 import cyr7.ast.type.TypeExprArrayNode;
-import cyr7.visitor.AbstractVisitor;
+import cyr7.visitor.AstVisitor;
 import cyr7.visitor.PostOrderReduceTraversal;
 
-class AstInvariantVisitor extends AbstractVisitor<Boolean>
-    implements PostOrderReduceTraversal.ReduceVisitor<Boolean> {
+class AstInvariantVisitor
+        implements AstVisitor<Boolean>, PostOrderReduceTraversal.ReduceVisitor<Boolean> {
 
     @Override
     public Boolean unit() {

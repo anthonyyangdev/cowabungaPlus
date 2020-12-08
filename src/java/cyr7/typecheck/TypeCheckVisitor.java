@@ -42,11 +42,11 @@ import cyr7.semantics.types.PrimitiveType;
 import cyr7.semantics.types.ResultType;
 import cyr7.semantics.types.UnitType;
 import cyr7.util.OneOfThree;
-import cyr7.visitor.AbstractVisitor;
+import cyr7.visitor.AstVisitor;
 import cyr7.visitor.VisitorFactory;
 import java_cup.runtime.ComplexSymbolFactory;
 
-final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
+final class TypeCheckVisitor implements AstVisitor<TypeCheckVisitor.Result> {
 
     static final class Result extends OneOfThree<ExpandedType, ResultType, Void> {
 
@@ -82,7 +82,7 @@ final class TypeCheckVisitor extends AbstractVisitor<TypeCheckVisitor.Result> {
 
     private final Map<String, FunctionType> interfaceFuncDecls;
 
-    private final AbstractVisitor<ComplexSymbolFactory.Location> pureChecker;
+    private final AstVisitor<ComplexSymbolFactory.Location> pureChecker;
 
     /**
      * Initialize typecheck visitor with given Context {@code initialContext}.

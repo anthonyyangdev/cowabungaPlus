@@ -17,7 +17,6 @@ import cyr7.ir.interpret.Configuration
 import cyr7.ir.nodes.*
 import cyr7.semantics.types.*
 import cyr7.util.OneOfTwo
-import cyr7.visitor.AbstractVisitor
 import java_cup.runtime.ComplexSymbolFactory
 import java.math.BigInteger
 import java.util.*
@@ -30,9 +29,7 @@ import kotlin.collections.listOf
 import kotlin.collections.map
 import kotlin.collections.toList
 
-class ASTToIRTranslator(
-        val generator: IdGenerator
-): AbstractVisitor<OneOfTwo<IRExpr, IRStmt>>() {
+class AstToIrVisitor(val generator: IdGenerator): IAstToIrVisitor {
 
     private fun assemblyFunctionName(name: String, f: FunctionType): String {
         return assemblyFunctionName(name, f.input, f.output)
@@ -178,7 +175,7 @@ class ASTToIRTranslator(
                 make.IRTemp(arrSize),
                 make.IRInteger(0))
         val createArray = if (n.child is TypeExprArrayNode) allocateArray(n.child, arraySizes)
-                          else make.IRInteger(0)
+        else make.IRInteger(0)
         val valueLoc: IRExpr = make.IRMem(make.IRBinOp(IRBinOp.OpType.ADD_INT,
                 make.IRTemp(pointerStart),
                 make.IRBinOp(IRBinOp.OpType.MUL_INT,

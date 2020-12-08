@@ -3,7 +3,7 @@ package cyr7.ast.expr.binexpr
 import cyr7.ast.Node
 import cyr7.ast.expr.AbstractExprNode
 import cyr7.ast.expr.ExprNode
-import cyr7.visitor.AbstractVisitor
+import cyr7.visitor.AstVisitor
 import java_cup.runtime.ComplexSymbolFactory
 
 open class BinOpExprNode(
@@ -35,7 +35,7 @@ open class BinOpExprNode(
         return other is BinOpExprNode && other.op == op && other.left == left && other.right == right
     }
 
-    override fun <T> accept(visitor: AbstractVisitor<T>): T {
+    override fun <T> accept(visitor: AstVisitor<T>): T {
         return visitor.visit(this)
     }
 

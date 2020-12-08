@@ -22,10 +22,10 @@ import cyr7.ir.nodes.IRName;
 import cyr7.ir.nodes.IRNodeFactory;
 import cyr7.ir.nodes.IRNodeFactory_c;
 import cyr7.ir.nodes.IRStmt;
-import cyr7.visitor.AbstractVisitor;
+import cyr7.visitor.AstVisitor;
 import cyr7.visitor.VisitorFactory;
 
-public final class CTranslationVisitor extends AbstractVisitor<IRStmt> {
+public final class CTranslationVisitor implements AstVisitor<IRStmt> {
 
     private final IdGenerator generator;
     private final String tLabel, fLabel;

@@ -12,13 +12,13 @@ import cyr7.ast.stmt.*
 import cyr7.ast.toplevel.*
 import cyr7.ast.type.PrimitiveTypeNode
 import cyr7.ast.type.TypeExprArrayNode
-import cyr7.visitor.AbstractVisitor
+import cyr7.visitor.AstVisitor
 import java_cup.runtime.ComplexSymbolFactory.Location
 
 /**
  * A visitor that returns True if the expression/statement is pure. Returns False otherwise.
  */
-class PureCheckVisitor: AbstractVisitor<Location?>() {
+class PureCheckVisitor: IPureCheckVisitor {
     override fun visit(n: FunctionDeclNode): Location? {
         return if (n.header.isPure) null else n.location
     }

@@ -3,7 +3,7 @@ package cyr7.ast.toplevel;
 import cyr7.ast.AbstractNode;
 import cyr7.ast.Node;
 import cyr7.util.Util;
-import cyr7.visitor.AbstractVisitor;
+import cyr7.visitor.AstVisitor;
 import java_cup.runtime.ComplexSymbolFactory;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public final class XiProgramNode extends AbstractNode {
     }
 
     @Override
-    public <T> T accept(AbstractVisitor<T> visitor) {
+    public <T> T accept(AstVisitor<T> visitor) {
         return visitor.visit(this);
     }
 
