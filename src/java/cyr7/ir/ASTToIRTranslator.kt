@@ -16,7 +16,6 @@ import cyr7.ast.type.TypeExprArrayNode
 import cyr7.ir.interpret.Configuration
 import cyr7.ir.nodes.*
 import cyr7.semantics.types.*
-import cyr7.typecheck.PureCheckVisitor
 import cyr7.util.OneOfTwo
 import cyr7.visitor.AbstractVisitor
 import java_cup.runtime.ComplexSymbolFactory

@@ -23,6 +23,7 @@ import cyr7.ir.nodes.IRNodeFactory;
 import cyr7.ir.nodes.IRNodeFactory_c;
 import cyr7.ir.nodes.IRStmt;
 import cyr7.visitor.AbstractVisitor;
+import cyr7.visitor.VisitorFactory;
 
 public final class CTranslationVisitor extends AbstractVisitor<IRStmt> {
 
@@ -76,7 +77,7 @@ public final class CTranslationVisitor extends AbstractVisitor<IRStmt> {
 
     private IRStmt cjump(ExprNode n) {
         IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
-        return make.IRCJump(n.accept(new ASTToIRVisitor(generator))
+        return make.IRCJump(n.accept(VisitorFactory.Companion.astToIrVisitor(generator))
                              .assertFirst(), tLabel, fLabel);
     }
 

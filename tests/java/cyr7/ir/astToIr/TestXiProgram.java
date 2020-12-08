@@ -10,7 +10,6 @@ import cyr7.ir.DefaultIdGenerator;
 import cyr7.C;
 import cyr7.ast.Node;
 import cyr7.ast.toplevel.XiProgramNode;
-import cyr7.ir.ASTToIRVisitor;
 import cyr7.ir.IdGenerator;
 import cyr7.ir.interpret.IRSimulator;
 import cyr7.ir.nodes.IRCompUnit;
@@ -19,6 +18,7 @@ import cyr7.ir.nodes.IRNode;
 import cyr7.lexer.MultiFileLexer;
 import cyr7.parser.XiParser;
 import cyr7.typecheck.TypeCheckUtil;
+import cyr7.visitor.VisitorFactory;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.ScannerBuffer;
 
@@ -26,12 +26,12 @@ class TestXiProgram {
 
     private static void assertEq(IRNode expected, Node toTransform) {
         assertEquals(expected,
-                toTransform.accept(new ASTToIRVisitor(new DefaultIdGenerator())).assertFirst());
+                toTransform.accept(VisitorFactory.Companion.astToIrVisitor(new DefaultIdGenerator())).assertFirst());
     }
 
     private static void assertEq(IRNode expected, Node toTransform,
             IdGenerator generator) {
-        assertEquals(expected, toTransform.accept(new ASTToIRVisitor(generator))
+        assertEquals(expected, toTransform.accept(VisitorFactory.Companion.astToIrVisitor(generator))
                 .assertFirst());
     }
 
@@ -42,7 +42,7 @@ class TestXiProgram {
         XiProgramNode node = (XiProgramNode) parser.parse().value;
         TypeCheckUtil.typeCheckNoIxiFiles(node);
         // Should be a statement
-        IRNode result = node.accept(new ASTToIRVisitor(new DefaultIdGenerator())).assertSecond();
+        IRNode result = node.accept(VisitorFactory.Companion.astToIrVisitor(new DefaultIdGenerator())).assertSecond();
         IRFuncDecl downcasted = (IRFuncDecl) result;
         IRCompUnit compUnit = new IRCompUnit(C.LOC, "test");
         compUnit.appendFunc(downcasted);

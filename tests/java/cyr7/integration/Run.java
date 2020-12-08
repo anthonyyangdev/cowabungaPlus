@@ -22,7 +22,6 @@ import cyr7.ast.expr.ExprNode;
 import cyr7.ast.toplevel.FunctionDeclNode;
 import cyr7.ast.toplevel.XiProgramNode;
 import cyr7.cli.OptConfig;
-import cyr7.ir.ASTToIRVisitor;
 import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.IRUtil;
 import cyr7.ir.IdGenerator;
@@ -34,6 +33,7 @@ import cyr7.ir.visit.CheckConstFoldedIRVisitor;
 import cyr7.parser.ParserUtil;
 import cyr7.typecheck.IxiFileOpener;
 import cyr7.typecheck.TypeCheckUtil;
+import cyr7.visitor.VisitorFactory;
 import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 import java_cup.runtime.ComplexSymbolFactory.Location;
@@ -157,7 +157,7 @@ public final class Run {
 
         IRCompUnit compUnit;
         {
-            IRNode node = result.accept(new ASTToIRVisitor(generator)).assertSecond();
+            IRNode node = result.accept(VisitorFactory.Companion.astToIrVisitor(generator)).assertSecond();
             assert node instanceof IRCompUnit;
             compUnit = (IRCompUnit) node;
         }
@@ -188,7 +188,7 @@ public final class Run {
 
         IRCompUnit compUnit;
         {
-            IRNode node = result.accept(new ASTToIRVisitor(generator)).assertSecond();
+            IRNode node = result.accept(VisitorFactory.Companion.astToIrVisitor(generator)).assertSecond();
             assert node instanceof IRCompUnit;
             compUnit = (IRCompUnit) node;
         }
