@@ -11,13 +11,7 @@ import cyr7.ast.ASTFactory;
 import org.junit.jupiter.api.Test;
 
 import cyr7.ast.Node;
-import cyr7.ast.expr.FunctionCallExprNode;
-import cyr7.ast.expr.access.ArrayAccessExprNode;
-import cyr7.ast.expr.access.VariableAccessExprNode;
 import cyr7.ast.expr.literalexpr.LiteralArrayExprNode;
-import cyr7.ast.expr.literalexpr.LiteralBoolExprNode;
-import cyr7.ast.expr.literalexpr.LiteralIntExprNode;
-import cyr7.ast.expr.literalexpr.LiteralStringExprNode;
 import cyr7.exceptions.semantics.SemanticException;
 import cyr7.semantics.types.ArrayType;
 import cyr7.semantics.context.Context;
