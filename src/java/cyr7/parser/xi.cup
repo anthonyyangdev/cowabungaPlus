@@ -67,6 +67,9 @@ terminal IXI_FILE, XI_FILE;
 // Punctuation
 terminal IF, ELSE, RETURN, USE, WHILE, LENGTH, FREE, FOR, DO;
 
+// Pure-Functions
+terminal PURE;
+
 // Identifier
 terminal String ID;
 
@@ -130,6 +133,7 @@ nonterminal LinkedList<TypeExprNode> ReturnTypeList;
 nonterminal XiProgramNode XiProgram;
 nonterminal LinkedList<UseNode> UseList;
 nonterminal LinkedList<FunctionDeclNode> FunctionDeclList;
+nonterminal Boolean FunctionPurity;
 nonterminal FunctionDeclNode FunctionDecl;
 
 nonterminal StmtNode XiStatement;
@@ -208,13 +212,18 @@ FunctionHeaderDeclList ::=
         :}
     ;
 
+FunctionPurity ::=
+    PURE {: RESULT = true; :}
+    | {: RESULT = false; :}
+    ;
+
 FunctionHeaderDecl ::=
-    ID:id L_PAREN R_PAREN ReturnType:returnList {:
-            RESULT = ast(idxleft).funcHeader(id, List.of(), returnList);
+    FunctionPurity:p ID:id L_PAREN R_PAREN ReturnType:returnList {:
+            RESULT = ast(pxleft).funcHeader(id, List.of(), returnList, p);
         :}
-    | ID:id L_PAREN VarDecl:v FunctionVarDeclList:l R_PAREN ReturnType:returnList {:
+    | FunctionPurity:p ID:id L_PAREN VarDecl:v FunctionVarDeclList:l R_PAREN ReturnType:returnList {:
             l.addFirst(v);
-            RESULT = ast(idxleft).funcHeader(id, l, returnList);
+            RESULT = ast(pxleft).funcHeader(id, l, returnList, p);
         :}
     ;
 

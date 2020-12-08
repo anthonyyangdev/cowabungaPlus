@@ -3,20 +3,16 @@ package cyr7.parser.ixi;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import cyr7.C;
+import cyr7.ast.ASTFactory;
 import cyr7.ast.expr.ExprNode;
 import cyr7.ast.stmt.VarDeclNode;
 import cyr7.ast.toplevel.FunctionHeaderDeclNode;
 import cyr7.ast.toplevel.IxiProgramNode;
 import cyr7.ast.type.TypeExprNode;
-import cyr7.ast.type.PrimitiveEnum;
-import cyr7.ast.type.PrimitiveTypeNode;
-import cyr7.ast.type.TypeExprArrayNode;
 import cyr7.exceptions.parser.ParserException;
 import cyr7.lexer.MultiFileLexer;
 import cyr7.parser.XiParser;
@@ -26,9 +22,9 @@ import org.junit.jupiter.api.Test;
 import cyr7.lexer.MyLexer;
 import java_cup.runtime.ComplexSymbolFactory;
 
-import static cyr7.parser.util.ParserFactory.LOC;
-
 class TestInterfaceFiles {
+
+    private final ASTFactory ast = new ASTFactory(C.LOC);
 
     LinkedList<Optional<ExprNode>> generateEmptyList(int size) {
         LinkedList<Optional<ExprNode>> l = new LinkedList<>();
@@ -68,26 +64,24 @@ class TestInterfaceFiles {
 
         args = new LinkedList<>();
         returnTypes = new LinkedList<>();
-        function = new FunctionHeaderDeclNode(LOC, "main", args, returnTypes);
+        function = ast.funcHeader("main", args, returnTypes);
         functions = new LinkedList<>();
         functions.add(function);
-        expected = new IxiProgramNode(LOC, functions);
+        expected = ast.ixiProgram(functions);
         prgm = new StringReader("\nmain()\n");
-        parser = new XiParser(new MultiFileLexer(prgm, "", true), new ComplexSymbolFactory());
+        parser = new XiParser(new MultiFileLexer(prgm, "", true),
+                new ComplexSymbolFactory());
         tree = parser.parse().value;
         assertEquals(tree, expected);
 
-        function = new FunctionHeaderDeclNode(LOC, "main", new LinkedList<>(),
-                new LinkedList<>());
-
+        function = ast.funcHeader("main", List.of(), List.of());
         String[] expectedNames = new String[]
             { "main", "trial", "run", "halt", "stop", "terminate", "kill" };
         functions = new LinkedList<>();
         for (String n : expectedNames) {
-            functions.add(new FunctionHeaderDeclNode(LOC, n, new LinkedList<>(),
-                    new LinkedList<>()));
+            functions.add(ast.funcHeader(n, List.of(), List.of()));
         }
-        expected = new IxiProgramNode(LOC, functions);
+        expected = ast.ixiProgram(functions);
         prgm = new StringReader("\nmain()\ntrial()\nrun()\n"
                 + "halt()stop()terminate()kill()");
         parser = new XiParser(new MultiFileLexer(prgm, "", true),
@@ -109,29 +103,21 @@ class TestInterfaceFiles {
 
         args = new LinkedList<>();
         VarDeclNode[] d = new VarDeclNode[] {
-            new VarDeclNode(LOC, "b",
-                    TypeExprNode.fromDimensionList(
-                            new PrimitiveTypeNode(LOC, PrimitiveEnum.INT),
-                            this.generateEmptyList(1)
-                        )
-                    ),
-            new VarDeclNode(LOC, "c",
-                    TypeExprNode.fromDimensionList(
-                            new PrimitiveTypeNode(LOC, PrimitiveEnum.INT),
-                            this.generateEmptyList(3)
-                            )
-                    ),
-            new VarDeclNode(LOC, "d",
-                    new PrimitiveTypeNode(LOC, PrimitiveEnum.BOOL)),
+                ast.varDecl("b",
+                        TypeExprNode.fromDimensionList(ast.intType(), this.generateEmptyList(1))),
+                ast.varDecl("c",
+                        TypeExprNode.fromDimensionList(ast.intType(), this.generateEmptyList(3))),
+                ast.varDecl("d", ast.boolType()),
         };
         Collections.addAll(args, d);
         returnTypes = new LinkedList<>();
-        function = new FunctionHeaderDeclNode(LOC, "main", args, returnTypes);
+        function = ast.funcHeader("main", args, returnTypes);
         functions = new LinkedList<>();
         functions.add(function);
-        expected = new IxiProgramNode(LOC, functions);
+        expected = ast.ixiProgram(functions);
         prgm = new StringReader("\nmain(b: int[], c: int[][][], d: bool)\n");
-        parser = new XiParser(new MultiFileLexer(prgm, "", true), new ComplexSymbolFactory());
+        parser = new XiParser(new MultiFileLexer(prgm, "", true),
+                new ComplexSymbolFactory());
         tree = parser.parse().value;
         assertEquals(tree, expected);
     }
@@ -151,11 +137,11 @@ class TestInterfaceFiles {
 
         args = new LinkedList<>();
         returnTypes = new LinkedList<>();
-        returnTypes.add(new PrimitiveTypeNode(LOC, PrimitiveEnum.INT));
-        function = new FunctionHeaderDeclNode(LOC, "main", args, returnTypes);
+        returnTypes.add(ast.intType());
+        function = ast.funcHeader("main", args, returnTypes);
         functions = new LinkedList<>();
         functions.add(function);
-        expected = new IxiProgramNode(LOC, functions);
+        expected = ast.ixiProgram(functions);
         prgm = new StringReader("\nmain(): int\n");
         MyLexer lex = new MultiFileLexer(prgm, "", true);
         parser = new XiParser(new MultiFileLexer(prgm, "", true),
@@ -166,18 +152,17 @@ class TestInterfaceFiles {
         args.clear();
         returnTypes.clear();
         TypeExprNode[] types = new TypeExprNode[]{
-                new PrimitiveTypeNode(LOC, PrimitiveEnum.INT),
-                new PrimitiveTypeNode(LOC, PrimitiveEnum.BOOL),
-                new PrimitiveTypeNode(LOC, PrimitiveEnum.INT),
-                new PrimitiveTypeNode(LOC, PrimitiveEnum.BOOL),
-                new PrimitiveTypeNode(LOC, PrimitiveEnum.BOOL),
-                new PrimitiveTypeNode(LOC, PrimitiveEnum.BOOL)
-        };
+                ast.intType(),
+                ast.boolType(),
+                ast.intType(),
+                ast.boolType(),
+                ast.boolType(),
+                ast.boolType()};
         returnTypes.addAll(Arrays.asList(types));
-        function = new FunctionHeaderDeclNode(LOC, "main", args, returnTypes);
+        function = ast.funcHeader("main", args, returnTypes);
         functions = new LinkedList<>();
         functions.add(function);
-        expected = new IxiProgramNode(LOC, functions);
+        expected = ast.ixiProgram(functions);
         prgm = new StringReader("\nmain(): int, bool, int, bool, bool, bool\n");
         parser = new XiParser(new MultiFileLexer(prgm, "", true),
                 new ComplexSymbolFactory());
@@ -193,17 +178,17 @@ class TestInterfaceFiles {
         };
 
         for (int d: arrayDimensions) {
-            TypeExprNode type = new PrimitiveTypeNode(LOC, PrimitiveEnum.INT);
+            TypeExprNode type = ast.intType();
             for (int i = 0; i < d; i++) {
-                type = new TypeExprArrayNode(LOC, type, Optional.empty());
+                type = ast.arrayType(type);
             }
             returnTypes.add(type);
         }
 
-        function = new FunctionHeaderDeclNode(LOC, "main", args, returnTypes);
+        function = ast.funcHeader("main", args, returnTypes);
         functions = new LinkedList<>();
         functions.add(function);
-        expected = new IxiProgramNode(LOC, functions);
+        expected = ast.ixiProgram(functions);
         String prgmString = "main():" + Arrays.stream(arrayDimensions)
             .map(d -> "int" + "[]".repeat(Math.max(0, d)))
             .collect(Collectors.joining(", "));
@@ -229,48 +214,33 @@ class TestInterfaceFiles {
 
         args = new LinkedList<>();
         VarDeclNode[] d = new VarDeclNode[] {
-            new VarDeclNode(LOC, "b",
-                    TypeExprNode.fromDimensionList(
-                            new PrimitiveTypeNode(LOC, PrimitiveEnum.INT),
-                            this.generateEmptyList(1)
-                        )
-                    ),
-            new VarDeclNode(LOC, "c",
-                    TypeExprNode.fromDimensionList(
-                            new PrimitiveTypeNode(LOC, PrimitiveEnum.INT),
-                            this.generateEmptyList(3)
-                            )
-                    ),
-            new VarDeclNode(LOC, "d",
-                    new PrimitiveTypeNode(LOC, PrimitiveEnum.BOOL)),
+                ast.varDecl("b", TypeExprNode.fromDimensionList(
+                        ast.intType(),
+                        this.generateEmptyList(1)
+                )),
+                ast.varDecl("c", TypeExprNode.fromDimensionList(
+                        ast.intType(), this.generateEmptyList(3)
+                )),
+                ast.varDecl("d", ast.boolType())
         };
         Collections.addAll(args, d);
 
         returnTypes = new LinkedList<>();
         TypeExprNode[] types = new TypeExprNode[]{
-                TypeExprNode.fromDimensionList(
-                        new PrimitiveTypeNode(LOC, PrimitiveEnum.INT),
-                        this.generateEmptyList(1)
-                        ),
-                new PrimitiveTypeNode(LOC, PrimitiveEnum.BOOL),
-                TypeExprNode.fromDimensionList(
-                        new PrimitiveTypeNode(LOC, PrimitiveEnum.INT),
-                        this.generateEmptyList(5)
-                        ),
-                new PrimitiveTypeNode(LOC, PrimitiveEnum.BOOL),
-                new PrimitiveTypeNode(LOC, PrimitiveEnum.BOOL),
-                TypeExprNode.fromDimensionList(
-                        new PrimitiveTypeNode(LOC, PrimitiveEnum.BOOL),
-                        this.generateEmptyList(3)
-                        )
+                TypeExprNode.fromDimensionList(ast.intType(), this.generateEmptyList(1)),
+                ast.boolType(),
+                TypeExprNode.fromDimensionList(ast.intType(), this.generateEmptyList(5)),
+                ast.boolType(),
+                ast.boolType(),
+                TypeExprNode.fromDimensionList(ast.boolType(), this.generateEmptyList(3))
         };
         Collections.addAll(returnTypes, types);
 
 
-        function = new FunctionHeaderDeclNode(LOC, "main", args, returnTypes);
+        function = ast.funcHeader("main", args, returnTypes);
         functions = new LinkedList<>();
         functions.add(function);
-        expected = new IxiProgramNode(LOC, functions);
+        expected = ast.ixiProgram(functions);
         prgm = new StringReader("\nmain(b: int[], c: int[][][], d: bool): "
                 + "int[], bool, int[][][][][], bool, bool, bool[][][]\n");
         parser = new XiParser(new MultiFileLexer(prgm, "", true),

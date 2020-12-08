@@ -1,60 +1,28 @@
 package cyr7.parser.xi;
 
-import cyr7.ast.expr.literalexpr.LiteralArrayExprNode;
-import cyr7.ast.expr.FunctionCallExprNode;
-import cyr7.ast.expr.literalexpr.LiteralIntExprNode;
-import cyr7.ast.stmt.ProcedureStmtNode;
+import cyr7.C;
+import cyr7.ast.ASTFactory;
+import cyr7.ast.Node;
 import cyr7.ast.stmt.StmtNode;
 import cyr7.parser.util.ParserFactory;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static cyr7.parser.util.ParserFactory.LOC;
-
 public class TestProcedureStatememt {
+
+    private final ASTFactory ast = new ASTFactory(C.LOC);
 
     @Test
     void testProcedureStatement() throws Exception {
         StmtNode statement = ParserFactory.parseStatement("f()").get(0);
-        assertEquals(statement, new ProcedureStmtNode(
-            LOC,
-            new FunctionCallExprNode(
-                LOC,
-                "f",
-                List.of()
-            )
-        ));
+        Node expected = ast.procedure(ast.call("f"));
+        assertEquals(expected, statement);
 
         statement = ParserFactory.parseStatement("lengthy({5, 10, 15})").get(0);
-        assertEquals(statement, new ProcedureStmtNode(
-            LOC,
-            new FunctionCallExprNode(
-                LOC,
-                "lengthy",
-                List.of(
-                    new LiteralArrayExprNode(
-                        LOC,
-                        List.of(
-                            new LiteralIntExprNode(
-                                LOC,
-                                "5"
-                            ),
-                            new LiteralIntExprNode(
-                                LOC,
-                                "10"
-                            ),
-                            new LiteralIntExprNode(
-                                LOC,
-                                "15"
-                            )
-                        )
-                    )
-                )
-            )
-        ));
+        expected = ast.procedure(ast.call("f",
+                ast.array(ast.integer(5), ast.integer(10), ast.integer(15))));
+        assertEquals(expected, statement);
     }
 
 }

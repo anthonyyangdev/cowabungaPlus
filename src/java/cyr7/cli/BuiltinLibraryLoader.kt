@@ -10,20 +10,37 @@ import java.util.jar.JarFile
 
 class BuiltinLibraryLoader(val libRoot: File) {
 
-    private val builtinLibrariesPath: Map<String, File>?
-    private val builtinLibrariesJars: Map<String, JarEntry>?
-    private val jarFile: JarFile?
+    sealed class Library {
+        abstract fun get(filename: String): Reader?
+        class JarLibrary(private val jarFile: JarFile, private val libraries: Map<String, JarEntry>): Library() {
+            override fun get(filename: String): Reader? {
+                return libraries[filename]?.let { e ->
+                    val inputStream = jarFile.getInputStream(e)
+                    InputStreamReader(inputStream)
+                }
+            }
+        }
+        class FileLibrary(private val libraries: Map<String, File>): Library() {
+            override fun get(filename: String): Reader? {
+                return libraries[filename]?.let { f ->
+                        val inputStream = FileInputStream(f)
+                        InputStreamReader(inputStream)
+                }
+            }
+        }
+    }
+
+    private val library: Library
     init {
         val cl = this.javaClass.classLoader
         val libraryPath = cl.getResource("builtin")
                 ?: throw RuntimeException("Cannot find builtin resource directory")
         when {
             libraryPath.toString().startsWith("jar") -> {
-                builtinLibrariesPath = null
                 val codeSource = this.javaClass.protectionDomain.codeSource
-                jarFile = JarFile(codeSource.location.path)
+                val jarFile = JarFile(codeSource.location.path)
                 val jarEntries = jarFile.entries()
-                builtinLibrariesJars = jarEntries.toList().mapNotNull { entry ->
+                val builtinLibrariesJars = jarEntries.toList().mapNotNull { entry ->
                     val name = entry.name
                     if (name.matches(Regex("^builtin/.+"))) {
                         Paths.get(name).fileName.toString() to entry
@@ -31,46 +48,24 @@ class BuiltinLibraryLoader(val libRoot: File) {
                         null
                     }
                 }.toMap()
+                library = Library.JarLibrary(jarFile, builtinLibrariesJars)
             }
             libraryPath.toString().startsWith("file") -> {
-                builtinLibrariesJars = null
-                jarFile = null
-                builtinLibrariesPath = File(libraryPath.toURI()).listFiles()?.mapNotNull {
+                val builtinLibrariesPath = File(libraryPath.toURI()).listFiles()?.mapNotNull {
                     Path.of(it.toURI()).fileName.toString() to it
                 }?.toMap() ?: throw RuntimeException("Cannot find resource")
+                library = Library.FileLibrary(builtinLibrariesPath)
             }
             else -> {
                 throw RuntimeException("Cannot find builtin resource directory")
             }
         }
     }
-
     fun getIxiFileOpener(): IxiFileOpener {
         return IxiFileOpener{ interfaceName -> this.getLibraryReader("$interfaceName.ixi")}
     }
-
     private fun getLibraryReader(filename: String): Reader {
-        when {
-            builtinLibrariesJars != null -> {
-                return builtinLibrariesJars[filename].let { e ->
-                    if (e != null) {
-                        val inputStream = jarFile!!.getInputStream(e)
-                        InputStreamReader(inputStream)
-                    } else getLibraryFromUserSpace(filename)
-                }
-            }
-            builtinLibrariesPath != null -> {
-                return builtinLibrariesPath[filename].let { f ->
-                    if (f != null) {
-                        val inputStream = FileInputStream(f)
-                        InputStreamReader(inputStream)
-                    } else getLibraryFromUserSpace(filename)
-                }
-            }
-            else -> {
-                throw RuntimeException("Improper library setup")
-            }
-        }
+        return this.library.get(filename) ?: getLibraryFromUserSpace(filename)
     }
     private fun getLibraryFromUserSpace(filename: String): Reader {
         val sourcePath = Paths.get(libRoot.absolutePath, filename)

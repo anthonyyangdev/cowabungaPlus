@@ -110,6 +110,7 @@ object LexerUtil {
             sym.EOF -> "EOF"
             sym.FOR -> "for"
             sym.DO -> "do"
+            sym.PURE -> "pure"
             sym.error -> throw RuntimeException("Lexer should not output the parser error symbol: $value")
             else -> throw RuntimeException("Token $symId is missing a description.")
         }

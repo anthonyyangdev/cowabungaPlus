@@ -1,6 +1,5 @@
 package cyr7.ast.expr.literalexpr;
 
-import cyr7.ast.AbstractNode;
 import cyr7.ast.Node;
 import cyr7.ast.expr.AbstractExprNode;
 import cyr7.ast.expr.ExprNode;
