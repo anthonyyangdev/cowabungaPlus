@@ -16,6 +16,7 @@ import cyr7.ast.type.TypeExprArrayNode
 import cyr7.ir.interpret.Configuration
 import cyr7.ir.nodes.*
 import cyr7.semantics.types.*
+import cyr7.typecheck.PureCheckVisitor
 import cyr7.util.OneOfTwo
 import cyr7.visitor.AbstractVisitor
 import java_cup.runtime.ComplexSymbolFactory
@@ -30,7 +31,10 @@ import kotlin.collections.listOf
 import kotlin.collections.map
 import kotlin.collections.toList
 
-class ASTToIRTranslator(val generator: IdGenerator): AbstractVisitor<OneOfTwo<IRExpr, IRStmt>>() {
+class ASTToIRTranslator(
+        val generator: IdGenerator,
+        val pureCheck: PureCheckVisitor
+): AbstractVisitor<OneOfTwo<IRExpr, IRStmt>>() {
 
     private fun assemblyFunctionName(name: String, f: FunctionType): String {
         return assemblyFunctionName(name, f.input, f.output)
@@ -486,11 +490,9 @@ class ASTToIRTranslator(val generator: IdGenerator): AbstractVisitor<OneOfTwo<IR
         val summedArrSize = generator.newTemp()
         val summedArrAddr = generator.newTemp()
         seq.add(make.IRMove(make.IRTemp(leftArrAddr),
-                n.left.accept(this)
-                        .assertFirst()))
+                n.left.accept(this).assertFirst()))
         seq.add(make.IRMove(make.IRTemp(rightArrAddr),
-                n.right.accept(this)
-                        .assertFirst()))
+                n.right.accept(this).assertFirst()))
         seq.add(make.IRMove(make.IRTemp(leftArrSize),
                 make.IRMem(make.IRBinOp(IRBinOp.OpType.SUB_INT,
                         make.IRTemp(leftArrAddr),
