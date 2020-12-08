@@ -6,6 +6,7 @@ Xi Compiler originally branched from [group project](https://github.com/connorre
 
 - Freeing memory
 - Float values
+- Pure function declarations
 
 ## Setup
 
