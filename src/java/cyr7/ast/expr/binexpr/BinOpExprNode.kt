@@ -8,8 +8,11 @@ import java_cup.runtime.ComplexSymbolFactory
 
 open class BinOpExprNode(
         loc: ComplexSymbolFactory.Location,
-        val op: OpType, val left: ExprNode, val right: ExprNode): AbstractExprNode(loc) {
-    enum class OpType {
+        val op: BinopType, val left: ExprNode, val right: ExprNode): AbstractExprNode(loc) {
+    override fun equals(other: Any?): Boolean {
+        return other is BinOpExprNode && other.op == op && other.left == left && other.right == right
+    }
+    enum class BinopType {
         ADD, SUB, MUL, DIV, REM, HIGH_MUL, LTE, LT, GTE, GT, NEQ, EQ, OR, AND;
         override fun toString(): String {
             return when (this) {
@@ -31,9 +34,6 @@ open class BinOpExprNode(
         }
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other is BinOpExprNode && other.op == op && other.left == left && other.right == right
-    }
 
     override fun <T> accept(visitor: AstVisitor<T>): T {
         return visitor.visit(this)

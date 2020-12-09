@@ -452,20 +452,20 @@ class AstToIrVisitor(val generator: IdGenerator): IAstToIrVisitor {
 
     override fun visit(n: BinOpExprNode): OneOfTwo<IRExpr, IRStmt> {
         return when (n.op) {
-            BinOpExprNode.OpType.ADD -> add(n)
-            BinOpExprNode.OpType.SUB -> sub(n)
-            BinOpExprNode.OpType.MUL -> mul(n)
-            BinOpExprNode.OpType.DIV -> div(n)
-            BinOpExprNode.OpType.REM -> rem(n)
-            BinOpExprNode.OpType.HIGH_MUL -> highMul(n)
-            BinOpExprNode.OpType.LTE -> lte(n)
-            BinOpExprNode.OpType.LT -> lt(n)
-            BinOpExprNode.OpType.GTE -> gte(n)
-            BinOpExprNode.OpType.GT -> gt(n)
-            BinOpExprNode.OpType.NEQ -> neq(n)
-            BinOpExprNode.OpType.EQ -> eq(n)
-            BinOpExprNode.OpType.OR -> or(n)
-            BinOpExprNode.OpType.AND -> and(n)
+            BinOpExprNode.BinopType.ADD -> add(n)
+            BinOpExprNode.BinopType.SUB -> sub(n)
+            BinOpExprNode.BinopType.MUL -> mul(n)
+            BinOpExprNode.BinopType.DIV -> div(n)
+            BinOpExprNode.BinopType.REM -> rem(n)
+            BinOpExprNode.BinopType.HIGH_MUL -> highMul(n)
+            BinOpExprNode.BinopType.LTE -> lte(n)
+            BinOpExprNode.BinopType.LT -> lt(n)
+            BinOpExprNode.BinopType.GTE -> gte(n)
+            BinOpExprNode.BinopType.GT -> gt(n)
+            BinOpExprNode.BinopType.NEQ -> neq(n)
+            BinOpExprNode.BinopType.EQ -> eq(n)
+            BinOpExprNode.BinopType.OR -> or(n)
+            BinOpExprNode.BinopType.AND -> and(n)
         }
     }
 

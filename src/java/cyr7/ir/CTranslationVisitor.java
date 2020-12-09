@@ -43,7 +43,7 @@ public final class CTranslationVisitor implements AstVisitor<IRStmt> {
 
     @Override
     public IRStmt visit(BinOpExprNode n) {
-        if (n.getOp() == BinOpExprNode.OpType.OR) {
+        if (n.getOp() == BinOpExprNode.BinopType.OR) {
             IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
             String fPrime = generator.newLabel();
             return make.IRSeq(
@@ -52,7 +52,7 @@ public final class CTranslationVisitor implements AstVisitor<IRStmt> {
                     make.IRLabel(fPrime),
                     n.getRight().accept(new CTranslationVisitor(generator, tLabel,
                             fLabel)));
-        } else if (n.getOp() == BinOpExprNode.OpType.AND) {
+        } else if (n.getOp() == BinOpExprNode.BinopType.AND) {
             IRNodeFactory make = new IRNodeFactory_c(n.getLocation());
             String tPrime = generator.newLabel();
             return make.IRSeq(
