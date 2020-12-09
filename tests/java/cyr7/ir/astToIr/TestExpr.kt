@@ -3,12 +3,12 @@ package cyr7.ir.astToIr
 import cyr7.C
 import cyr7.ast.ASTFactory
 import cyr7.ast.Node
-import cyr7.ir.ASTToIRVisitor
 import cyr7.ir.DefaultIdGenerator
 import cyr7.ir.IdGenerator
 import cyr7.ir.nodes.*
 import cyr7.semantics.types.PrimitiveType
 import cyr7.typecheck.TypeCheckUtil
+import cyr7.visitor.VisitorFactory
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -164,12 +164,12 @@ internal class TestExpr {
         private fun assertEq(expected: IRNode, toTransform: Node) {
             TypeCheckUtil.typeCheckNoIxiFiles(toTransform)
             Assertions.assertEquals(expected,
-                    toTransform.accept(ASTToIRVisitor(DefaultIdGenerator())).assertFirst())
+                    toTransform.accept(VisitorFactory.astToIrVisitor(DefaultIdGenerator())).assertFirst())
         }
 
         private fun assertEq(expected: IRNode, toTransform: Node,
                              generator: IdGenerator) {
-            Assertions.assertEquals(expected, toTransform.accept(ASTToIRVisitor(generator))
+            Assertions.assertEquals(expected, toTransform.accept(VisitorFactory.astToIrVisitor(generator))
                     .assertFirst())
         }
     }

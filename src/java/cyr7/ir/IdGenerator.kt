@@ -1,31 +1,28 @@
-package cyr7.ir;
+package cyr7.ir
 
 /**
  * Generates temporary names, argument temps, return value temps, and label
  * names. No two names created by an instance of IdGenerator are the same.
  */
-public interface IdGenerator {
-
+interface IdGenerator {
     /**
      * Creates a new label.
      */
-    String newLabel();
+    fun newLabel(): String
 
     /**
      * Creates a new temporary name.
      */
-    String newTemp();
-
-    String newTemp(String description);
+    fun newTemp(): String
+    fun newTemp(description: String): String
 
     /**
      * Generating a temp for the nth return value
      */
-    String retTemp(int n);
+    fun retTemp(n: Int): String
 
     /**
      * Generating a temp for the nth argument.
      */
-    String argTemp(int n);
-
+    fun argTemp(n: Int): String
 }

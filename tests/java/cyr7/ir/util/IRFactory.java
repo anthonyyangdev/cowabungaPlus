@@ -1,33 +1,30 @@
 package cyr7.ir.util;
 
 import cyr7.ast.AbstractNode;
-import cyr7.ir.ASTToIRVisitor;
 import cyr7.ir.DefaultIdGenerator;
 import cyr7.ir.interpret.IRSimulator;
 import cyr7.ir.nodes.IRCompUnit;
 import cyr7.ir.nodes.IRFuncDecl;
 import cyr7.ir.nodes.IRNode;
 import cyr7.ir.nodes.IRStmt;
+import cyr7.visitor.VisitorFactory;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 public class IRFactory {
 
     public static IRNode parseAstExpr(AbstractNode astNode) {
-        ASTToIRVisitor visitor = new ASTToIRVisitor(new DefaultIdGenerator());
-        IRNode result = astNode.accept(visitor).assertFirst();
-        return result;
+        var visitor = VisitorFactory.Companion.astToIrVisitor(new DefaultIdGenerator());
+        return astNode.accept(visitor).assertFirst();
     }
 
     public static IRNode parseAstStmt(AbstractNode astNode) {
-        ASTToIRVisitor visitor = new ASTToIRVisitor(new DefaultIdGenerator());
-        IRNode result = astNode.accept(visitor).assertSecond();
-        return result;
+        var visitor = VisitorFactory.Companion.astToIrVisitor(new DefaultIdGenerator());
+        return astNode.accept(visitor).assertSecond();
     }
 
     public static long testStmts(IRStmt irStmts) {
         Location loc = new Location(-1, -1);
-        IRStmt bBody = irStmts;
-        IRFuncDecl bFunc = new IRFuncDecl(loc, "function", bBody);
+        IRFuncDecl bFunc = new IRFuncDecl(loc, "function", irStmts);
         IRCompUnit compUnit = new IRCompUnit(loc, "test");
         compUnit.appendFunc(bFunc);
 

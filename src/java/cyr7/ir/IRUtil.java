@@ -23,6 +23,7 @@ import cyr7.ir.visit.CheckConstFoldedIRVisitor;
 import cyr7.parser.ParserUtil;
 import cyr7.typecheck.IxiFileOpener;
 import cyr7.typecheck.TypeCheckUtil;
+import cyr7.visitor.VisitorFactory;
 import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 
@@ -141,7 +142,7 @@ public class IRUtil {
 
         IdGenerator generator = new DefaultIdGenerator();
         IRCompUnit compUnit = (IRCompUnit)
-            result.accept(new ASTToIRVisitor(generator)).assertSecond();
+            result.accept(VisitorFactory.Companion.astToIrVisitor(generator)).assertSecond();
 
         IRSimulator sim = new IRSimulator(compUnit);
         long retVal = sim.call("_Imain_paai");
@@ -223,7 +224,8 @@ public class IRUtil {
         Node result = ParserUtil.parseNode(reader, filename, false);
         TypeCheckUtil.typeCheck(result, fileOpener);
 
-        IRCompUnit compUnit = (IRCompUnit) result.accept(new ASTToIRVisitor(generator)).assertSecond();
+        IRCompUnit compUnit = (IRCompUnit) result.accept(
+                VisitorFactory.Companion.astToIrVisitor(generator)).assertSecond();
         compUnit = compUnit.accept(new LoweringVisitor(generator)).assertThird();
         return TraceOptimizer.optimize(compUnit, generator);
     }
@@ -239,7 +241,7 @@ public class IRUtil {
         TypeCheckUtil.typeCheck(result, fileOpener);
 
         IRCompUnit compUnit = (IRCompUnit)
-            result.accept(new ASTToIRVisitor(generator)).assertSecond();
+            result.accept(VisitorFactory.Companion.astToIrVisitor(generator)).assertSecond();
 
         return lower(compUnit, generator, optConfig);
     }

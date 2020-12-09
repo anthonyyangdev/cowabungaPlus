@@ -2,7 +2,7 @@ package cyr7.visitor;
 
 import cyr7.ast.Node;
 
-public class PostOrderReduceTraversal<T, V extends AbstractVisitor<T> & PostOrderReduceTraversal.ReduceVisitor<T>> {
+public class PostOrderReduceTraversal<T, V extends AstVisitor<T> & PostOrderReduceTraversal.ReduceVisitor<T>> {
 
     public interface ReduceVisitor<T> {
         T unit();

@@ -16,7 +16,7 @@ import cyr7.ast.type.PrimitiveTypeNode;
 import cyr7.ast.type.TypeExprArrayNode;
 import cyr7.ast.type.TypeExprNode;
 import cyr7.util.Util;
-import cyr7.visitor.AbstractVisitor;
+import cyr7.visitor.AstVisitor;
 import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 
@@ -24,7 +24,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Optional;
 
-public final class SExpVisitor extends AbstractVisitor<Optional<Void>> {
+public final class SExpVisitor implements AstVisitor<Optional<Void>> {
 
     private final SExpPrinter printer;
 
