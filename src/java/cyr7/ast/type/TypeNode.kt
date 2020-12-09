@@ -2,15 +2,15 @@ package cyr7.ast.type
 
 import cyr7.ast.Node
 import cyr7.ast.expr.ExprNode
-import cyr7.visitor.AbstractVisitor
+import cyr7.visitor.AstVisitor
 import java_cup.runtime.ComplexSymbolFactory.Location
 
 sealed class TypeNode(location: Location): TypeExprNode(location) {
     class UnionTypeNode(loc: Location, vararg val types: TypeNode): TypeNode(loc) {
         override fun equals(other: Any?): Boolean {
-            return other is TupleTypeNode && other.types.contentEquals(types)
+            return other is UnionTypeNode && other.types.contentEquals(types)
         }
-        override fun <T> accept(visitor: AbstractVisitor<T>): T {
+        override fun <T> accept(visitor: AstVisitor<T>): T {
             TODO("Not yet implemented")
         }
         override fun hashCode(): Int {
@@ -23,7 +23,7 @@ sealed class TypeNode(location: Location): TypeExprNode(location) {
         override fun equals(other: Any?): Boolean {
             return other is TupleTypeNode && other.types.contentEquals(types)
         }
-        override fun <T> accept(visitor: AbstractVisitor<T>): T {
+        override fun <T> accept(visitor: AstVisitor<T>): T {
             TODO("Not yet implemented")
         }
         override fun hashCode(): Int {
@@ -36,7 +36,7 @@ sealed class TypeNode(location: Location): TypeExprNode(location) {
         override fun equals(other: Any?): Boolean {
             return other is PrimitiveTypeNode && other.type == type
         }
-        override fun <T> accept(visitor: AbstractVisitor<T>): T {
+        override fun <T> accept(visitor: AstVisitor<T>): T {
             TODO("Not yet implemented")
         }
         override fun hashCode(): Int {
@@ -51,7 +51,7 @@ sealed class TypeNode(location: Location): TypeExprNode(location) {
         override fun equals(other: Any?): Boolean {
             return other is TypeExprArrayNode && other.child == child && other.size == size
         }
-        override fun <T> accept(visitor: AbstractVisitor<T>): T {
+        override fun <T> accept(visitor: AstVisitor<T>): T {
             TODO("Not yet implemented")
         }
         override fun hashCode(): Int {
